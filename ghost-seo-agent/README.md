@@ -2,7 +2,7 @@
 
 A free Claude Code skill for Ghost publishers. Runs a fully autonomous SEO audit — pulls non-indexed URLs from Google Search Console, diagnoses each one, applies metadata fixes directly to your Ghost posts, and submits re-indexing requests. No CSV exports, no clicking through dashboards.
 
-Questions or issues: **seo@uristocrat.com**
+**Need help?** Email **seo@uristocrat.com** or visit **[skills.uristocrat.com](https://skills.uristocrat.com)**
 
 ---
 
@@ -20,73 +20,134 @@ Questions or issues: **seo@uristocrat.com**
 
 ## Requirements
 
-- **[Claude Code](https://claude.ai/code)** — the CLI or desktop app
-- **Ghost MCP** — connects Claude to your Ghost Admin API so it can read and edit posts
-- **Browser tool** — Claude in Chrome (browser extension) or Cowork for full autonomous mode
+Before you start, you need three things:
+
+1. **[Claude Code](https://claude.ai/code)** — the desktop app or CLI (free tier works)
+2. **Ghost MCP server** — a local server that lets Claude talk to your Ghost site
+3. **Browser access** — the Claude in Chrome extension for full autonomous mode
 
 ---
 
 ## Installation
 
-### 1. Connect Ghost MCP to Claude Code
+### Step 1 — Install Claude Code
 
-Ghost MCP lets Claude read and edit your Ghost posts via the Admin API.
+If you don't have Claude Code yet:
 
-**Install the Ghost MCP server:**
+1. Go to [claude.ai/code](https://claude.ai/code) and download the desktop app
+2. Sign in with your Anthropic account (or create a free one)
+3. Open Claude Code and confirm it launches
+
+---
+
+### Step 2 — Install Node.js (if you don't have it)
+
+The Ghost MCP server requires Node.js.
+
+1. Go to [nodejs.org](https://nodejs.org) and download the **LTS** version
+2. Run the installer and follow the prompts
+3. Verify the install — open Terminal (Mac) or Command Prompt (Windows) and run:
 
 ```bash
-npm install -g @tryghost/mcp-server
+node --version
 ```
 
-**Get your Ghost Admin API key:**
+You should see a version number like `v20.x.x`. If you do, you're good.
 
-1. Log into Ghost Admin → Settings → Integrations
-2. Click "Add custom integration" → name it `Claude SEO Agent`
-3. Copy the **Admin API Key**
+---
 
-**Add Ghost MCP to your Claude Code config** (`~/.claude/claude.json` or via `claude mcp add`):
+### Step 3 — Install the Ghost MCP server
 
-```json
-{
-  "mcpServers": {
-    "ghost-mcp": {
-      "command": "ghost-mcp",
-      "args": [],
-      "env": {
-        "GHOST_URL": "https://your-ghost-site.com",
-        "GHOST_ADMIN_API_KEY": "your-admin-api-key-here"
-      }
-    }
-  }
-}
+The Ghost MCP server is a community-built package that connects Claude to your Ghost Admin API. It supports all the fields this skill uses: metadata, excerpts, feature images, and tags.
+
+Open Terminal and run:
+
+```bash
+npm install -g @jgardner04/ghost-mcp-server
 ```
 
-Restart Claude Code after saving.
+This installs it globally so Claude Code can find it.
 
-### 2. Install the skill
+Verify it installed:
 
-Point Claude Code at this repo's `SKILL.md`:
+```bash
+ghost-mcp-server --version
+```
+
+---
+
+### Step 4 — Get your Ghost Admin API key
+
+Claude needs an API key to read and edit your posts.
+
+1. Log into your Ghost Admin panel (usually `https://your-site.com/ghost`)
+2. Go to **Settings** → **Integrations**
+3. Scroll down and click **"Add custom integration"**
+4. Name it `Claude SEO Agent` and click **Create**
+5. Copy the **Admin API Key** — it looks like a long string of letters and numbers
+
+Keep this key somewhere safe. You'll need it in the next step.
+
+---
+
+### Step 5 — Connect Ghost MCP to Claude Code
+
+Now tell Claude Code how to reach your Ghost site.
+
+**On Mac**, open Terminal and run this command — replacing the placeholders with your actual site URL and API key:
+
+```bash
+claude mcp add ghost-mcp -- ghost-mcp-server \
+  --url https://your-ghost-site.com \
+  --key your-admin-api-key-here
+```
+
+**On Windows**, open Command Prompt and run:
+
+```cmd
+claude mcp add ghost-mcp -- ghost-mcp-server --url https://your-ghost-site.com --key your-admin-api-key-here
+```
+
+To confirm it connected, run:
+
+```bash
+claude mcp list
+```
+
+You should see `ghost-mcp` in the list with a connected status.
+
+---
+
+### Step 6 — Install the Claude in Chrome extension
+
+The skill uses your browser to log into Google Search Console on your behalf. This requires the Claude in Chrome extension.
+
+1. Open Chrome
+2. Go to the [Chrome Web Store](https://chromewebstore.google.com) and search for **"Claude in Chrome"** by Anthropic
+3. Click **"Add to Chrome"** and confirm the install
+4. Click the extension icon in your browser toolbar and sign in with your Anthropic account
+
+---
+
+### Step 7 — Install this skill
+
+Run this command in Terminal to add the Ghost SEO Agent skill to Claude Code:
 
 ```bash
 claude skills add https://raw.githubusercontent.com/uristocrat/ghost-seo-agent/main/SKILL.md
 ```
 
-Or clone the repo and add it locally:
+---
 
-```bash
-git clone https://github.com/uristocrat/ghost-seo-agent.git
-claude skills add ./ghost-seo-agent/SKILL.md
-```
+### Step 8 — Run the audit
 
-### 3. Run it
-
-Open Claude Code and say:
+Open Claude Code and type:
 
 ```
 run SEO audit for my Ghost site
 ```
 
-Claude will confirm your site URL and begin the audit.
+Claude will ask for your site URL and then handle everything from there — logging into Search Console, pulling non-indexed URLs, applying fixes, and submitting re-indexing requests.
 
 ---
 
@@ -121,6 +182,12 @@ Claude will confirm your site URL and begin the audit.
 ## Coming soon
 
 **Schema injection** — automatic structured data for FAQ, HowTo, and Review post types. The agent will detect eligible posts and inject JSON-LD schema blocks via Ghost's code injection, without requiring theme edits.
+
+---
+
+## Need help?
+
+Email **seo@uristocrat.com** or visit **[skills.uristocrat.com](https://skills.uristocrat.com)**
 
 ---
 

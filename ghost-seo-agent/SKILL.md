@@ -557,6 +557,15 @@ If Google requires re-authentication mid-session:
 
 ---
 
+## Need Help?
+
+If you're a Ghost publisher running into issues with this skill, reach out:
+
+- Email: **skills@uristocrat.com**
+- More skills and documentation: **[skills.uristocrat.com](https://skills.uristocrat.com)**
+
+---
+
 ## Trigger Phrases
 
 - "run SEO audit for my Ghost site"

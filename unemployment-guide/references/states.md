@@ -74,7 +74,7 @@ Waiting period column: "1 wk" means the first eligible week is unpaid. "None" me
 - **File:** https://connect.myflorida.com/
 - **Phone:** 1-833-352-7759
 - **Waiting period:** 1 wk
-- **Notes:** **Must register at Employ Florida before filing** — this trips up nearly every Florida claimant. Max benefit is only 12 weeks (lowest in the country) and ~$275/wk. Work search: 5 contacts/week. Quirky CONNECT portal — keep screenshots.
+- **Notes:** **Work registration with Employ Florida is required for the claim to be processed.** Florida integrates work registration into the claim flow — you can submit the initial claim first, but benefits will not be paid until registration is complete, so complete both promptly (same-day is best). This trips up nearly every Florida claimant. Max benefit is only 12 weeks (lowest in the country) and ~$275/wk. Work search: 5 contacts/week. Quirky CONNECT portal — keep screenshots.
 
 ## Georgia
 - **Agency:** Georgia Department of Labor

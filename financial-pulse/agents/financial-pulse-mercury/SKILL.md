@@ -111,7 +111,7 @@ Financial Pulse connector agents cover every bank that ships a first-party MCP s
 
 | Bank | Connector | Type | Status | Auth |
 |---|---|---|---|---|
-| Grasshopper Bank | financial-pulse-grasshopper | Business banking | Live | Claude MCP app (one-click) |
+| Grasshopper Bank | financial-pulse-grasshopper | Business banking | Live | Control Center token (Claude Desktop config) |
 | Mercury | financial-pulse-mercury | Startup banking | Live (beta) | OAuth (hosted by Mercury) |
 | Ramp | financial-pulse-ramp | Corporate card + expenses | Live | API credentials (self-hosted) |
 | Any bank (CSV) | financial-pulse (base skill) | Universal | Live | Upload file |

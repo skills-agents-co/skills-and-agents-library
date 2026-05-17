@@ -26,11 +26,11 @@ The Grasshopper MCP server was built by Narmi and launched in August 2025 — th
 - **Business banking clients**: Grasshopper serves startups, SMBs, fintechs, and VC/PE firms
 - **Data available**: Account balances, transaction history, expense categorization, vendor analysis
 - **Security**: Encryption in transit and at rest, role-based access (Admins and Authorized Signers only)
-- **MCP endpoint**: Already configured as a Claude MCP app at `https://online.grasshopper.bank/mcp`
+- **Connection**: Set up from the Grasshopper Control Center — an Admin or Authorized Signer joins the MCP beta, selects Claude as the AI tool, and generates a bearer token and header secret. Those credentials go into Claude Desktop's `claude_desktop_config.json`. The MCP server runs at `https://online.grasshopper.bank/mcp`; it is not a prelisted one-click Claude connector
 
 ## Prerequisites Check
 
-1. **Grasshopper MCP connected**: Check if the Grasshopper MCP tools are available in this session. List available tools — you should see tools for listing accounts, getting balances, and retrieving transactions. If not available: "I need the Grasshopper Bank MCP to be connected. You can add it in Claude's MCP settings — look for Grasshopper Bank in the connectors, or ask your Grasshopper account admin to generate an API token."
+1. **Grasshopper MCP connected**: Check if the Grasshopper MCP tools are available in this session. List available tools — you should see tools for listing accounts, getting balances, and retrieving transactions. If not available: "I need the Grasshopper Bank MCP to be connected. Setup runs through the Grasshopper Control Center: an Admin or Authorized Signer joins the MCP beta, selects Claude as the AI tool, and generates a bearer token and header secret. Those go into Claude Desktop's `claude_desktop_config.json`, then fully restart Claude Desktop."
 
 2. **Account access confirmed**: Once the MCP is available, list the user's connected accounts. Confirm: "I can see your Grasshopper accounts: [account names/types]. I'll pull 60 days of transactions. Ready?"
 
@@ -94,7 +94,7 @@ Financial Pulse connector agents cover every bank that ships a first-party MCP s
 
 | Bank | Connector | Type | Status | Auth |
 |---|---|---|---|---|
-| Grasshopper Bank | financial-pulse-grasshopper | Business banking | Live | Claude MCP app (one-click) |
+| Grasshopper Bank | financial-pulse-grasshopper | Business banking | Live | Control Center token (Claude Desktop config) |
 | Mercury | financial-pulse-mercury | Startup banking | Live (beta) | OAuth (hosted by Mercury) |
 | Ramp | financial-pulse-ramp | Corporate card + expenses | Live | API credentials (self-hosted) |
 | Any bank (CSV) | financial-pulse (base skill) | Universal | Live | Upload file |

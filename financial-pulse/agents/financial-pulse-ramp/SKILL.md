@@ -31,21 +31,23 @@ Ramp built and open-sourced their MCP server (`ramp-public/ramp_mcp` on GitHub).
 
 ### Ramp MCP Architecture
 
-Unlike Grasshopper and Mercury, which expose individual tools per API endpoint, Ramp's MCP uses a data-loading pattern:
+Unlike Grasshopper and Mercury, which expose individual tools per API endpoint, Ramp's MCP uses a **load → process → query** pattern:
 
-1. **Setup phase**: Load data from Ramp's API into an ephemeral SQLite database
-2. **Query phase**: Run SQL queries against the loaded data
-3. **Cleanup phase**: Delete the ephemeral database
+1. **Load phase**: Call a loader tool (e.g. `load_spend_export`). It pulls data from Ramp's API into an in-memory store and returns a message reporting the table name it stored the data under.
+2. **Process phase**: Call `process_data` on that stored data to materialize it into a queryable SQL table. If you skip this step, `execute_query` fails with `Error: table ... does not exist`.
+3. **Query phase**: Call `execute_query` with SQL that references the **exact table names returned by the loaders / `process_data`** — they are generated names, not stable names like `transactions`.
+4. **Cleanup phase**: Delete the in-memory database when finished.
 
-This means you first load the relevant datasets (transactions, departments, vendors, users, etc.), then query them with SQL for the analysis.
+So for every dataset you need, you must load it, process it, then query it by its returned table name.
 
 ### Available Loaders (scope-dependent)
 
-The Ramp MCP exposes these data-loading tools. There is **no dedicated loader for cards, merchants, statements, or receipts** — cardholder and merchant detail come from fields on the transaction and user records, not separate tables.
+The Ramp MCP exposes these data-loading tools, plus `process_data` and `execute_query` for turning loaded data into SQL results. There is **no dedicated loader for cards, merchants, statements, or receipts** — cardholder and merchant detail come from fields on the spend and user records, not separate tables.
 
 | Loader | Description | Required Scope |
 |---|---|---|
-| `load_transactions` | All card transactions with amounts, merchants, categories, dates | `transactions:read` |
+| `load_spend_export` | **All spend events** — card transactions, reimbursements, and bills in one feed. Preferred over the individual loaders below when possible | `transactions:read`, `reimbursements:read`, `bills:read` |
+| `load_transactions` | Card transactions only | `transactions:read` |
 | `load_reimbursements` | Employee reimbursement requests | `reimbursements:read` |
 | `load_bills` | Accounts-payable bills | `bills:read` |
 | `load_locations` | Location names and IDs | `locations:read` |
@@ -64,55 +66,62 @@ The Ramp MCP exposes these data-loading tools. There is **no dedicated loader fo
 
 2. **Production environment**: Confirm the MCP is pointed at production (`RAMP_ENV=prd`), not demo. If you see obviously fake data, warn the user: "This looks like demo data. To analyze real spending, ensure RAMP_ENV is set to 'prd' in your MCP config."
 
-3. **Scopes**: At minimum, you need `transactions:read`. For the full analysis, also enable `users:read` (cardholder data), `departments:read`, and `vendors:read`.
+3. **Scopes**: For complete spend coverage via `load_spend_export`, enable `transactions:read`, `reimbursements:read`, and `bills:read`. For the full analysis, also enable `users:read` (cardholder data), `departments:read`, and `vendors:read`.
 
 ## Step-by-Step
 
-### Step 1: Load Data
+### Step 1: Load and Process Data
 
-Use the Ramp MCP's loader tools to load the following datasets into the ephemeral SQLite database:
-- `load_transactions` (required)
-- `load_users` (cardholder data — enables card/cardholder analysis)
-- `load_departments` (if scope available)
-- `load_vendors` (if scope available)
+Load each dataset, then process it into a queryable table:
 
-### Step 2: Query 60 Days of Transactions
+1. `load_spend_export` (required) — the all-spend feed (card transactions, reimbursements, and bills). Use this rather than `load_transactions`, which returns card transactions only and would omit AP bills and reimbursements.
+2. `load_users` — cardholder data.
+3. `load_departments`, `load_vendors` — if those scopes are available.
 
-Write SQL queries against the loaded transaction data to extract the last 60 days. Example:
+Each loader reports the table name it stored its data under. For every dataset you intend to query, call `process_data` to materialize it into a SQL table — `execute_query` will error with "table does not exist" until you do. Record the exact table name each loader / `process_data` step returns; you will use those names in your SQL.
+
+### Step 2: Query 60 Days of Spend
+
+Run SQL via `execute_query` against the processed tables. Two rules before you write any query:
+
+- **Reference the real table names.** The loaders return generated table names — substitute them wherever the examples below show `<spend_export>`, `<users>`, or `<departments>`. A literal `FROM transactions` will fail.
+- **Convert amounts.** Ramp returns `amount` as an integer in the smallest currency unit — `1000` means $10.00. Divide every amount by 100 (the USD minor-unit factor) before display or analysis, or every total and annualized figure will be ~100x too large.
+
+Column names below are illustrative — inspect each processed table's schema first and adjust to match.
 
 ```sql
-SELECT * FROM transactions
+-- 60-day spend, amount converted from cents to dollars
+SELECT *, amount / 100.0 AS amount_usd
+FROM <spend_export>
 WHERE date >= date('now', '-60 days')
 ORDER BY date DESC
 ```
 
 Split results into current period (last 30 days) and prior period (days 31-60).
 
-Also query for cardholder and department breakdowns. Column and table names below are illustrative — inspect the loaded table schemas first and adjust to match.
-
 ```sql
 -- Spending by department
-SELECT department_name, SUM(amount) as total
-FROM transactions
-JOIN departments ON transactions.department_id = departments.id
+SELECT department_name, SUM(amount) / 100.0 AS total_usd
+FROM <spend_export>
+JOIN <departments> ON <spend_export>.department_id = <departments>.id
 WHERE date >= date('now', '-30 days')
 GROUP BY department_name
-ORDER BY total DESC
+ORDER BY total_usd DESC
 ```
 
 ```sql
--- Spending by cardholder (joins the users table — there is no separate cards loader)
-SELECT users.name AS cardholder, SUM(transactions.amount) AS total
-FROM transactions
-JOIN users ON transactions.user_id = users.id
-WHERE transactions.date >= date('now', '-30 days')
-GROUP BY users.name
-ORDER BY total DESC
+-- Spending by cardholder (joined to the users table — there is no separate cards loader)
+SELECT u.name AS cardholder, SUM(s.amount) / 100.0 AS total_usd
+FROM <spend_export> AS s
+JOIN <users> AS u ON s.user_id = u.id
+WHERE s.date >= date('now', '-30 days')
+GROUP BY u.name
+ORDER BY total_usd DESC
 ```
 
 ### Step 3: Run the Financial Pulse Analysis
 
-With the queried data, execute the full Financial Pulse skill:
+Confirm all amounts are in dollars (divided by 100) before handing data to the analysis. With the queried data, execute the full Financial Pulse skill:
 
 1. Categorize all transactions (Step 2 of Financial Pulse)
 2. Display 30-day spending breakdown with bar chart (Step 3)
@@ -156,7 +165,7 @@ Financial Pulse connector agents cover every bank that ships a first-party MCP s
 
 | Bank | Connector | Type | Status | Auth |
 |---|---|---|---|---|
-| Grasshopper Bank | financial-pulse-grasshopper | Business banking | Live | Claude MCP app (one-click) |
+| Grasshopper Bank | financial-pulse-grasshopper | Business banking | Live | Control Center token (Claude Desktop config) |
 | Mercury | financial-pulse-mercury | Startup banking | Live (beta) | OAuth (hosted by Mercury) |
 | Ramp | financial-pulse-ramp | Corporate card + expenses | Live | API credentials (self-hosted) |
 | Any bank (CSV) | financial-pulse (base skill) | Universal | Live | Upload file |

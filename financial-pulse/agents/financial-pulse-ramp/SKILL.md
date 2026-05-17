@@ -74,7 +74,7 @@ The Ramp MCP exposes these data-loading tools, plus `process_data` and `execute_
 
 Load each dataset, then process it into a queryable table:
 
-1. `load_spend_export` (required) — the all-spend feed (card transactions, reimbursements, and bills). Use this rather than `load_transactions`, which returns card transactions only and would omit AP bills and reimbursements.
+1. `load_spend_export` — the all-spend feed (card transactions, reimbursements, and bills); Ramp's MCP recommends it over the individual loaders. If your version of the MCP does not expose `load_spend_export`, load `load_transactions`, `load_reimbursements`, and `load_bills` separately and combine them.
 2. `load_users` — cardholder data.
 3. `load_departments`, `load_vendors` — if those scopes are available.
 

@@ -39,13 +39,19 @@ Do not proceed without data.
 
 ## Step 1: Determine Time Range
 
-You need 60 days of transactions. If the data source supports date filtering, pull the last 60 days. If the user uploaded a file, work with whatever range is available — but note if it's less than 60 days (trend comparison will be limited).
+You need 60 days of transactions. If the data source supports date filtering, pull the last 60 days.
 
-Split into two sets:
-- **Current period**: Last 30 days
-- **Prior period**: Days 31-60
+**Anchor the window to the data, not today's calendar date.** Find the most recent transaction date in the dataset and treat it as the end of the window. This matters for uploaded files or pasted data that may end days or weeks before today — using today's date would push a complete two-month export into the wrong buckets or leave the current period empty.
+
+Split into two sets, relative to that latest transaction date:
+- **Current period**: the 30 days ending on the latest transaction date
+- **Prior period**: the 30 days before that
+
+If the data covers less than 60 days, work with what's available — but note that the trend comparison is limited.
 
 ## Step 2: Categorize Transactions
+
+**First, normalize amounts.** Bank and card exports encode direction differently — debits may be negative numbers, there may be separate debit/credit columns, or a transaction-type field. Detect the convention and convert every outflow (spending) to a positive number, keeping inflows (income, refunds, credits) clearly separated by sign or flag. Do this before categorizing, charting, or totaling — otherwise spend categories can show as negative bars, sort incorrectly, or be cancelled out by income.
 
 Group every transaction into these categories using merchant name, description, and amount:
 

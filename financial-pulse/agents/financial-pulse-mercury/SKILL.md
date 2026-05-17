@@ -65,7 +65,7 @@ Use `getAccounts` to list all accounts. Use `getAccount` for each to get current
 Use `listTransactions` to pull the last 60 days. Mercury's MCP handles pagination automatically — let it run until all transactions are retrieved.
 
 **Two filters matter for an accurate pulse:**
-- **Posted status only.** Mercury returns pending, failed, reversed, cancelled, and blocked transactions alongside completed ones. Filter to posted/sent transactions so authorizations and failed or reversed payments are not counted as real spend — unless the user explicitly asks to include pending activity.
+- **Completed transactions only.** Mercury returns pending, failed, reversed, cancelled, and blocked transactions alongside completed ones. Filter the `status` to Mercury's completed value, `sent`, so authorizations and failed or reversed payments are not counted as real spend — unless the user explicitly asks to include pending activity. Use `sent` for the status filter; reserve "posted" for the date fields below.
 - **Posted-date window.** If `listTransactions` supports posted-date filtering (`postedStart` / `postedEnd`) as well as created-date (`start` / `end`), use the posted-date window. For a spending analysis, a transaction's posted date determines which 30-day bucket it belongs in — created-date can shift ACH, check, or card activity into the wrong period.
 
 Also call `listCategories` to get the user's custom expense categories from Mercury. Use these as a secondary signal when categorizing (Mercury's categories supplement the Financial Pulse standard categories).

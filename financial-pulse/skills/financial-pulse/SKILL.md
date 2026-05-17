@@ -60,13 +60,13 @@ Group every transaction into these categories using merchant name, description, 
 | Shopping | Retail, clothing, electronics, Amazon, home goods |
 | Entertainment | Events, bars, hobbies, travel, hotels, flights |
 | Financial | Transfers between own accounts, investments, loan payments |
-| Income | Paychecks, deposits, refunds, transfers in |
+| Income | Paychecks, deposits, transfers in |
 | Other | Anything that doesn't fit above |
 
 **Deduplication rules:**
-- Credit card payments from a checking account: exclude the bank-side transfer, keep individual charges
+- Credit card payments from a checking account: exclude the bank-side transfer **only when the itemized card charges are also present** in the dataset, so the same spending is not double-counted. If only checking-account data is available and the card's individual charges are NOT in the dataset, keep the payment as a Financial / debt payment — excluding it would drop the entire card bill and understate total spending.
 - Internal transfers between user's own accounts: categorize as Financial, exclude from spending totals
-- Refunds: net against the original category if identifiable
+- Refunds: net against the original spending category if identifiable. Do not count refunds as Income — only true deposits and paychecks are Income.
 
 ## Step 3: Display 30-Day Spending Breakdown
 

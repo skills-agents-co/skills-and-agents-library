@@ -27,7 +27,7 @@ Ramp built and open-sourced their MCP server (`ramp-public/ramp_mcp` on GitHub).
 - **ETL + SQLite architecture**: Ramp's MCP implements an ETL pipeline that loads data into an ephemeral in-memory SQLite database, then exposes SQL query tools. This is different from the other bank connectors — you query via SQL, not individual API calls
 - **Scope-based access**: Tools are gated by OAuth scopes. Ensure the required scopes are enabled on the Ramp client
 - **Demo by default**: The MCP defaults to Ramp's demo environment. For production data, `RAMP_ENV=prd` must be set
-- **Corporate card focus**: Ramp is not a bank — it's a corporate card and spend management platform. Data includes card transactions, reimbursements, departments, vendors, and receipts
+- **Corporate card focus**: Ramp is not a bank — it's a corporate card and spend management platform. Data includes card transactions, reimbursements, bills, departments, vendors, and users
 
 ### Ramp MCP Architecture
 
@@ -37,24 +37,26 @@ Unlike Grasshopper and Mercury, which expose individual tools per API endpoint, 
 2. **Query phase**: Run SQL queries against the loaded data
 3. **Cleanup phase**: Delete the ephemeral database
 
-This means you first load the relevant datasets (transactions, cards, departments, vendors, etc.), then query them with SQL for the analysis.
+This means you first load the relevant datasets (transactions, departments, vendors, users, etc.), then query them with SQL for the analysis.
 
-### Available Data (scope-dependent)
+### Available Loaders (scope-dependent)
 
-| Dataset | Description | Required Scope |
+The Ramp MCP exposes these data-loading tools. There is **no dedicated loader for cards, merchants, statements, or receipts** — cardholder and merchant detail come from fields on the transaction and user records, not separate tables.
+
+| Loader | Description | Required Scope |
 |---|---|---|
-| Transactions | All card transactions with amounts, merchants, categories, dates | `transactions:read` |
-| Cards | Card details, cardholder info, limits, status | `cards:read` |
-| Departments | Department names and IDs | `departments:read` |
-| Vendors | Vendor details | `vendors:read` |
-| Reimbursements | Employee reimbursement requests | `reimbursements:read` |
-| Merchants | Merchant data with date filtering | `merchants:read` |
-| Statements | Account statements in PDF/CSV/JSON | `statements:read` |
-| Memos | Transaction memos and notes | `memos:read` |
-| Trips | Travel-related transactions | `trips:read` |
-| Cashbacks | Cashback earnings | `cashbacks:read` |
-| Users | Employee/cardholder data | `users:read` |
-| Receipts | Uploaded receipt files | `receipts:read` |
+| `load_transactions` | All card transactions with amounts, merchants, categories, dates | `transactions:read` |
+| `load_reimbursements` | Employee reimbursement requests | `reimbursements:read` |
+| `load_bills` | Accounts-payable bills | `bills:read` |
+| `load_locations` | Location names and IDs | `locations:read` |
+| `load_departments` | Department names and IDs | `departments:read` |
+| `load_bank_accounts` | Linked bank accounts | `bank_accounts:read` |
+| `load_vendors` | Vendor details | `vendors:read` |
+| `load_vendor_bank_accounts` | Vendor bank account details | `vendors:read` |
+| `load_entities` | Business entities | `entities:read` |
+| `load_spend_limits` | Spend limits | `limits:read` |
+| `load_spend_programs` | Spend programs | `spend_programs:read` |
+| `load_users` | Employee / cardholder data | `users:read` |
 
 ## Prerequisites Check
 
@@ -62,18 +64,17 @@ This means you first load the relevant datasets (transactions, cards, department
 
 2. **Production environment**: Confirm the MCP is pointed at production (`RAMP_ENV=prd`), not demo. If you see obviously fake data, warn the user: "This looks like demo data. To analyze real spending, ensure RAMP_ENV is set to 'prd' in your MCP config."
 
-3. **Scopes**: At minimum, you need `transactions:read` and `cards:read`. For full analysis, also `departments:read`, `vendors:read`, and `merchants:read`.
+3. **Scopes**: At minimum, you need `transactions:read`. For the full analysis, also enable `users:read` (cardholder data), `departments:read`, and `vendors:read`.
 
 ## Step-by-Step
 
 ### Step 1: Load Data
 
-Use the Ramp MCP's ETL tools to load the following datasets into the ephemeral SQLite database:
-- Transactions (required)
-- Cards (required)
-- Departments (if scope available)
-- Vendors (if scope available)
-- Merchants (if scope available)
+Use the Ramp MCP's loader tools to load the following datasets into the ephemeral SQLite database:
+- `load_transactions` (required)
+- `load_users` (cardholder data — enables card/cardholder analysis)
+- `load_departments` (if scope available)
+- `load_vendors` (if scope available)
 
 ### Step 2: Query 60 Days of Transactions
 
@@ -87,7 +88,7 @@ ORDER BY date DESC
 
 Split results into current period (last 30 days) and prior period (days 31-60).
 
-Also query for card and department breakdowns:
+Also query for cardholder and department breakdowns. Column and table names below are illustrative — inspect the loaded table schemas first and adjust to match.
 
 ```sql
 -- Spending by department
@@ -100,12 +101,12 @@ ORDER BY total DESC
 ```
 
 ```sql
--- Spending by card/cardholder
-SELECT card_holder_name, SUM(amount) as total
+-- Spending by cardholder (joins the users table — there is no separate cards loader)
+SELECT users.name AS cardholder, SUM(transactions.amount) AS total
 FROM transactions
-JOIN cards ON transactions.card_id = cards.id
-WHERE date >= date('now', '-30 days')
-GROUP BY card_holder_name
+JOIN users ON transactions.user_id = users.id
+WHERE transactions.date >= date('now', '-30 days')
+GROUP BY users.name
 ORDER BY total DESC
 ```
 
@@ -124,10 +125,8 @@ With the queried data, execute the full Financial Pulse skill:
 Ramp is a corporate expense platform. The 3 recommendations should also scan for:
 
 - **Department spend variance**: Compare each department's spend current vs. prior period. Flag any department with >30% increase and >$500 delta
-- **Cardholder anomalies**: If one cardholder's spend is >2x their prior period, flag it (could be legitimate project ramp-up or could need review)
-- **Merchant category overlap**: Flag when the company is paying multiple vendors in the same category (e.g., 3 different design tools, 2 different cloud providers)
-- **Missing receipts**: If receipt data is available, flag high-value transactions ($250+) without attached receipts
-- **Cashback opportunities**: If `cashbacks` data is loaded, note total cashback earned and any unclaimed amounts
+- **Cardholder anomalies**: Join transactions to the `users` table by the transaction's user/cardholder field. If one cardholder's spend is >2x their prior period, flag it (could be legitimate project ramp-up or could need review)
+- **Merchant category overlap**: Using the merchant and category fields on transactions (plus loaded vendors), flag when the company is paying multiple vendors in the same category (e.g., 3 different design tools, 2 different cloud providers)
 - **Policy violations**: If transactions appear in unusual categories for a department (e.g., Entertainment charges on the Engineering department card), flag for review
 
 ### Step 4: Cleanup

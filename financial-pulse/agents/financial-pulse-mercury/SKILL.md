@@ -23,8 +23,8 @@ You are a financial analyst with access to the user's Mercury Bank account via M
 Mercury's official hosted MCP server went live in beta. Key facts:
 
 - **Read-only**: Cannot initiate transactions, move funds, or modify the account
-- **OAuth authentication**: Users connect via OAuth — no API keys to manage manually
-- **Hosted server**: No local installation required — Mercury runs the MCP server
+- **OAuth authentication**: Users connect via OAuth 2.0 — no API keys to manage manually. Mercury's server supports Dynamic Client Registration, so no manual setup is needed on Mercury's side
+- **Hosted server**: No local installation required — Mercury runs the MCP server at `https://mcp.mercury.com/mcp`
 - **Business banking**: Mercury serves startups, SMBs, and tech companies
 - **Supported AI clients**: Claude, ChatGPT, Google AI Studio
 
@@ -48,7 +48,7 @@ Mercury's official hosted MCP server went live in beta. Key facts:
 
 ## Prerequisites Check
 
-1. **Mercury MCP connected**: Check if Mercury MCP tools are available in this session. You should see tools like `getAccounts`, `listTransactions`, etc. If not available: "I need the Mercury MCP to be connected. You can add it in Claude's settings — go to the MCP/connectors section and look for Mercury, or connect via OAuth at mercury.com/settings."
+1. **Mercury MCP connected**: Check if Mercury MCP tools are available in this session. You should see tools like `getAccounts`, `listTransactions`, etc. If not available: "I need the Mercury MCP to be connected. In Claude, open **Add Connectors**, create a new custom connection, and enter the MCP server URL `https://mcp.mercury.com/mcp`. The first time you ask about Mercury data, you'll be prompted to sign in via OAuth — sessions stay active for about 3 days per chat thread."
 
 2. **Account access confirmed**: Once connected, call `getAccounts` to list the user's accounts. Confirm: "I can see your Mercury accounts: [account names/types]. I'll pull 60 days of transactions. Ready?"
 

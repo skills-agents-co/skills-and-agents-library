@@ -66,7 +66,7 @@ The Ramp MCP exposes these data-loading tools, plus `process_data` and `execute_
 
 2. **Production environment**: Confirm the MCP is pointed at production (`RAMP_ENV=prd`), not demo. If you see obviously fake data, warn the user: "This looks like demo data. To analyze real spending, ensure RAMP_ENV is set to 'prd' in your MCP config."
 
-3. **Scopes**: For complete spend coverage via `load_spend_export`, enable `transactions:read`, `reimbursements:read`, and `bills:read`. For the full analysis, also enable `users:read` (cardholder data), `departments:read`, and `vendors:read`.
+3. **Scopes**: For complete spend coverage via `load_spend_export`, enable `transactions:read`, `reimbursements:read`, and `bills:read`. For the full analysis, also enable `users:read` (cardholder data), `departments:read`, and `vendors:read`. These scopes must be enabled on the Ramp app **and** passed to the MCP server at startup via `-s` — if a loader tool is missing, its scope was likely omitted from the server's `-s` argument.
 
 ## Step-by-Step
 

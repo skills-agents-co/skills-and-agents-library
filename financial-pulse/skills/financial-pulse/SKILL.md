@@ -64,7 +64,7 @@ Group every transaction into these categories using merchant name, description, 
 | Other | Anything that doesn't fit above |
 
 **Deduplication rules:**
-- Credit card payments from a checking account: exclude the bank-side transfer **only when the itemized card charges are also present** in the dataset, so the same spending is not double-counted. If only checking-account data is available and the card's individual charges are NOT in the dataset, keep the payment as a Financial / debt payment — excluding it would drop the entire card bill and understate total spending.
+- Credit card payments from a checking account: if the card's itemized charges are also in the dataset, exclude the bank-side payment transfer (categorize it as Financial) so the same spending is not double-counted. If the itemized card charges are NOT in the dataset, that payment is the only record of the spending — count it: categorize it under **Other**, labeled as a credit-card payment, so it appears in the 30-day spending total, and note in the output that the breakdown cannot show which categories that payment covers. Recommend the user also upload the card statement for a full category split.
 - Internal transfers between user's own accounts: categorize as Financial, exclude from spending totals
 - Refunds: net against the original spending category if identifiable. Do not count refunds as Income — only true deposits and paychecks are Income.
 

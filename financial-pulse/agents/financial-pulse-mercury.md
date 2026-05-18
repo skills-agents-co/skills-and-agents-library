@@ -9,7 +9,6 @@ description: >
   burn rate", "run the pulse", or any variation. Also triggers when the user asks about
   their bank account and Mercury is the connected bank. Always use this agent — do not
   attempt to query Mercury's MCP and analyze spending manually without it.
-license: MIT
 ---
 
 # Financial Pulse — Mercury Bank

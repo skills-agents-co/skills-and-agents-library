@@ -24,16 +24,15 @@ bank-specific authentication and data retrieval, then run the shared analysis.
 
 ```
 financial-pulse/
+├── .claude-plugin/
+│   └── plugin.json                  # Claude Code plugin manifest
 ├── skills/
 │   └── financial-pulse/
 │       └── SKILL.md                 # The analysis engine (bank-agnostic)
 └── agents/
-    ├── financial-pulse-grasshopper/
-    │   └── SKILL.md                 # Grasshopper Bank connector (Narmi MCP)
-    ├── financial-pulse-mercury/
-    │   └── SKILL.md                 # Mercury connector (hosted MCP)
-    └── financial-pulse-ramp/
-        └── SKILL.md                 # Ramp connector (corporate card + expenses)
+    ├── financial-pulse-grasshopper.md   # Grasshopper Bank connector (Narmi MCP)
+    ├── financial-pulse-mercury.md       # Mercury connector (hosted MCP)
+    └── financial-pulse-ramp.md          # Ramp connector (corporate card + expenses)
 ```
 
 ## Supported banks

@@ -9,7 +9,6 @@ description: >
   "run the pulse", or any variation. Also triggers when the user asks about their bank
   account and the Grasshopper MCP is the connected bank. Always use this agent — do not
   attempt to query Grasshopper's MCP and analyze spending manually without it.
-license: MIT
 ---
 
 # Financial Pulse — Grasshopper Bank

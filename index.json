@@ -1,0 +1,93 @@
+{
+  "financial-pulse": {
+    "slug": "financial-pulse",
+    "kind": "skill",
+    "name": "financial-pulse",
+    "description": "Analyzes bank transaction data to produce a categorized 30-day spending breakdown and surfaces 3 specific things to look into based on 60-day trends. This skill is the analysis engine — it does NOT connect to any bank directly. It expects transaction data to be available in the session via a bank connector agent (e.g., Grasshopper MCP, Mercury MCP) or pasted/uploaded by the user. Use this skill whenever the user says \"financial pulse\", \"check my spending\", \"money check-in\", \"where's my money going\", \"spending review\", \"run the pulse\", \"how am I doing financially\", \"spending trends\", \"what should I look into\", \"money audit\", or any variation implying they want an actionable view of their financial health. Also use when transaction data is already in context (CSV upload, bank MCP connected) and the user asks for analysis. Always use this skill for spending analysis — do not freehand financial breakdowns without it.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/skills/financial-pulse/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/skills/financial-pulse",
+    "path": "financial-pulse/skills/financial-pulse/SKILL.md"
+  },
+  "financial-pulse-grasshopper": {
+    "slug": "financial-pulse-grasshopper",
+    "kind": "agent",
+    "name": "financial-pulse-grasshopper",
+    "description": "Connects to Grasshopper Bank via its MCP server (built by Narmi), pulls transaction and account data, and runs the Financial Pulse analysis — categorized 30-day spending breakdown and 3 things to look into based on 60-day trends. Use this agent whenever a Grasshopper Bank MCP is connected in the session and the user says \"financial pulse\", \"check my spending\", \"Grasshopper spending\", \"check my Grasshopper account\", \"how's my business spending\", \"run the pulse\", or any variation. Also triggers when the user asks about their bank account and the Grasshopper MCP is the connected bank. Always use this agent — do not attempt to query Grasshopper's MCP and analyze spending manually without it.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/agents/financial-pulse-grasshopper.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/agents",
+    "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
+  },
+  "financial-pulse-mercury": {
+    "slug": "financial-pulse-mercury",
+    "kind": "agent",
+    "name": "financial-pulse-mercury",
+    "description": "Connects to Mercury Bank via its official hosted MCP server, pulls transaction and account data, and runs the Financial Pulse analysis — categorized 30-day spending breakdown and 3 things to look into based on 60-day trends. Mercury is a business bank for startups and SMBs. Use this agent whenever a Mercury MCP is connected and the user says \"financial pulse\", \"check my spending\", \"Mercury spending\", \"check my Mercury account\", \"how's my burn rate\", \"run the pulse\", or any variation. Also triggers when the user asks about their bank account and Mercury is the connected bank. Always use this agent — do not attempt to query Mercury's MCP and analyze spending manually without it.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/agents/financial-pulse-mercury.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/agents",
+    "path": "financial-pulse/agents/financial-pulse-mercury.md"
+  },
+  "financial-pulse-ramp": {
+    "slug": "financial-pulse-ramp",
+    "kind": "agent",
+    "name": "financial-pulse-ramp",
+    "description": "Connects to Ramp via its official MCP server, pulls corporate card transactions and expense data, and runs the Financial Pulse analysis — categorized 30-day spending breakdown and 3 things to look into based on 60-day trends. Ramp is a corporate card and expense management platform. Use this agent whenever a Ramp MCP is connected and the user says \"financial pulse\", \"check my spending\", \"Ramp spending\", \"check my Ramp account\", \"how's our corporate spend\", \"run the pulse\", \"expense review\", or any variation. Also triggers when the user asks about expenses or corporate spending and Ramp is connected. Always use this agent — do not query Ramp's MCP and analyze spending manually without it.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/agents/financial-pulse-ramp.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/agents",
+    "path": "financial-pulse/agents/financial-pulse-ramp.md"
+  },
+  "ghost-seo-agent": {
+    "slug": "ghost-seo-agent",
+    "kind": "skill",
+    "name": "ghost-seo-agent",
+    "description": "Autonomously audits, fixes, and re-submits Ghost posts for Google indexing. Works for any Ghost publisher. Uses browser access to log into Google Search Console, pull non-indexed URLs, diagnose each page, apply fixes via Ghost MCP, and request re-crawl — all without manually exporting CSVs or clicking through Search Console. Also detects Ghost-specific structural issues (tag/author archives, paginated pages, sitemaps, AMP duplicates, HTTPS config, members-only content, sparse tags, non-WebP images) and content quality problems (thin posts, isolated posts with no internal links). Includes a migration audit mode for publishers moving from Substack or WordPress. Use this skill whenever a Ghost publisher says \"run SEO audit\", \"fix indexing issues\", \"check what's not indexed\", \"why aren't my posts showing up in Google\", \"fix Ghost SEO\", or any similar phrase about search visibility, indexing, or organic traffic on a Ghost site. Always use this skill for Ghost SEO work — do not attempt to diagnose or fix indexing issues manually without it.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/ghost-seo-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/ghost-seo-agent",
+    "path": "ghost-seo-agent/SKILL.md"
+  },
+  "llm-visibility-agent": {
+    "slug": "llm-visibility-agent",
+    "kind": "skill",
+    "name": "llm-visibility-agent",
+    "description": "Reads a brand's weekly AI Visibility report from the Amplitude or PostHog AI Visibility MCP, diagnoses where competitors show up in LLM answers but the brand does not, and recommends specific posts to close the gaps. Use whenever the user says \"check AI visibility\", \"how is my brand showing up in LLMs\", \"run the LLM visibility report\", \"what AI prompts is my brand missing from\", \"AI search visibility brief\", \"am I showing up in AI search\", \"LLM visibility audit\", \"what should I write to rank in ChatGPT\", \"why is my brand not in AI answers\", or \"/llm-visibility\". Pure read and synthesize layer on top of the existing weekly AI Visibility runs. Does not crawl LLMs, does not scrape, does not call models directly. Turns the measurement data into editorial action.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/llm-visibility-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/llm-visibility-agent",
+    "path": "llm-visibility-agent/SKILL.md"
+  },
+  "unemployment-guide": {
+    "slug": "unemployment-guide",
+    "kind": "skill",
+    "name": "unemployment-guide",
+    "description": "Walks a user through filing for unemployment insurance in their US state. Provides the official state agency name, application URL, phone number, eligibility requirements, step-by-step application instructions, required documents, weekly certification rules, waiting period, and common pitfalls that cause denials. Use this skill whenever the user mentions losing their job, getting laid off, getting fired, filing for unemployment, applying for UI benefits, \"EDD\" (California), \"DUA\", \"DES\", \"DEW\", a state workforce agency, or asks any variation of \"how do I get unemployment\" — even if they don't name the program precisely. Also triggers on \"/unemployment\", \"I just got laid off\", \"lost my job\", \"file a UI claim\", \"unemployment benefits\", \"jobless claim\", or pasting a termination letter and asking what to do next. Works for all 50 states plus DC.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/unemployment-guide/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/unemployment-guide",
+    "path": "unemployment-guide/SKILL.md"
+  }
+}

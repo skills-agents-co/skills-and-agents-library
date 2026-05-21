@@ -1,0 +1,96 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint SKILL.md frontmatter
+        run: |
+          node <<'NODE'
+          const { readFileSync, readdirSync, statSync, existsSync } = require('node:fs');
+          const { join } = require('node:path');
+
+          const REQUIRED_KEYS_SKILL = ['name','description','longDescription','category','tags','installType','requiresMCP','triggerPhrases','version','author','publishedAt','updatedAt','status'];
+          const REQUIRED_KEYS_AGENT = REQUIRED_KEYS_SKILL.concat(['runbook']);
+
+          const skillFiles = [];
+          const agentFiles = [];
+
+          function walk(dir) {
+            for (const name of readdirSync(dir)) {
+              if (name.startsWith('.') || name === 'node_modules' || name === 'scripts') continue;
+              const full = join(dir, name);
+              const st = statSync(full);
+              if (st.isDirectory()) walk(full);
+              else if (name === 'SKILL.md') {
+                if (full.includes('/agents/')) agentFiles.push(full);
+                else skillFiles.push(full);
+              } else if (name.endsWith('.md') && full.includes('/agents/')) {
+                agentFiles.push(full);
+              }
+            }
+          }
+          walk(process.cwd());
+
+          let fail = 0;
+
+          function checkFile(file, required) {
+            const raw = readFileSync(file, 'utf8');
+            if (!raw.startsWith('---\n')) {
+              console.error('FAIL ' + file + ': no frontmatter');
+              fail++;
+              return;
+            }
+            const end = raw.indexOf('\n---', 4);
+            if (end === -1) {
+              console.error('FAIL ' + file + ': unterminated frontmatter');
+              fail++;
+              return;
+            }
+            const fmBlock = raw.slice(4, end);
+            const body = raw.slice(end + 4);
+            const keys = new Set();
+            for (const line of fmBlock.split('\n')) {
+              const m = line.match(/^([A-Za-z0-9_]+):/);
+              if (m) keys.add(m[1]);
+            }
+            for (const k of required) {
+              if (!keys.has(k)) {
+                console.error('FAIL ' + file + ': missing key "' + k + '"');
+                fail++;
+              }
+            }
+            // em-dash check in body, ignoring code blocks
+            const lines = body.split('\n');
+            let inCode = false;
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i];
+              if (line.trimStart().startsWith('```')) { inCode = !inCode; continue; }
+              if (inCode) continue;
+              if (line.includes('—')) {
+                console.error('FAIL ' + file + ':' + (i + 1) + ': em dash in body');
+                fail++;
+              }
+            }
+            console.log('OK   ' + file);
+          }
+
+          for (const f of skillFiles) checkFile(f, REQUIRED_KEYS_SKILL);
+          for (const f of agentFiles) checkFile(f, REQUIRED_KEYS_AGENT);
+
+          if (fail > 0) { console.error('Lint failures: ' + fail); process.exit(1); }
+          NODE
+
+      - name: Install smoke test
+        run: bash scripts/test-install.sh

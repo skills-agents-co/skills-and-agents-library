@@ -6,7 +6,7 @@ Browse the live catalog at **[skills.uristocrat.com](https://skills.uristocrat.c
 
 ---
 
-Claude Code skills extend Claude with focused, repeatable workflows — file your unemployment claim, fix your Ghost site's Google indexing, see where your brand shows up in ChatGPT, get a weekly read on your business cashflow. One `curl`, and Claude knows how to do the job.
+Claude Code skills extend Claude with focused, repeatable workflows — get a weekly read on your business cashflow, see where your brand shows up in ChatGPT, fix your Ghost site's Google indexing, walk through filing an unemployment claim. One `curl`, and Claude knows how to do the job.
 
 This repo is the source of truth for every skill we publish. Each is MIT-licensed, version-tagged, and ready to drop into Claude Code, Claude Desktop, or any Anthropic-compatible runtime that loads `SKILL.md` files.
 

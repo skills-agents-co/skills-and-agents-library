@@ -1,6 +1,6 @@
 # uristocrat/skills
 
-**Production-ready [Claude Code](https://claude.com/claude-code) skills and agents you can install in 30 seconds.**
+**Production-ready [Claude Code](https://claude.ai/code) skills and agents you can install in 30 seconds.**
 
 Browse the live catalog at **[skills.uristocrat.com](https://skills.uristocrat.com)** · Built and maintained by [uristocrat](https://uristocrat.com)
 

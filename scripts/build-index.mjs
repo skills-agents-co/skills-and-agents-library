@@ -5,9 +5,12 @@
  * Walks every <skill>/SKILL.md and <skill>/agents/*.md, parses YAML frontmatter,
  * and writes index.json keyed by slug with pinned skillFileUrl + githubUrl.
  *
+ * The SKILL.md frontmatter shape is the Claude Code skill plugin format
+ * (name, description, optional license). The richer catalog metadata
+ * (category, tags, runbook) lives in uristocrat-skills/src/content/, not here.
+ *
  * Usage:
  *   node scripts/build-index.mjs --tag v1.0.0
- *   node scripts/build-index.mjs --tag main
  */
 
 import { readFileSync, readdirSync, writeFileSync, statSync, existsSync } from 'node:fs';
@@ -28,36 +31,63 @@ function parseArgs(argv) {
   return args;
 }
 
+/**
+ * Minimal YAML frontmatter parser that handles:
+ *   key: value
+ *   key: "quoted value"
+ *   key: >    (folded block scalar — fold subsequent indented lines)
+ *   key: |    (literal block scalar — keep newlines)
+ *   key:      (list — subsequent "  - item" lines)
+ */
 function parseFrontmatter(raw) {
   if (!raw.startsWith('---\n')) return null;
   const end = raw.indexOf('\n---', 4);
   if (end === -1) return null;
   const block = raw.slice(4, end);
   const out = {};
-  let currentKey = null;
-  let currentList = null;
-  for (const rawLine of block.split('\n')) {
-    const line = rawLine.replace(/\r$/, '');
-    if (!line.trim()) continue;
-    // list item
-    const listMatch = line.match(/^\s+-\s+(.*)$/);
-    if (listMatch && currentList) {
-      currentList.push(stripQuotes(listMatch[1].trim()));
+  const lines = block.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) { i++; continue; }
+    const kv = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/);
+    if (!kv) { i++; continue; }
+    const key = kv[1];
+    const rest = kv[2];
+
+    if (rest === '>' || rest === '|') {
+      // block scalar — gather subsequent indented lines
+      const joiner = rest === '>' ? ' ' : '\n';
+      const collected = [];
+      i++;
+      while (i < lines.length) {
+        const next = lines[i];
+        if (next.match(/^[A-Za-z0-9_]+:/)) break;
+        if (!next.trim()) { i++; continue; }
+        collected.push(next.replace(/^\s+/, ''));
+        i++;
+      }
+      out[key] = collected.join(joiner).trim();
       continue;
     }
-    const kv = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/);
-    if (kv) {
-      currentKey = kv[1];
-      const value = kv[2].trim();
-      if (value === '') {
-        // could be a list or nested obj — start list bucket
-        currentList = [];
-        out[currentKey] = currentList;
-      } else {
-        currentList = null;
-        out[currentKey] = stripQuotes(value);
+
+    if (rest === '') {
+      // could be a list
+      const list = [];
+      i++;
+      while (i < lines.length) {
+        const next = lines[i];
+        const item = next.match(/^\s+-\s+(.*)$/);
+        if (!item) break;
+        list.push(stripQuotes(item[1].trim()));
+        i++;
       }
+      out[key] = list;
+      continue;
     }
+
+    out[key] = stripQuotes(rest.trim());
+    i++;
   }
   return out;
 }
@@ -78,7 +108,7 @@ function walkSkillFolders() {
     // top-level SKILL.md
     const topSkill = join(full, 'SKILL.md');
     if (existsSync(topSkill)) {
-      entries.push({ slug: name, file: topSkill, kind: 'skill', nested: false });
+      entries.push({ slug: name, file: topSkill, kind: 'skill' });
     }
 
     // nested: <skill>/skills/<name>/SKILL.md (financial-pulse layout)
@@ -87,7 +117,7 @@ function walkSkillFolders() {
       for (const sub of readdirSync(nestedSkillsDir)) {
         const subSkill = join(nestedSkillsDir, sub, 'SKILL.md');
         if (existsSync(subSkill)) {
-          entries.push({ slug: sub, file: subSkill, kind: 'skill', nested: true, parent: name });
+          entries.push({ slug: sub, file: subSkill, kind: 'skill' });
         }
       }
     }
@@ -97,7 +127,7 @@ function walkSkillFolders() {
     if (existsSync(agentsDir) && statSync(agentsDir).isDirectory()) {
       for (const f of readdirSync(agentsDir)) {
         if (!f.endsWith('.md')) continue;
-        entries.push({ slug: f.replace(/\.md$/, ''), file: join(agentsDir, f), kind: 'agent', nested: true, parent: name });
+        entries.push({ slug: f.replace(/\.md$/, ''), file: join(agentsDir, f), kind: 'agent' });
       }
     }
   }
@@ -116,11 +146,7 @@ function main() {
 
   for (const entry of entries) {
     const raw = readFileSync(entry.file, 'utf8');
-    const fm = parseFrontmatter(raw);
-    if (!fm) {
-      console.error(`! No frontmatter in ${entry.file}`);
-      continue;
-    }
+    const fm = parseFrontmatter(raw) || {};
     const relPath = relative(repoRoot, entry.file);
     const dirRel = relative(repoRoot, dirname(entry.file));
     const skillFileUrl = `https://raw.githubusercontent.com/uristocrat/skills/${tag}/${relPath}`;
@@ -141,8 +167,9 @@ function main() {
   }
 
   const outPath = join(repoRoot, 'index.json');
-  writeFileSync(outPath, JSON.stringify(index, null, 2) + '\n');
-  console.log(`Wrote ${Object.keys(index).length} entries to ${outPath} (tag=${tag})`);
+  const ordered = Object.keys(index).sort().reduce((o, k) => { o[k] = index[k]; return o; }, {});
+  writeFileSync(outPath, JSON.stringify(ordered, null, 2) + '\n');
+  console.log(`Wrote ${Object.keys(ordered).length} entries to ${outPath} (tag=${tag})`);
 }
 
 main();

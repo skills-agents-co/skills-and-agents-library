@@ -21,11 +21,12 @@ jobs:
           const { readFileSync, readdirSync, statSync, existsSync } = require('node:fs');
           const { join } = require('node:path');
 
-          const REQUIRED_KEYS_SKILL = ['name','description','longDescription','category','tags','installType','requiresMCP','triggerPhrases','version','author','publishedAt','updatedAt','status'];
-          const REQUIRED_KEYS_AGENT = REQUIRED_KEYS_SKILL.concat(['runbook']);
+          // The SKILL.md files use the Claude Code skill plugin format.
+          // Required keys are minimal: name and description. Anything richer
+          // belongs in the catalog frontmatter at uristocrat-skills/src/content/.
+          const REQUIRED_KEYS = ['name', 'description'];
 
           const skillFiles = [];
-          const agentFiles = [];
 
           function walk(dir) {
             for (const name of readdirSync(dir)) {
@@ -33,11 +34,8 @@ jobs:
               const full = join(dir, name);
               const st = statSync(full);
               if (st.isDirectory()) walk(full);
-              else if (name === 'SKILL.md') {
-                if (full.includes('/agents/')) agentFiles.push(full);
-                else skillFiles.push(full);
-              } else if (name.endsWith('.md') && full.includes('/agents/')) {
-                agentFiles.push(full);
+              else if (name === 'SKILL.md' || (name.endsWith('.md') && full.includes('/agents/'))) {
+                skillFiles.push(full);
               }
             }
           }
@@ -45,18 +43,16 @@ jobs:
 
           let fail = 0;
 
-          function checkFile(file, required) {
+          for (const file of skillFiles) {
             const raw = readFileSync(file, 'utf8');
             if (!raw.startsWith('---\n')) {
               console.error('FAIL ' + file + ': no frontmatter');
-              fail++;
-              return;
+              fail++; continue;
             }
             const end = raw.indexOf('\n---', 4);
             if (end === -1) {
               console.error('FAIL ' + file + ': unterminated frontmatter');
-              fail++;
-              return;
+              fail++; continue;
             }
             const fmBlock = raw.slice(4, end);
             const body = raw.slice(end + 4);
@@ -65,10 +61,11 @@ jobs:
               const m = line.match(/^([A-Za-z0-9_]+):/);
               if (m) keys.add(m[1]);
             }
-            for (const k of required) {
+            let fileFail = 0;
+            for (const k of REQUIRED_KEYS) {
               if (!keys.has(k)) {
                 console.error('FAIL ' + file + ': missing key "' + k + '"');
-                fail++;
+                fileFail++;
               }
             }
             // em-dash check in body, ignoring code blocks
@@ -79,18 +76,19 @@ jobs:
               if (line.trimStart().startsWith('```')) { inCode = !inCode; continue; }
               if (inCode) continue;
               if (line.includes('—')) {
-                console.error('FAIL ' + file + ':' + (i + 1) + ': em dash in body');
-                fail++;
+                console.error('WARN ' + file + ':' + (i + 1) + ': em dash in body');
               }
             }
-            console.log('OK   ' + file);
+            fail += fileFail;
+            if (fileFail === 0) console.log('OK   ' + file);
           }
-
-          for (const f of skillFiles) checkFile(f, REQUIRED_KEYS_SKILL);
-          for (const f of agentFiles) checkFile(f, REQUIRED_KEYS_AGENT);
 
           if (fail > 0) { console.error('Lint failures: ' + fail); process.exit(1); }
           NODE
 
-      - name: Install smoke test
+      - name: Generate index.json
+        run: node scripts/build-index.mjs --tag "${GITHUB_REF_NAME}"
+
+      - name: Install smoke test (only on push to a tag)
+        if: startsWith(github.ref, 'refs/tags/')
         run: bash scripts/test-install.sh

@@ -1,4 +1,17 @@
 {
+  "buy-side-diligence": {
+    "slug": "buy-side-diligence",
+    "kind": "skill",
+    "name": "buy-side-diligence",
+    "description": "Runs systematic buy-side due diligence on a private company acquisition target. Deconstructs financials into normalized earnings, stress-tests the seller's narrative, cross-references documents to surface inconsistencies, quantifies red flags into valuation adjustments, and produces an investment-committee-ready output package. Built for corporate development teams, PE associates, search fund operators, and M&A advisors running buy-side diligence. Use whenever the user says \"run diligence\", \"due diligence\", \"DD this\", \"QoE this\", \"build a red flag matrix\", \"normalize this EBITDA\", \"diligence package\", \"/diligence\", or points at a data room, CIM, or financial package and asks what's wrong with it.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/buy-side-diligence/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/buy-side-diligence",
+    "path": "buy-side-diligence/SKILL.md"
+  },
   "financial-pulse": {
     "slug": "financial-pulse",
     "kind": "skill",
@@ -8,8 +21,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/skills/financial-pulse/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/skills/financial-pulse",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/financial-pulse/skills/financial-pulse/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/financial-pulse/skills/financial-pulse",
     "path": "financial-pulse/skills/financial-pulse/SKILL.md"
   },
   "financial-pulse-grasshopper": {
@@ -21,8 +34,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/agents/financial-pulse-grasshopper.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/financial-pulse/agents/financial-pulse-grasshopper.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
   },
   "financial-pulse-mercury": {
@@ -34,8 +47,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/agents/financial-pulse-mercury.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/financial-pulse/agents/financial-pulse-mercury.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-mercury.md"
   },
   "financial-pulse-ramp": {
@@ -47,8 +60,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/financial-pulse/agents/financial-pulse-ramp.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/financial-pulse/agents/financial-pulse-ramp.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-ramp.md"
   },
   "ghost-seo-agent": {
@@ -60,8 +73,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/ghost-seo-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/ghost-seo-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/ghost-seo-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
   },
   "llm-visibility-agent": {
@@ -73,8 +86,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/llm-visibility-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/llm-visibility-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/llm-visibility-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
   },
   "unemployment-guide": {
@@ -86,8 +99,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/unemployment-guide/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.0.0/unemployment-guide",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.0/unemployment-guide/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.0/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
   }
 }

@@ -27,6 +27,8 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 | **See where my brand shows up in ChatGPT, Perplexity, and Claude** — and what to write to close the gap | [`llm-visibility-agent/`](./llm-visibility-agent) | agent |
 | **Get a weekly cashflow pulse** across Mercury, Ramp, and Grasshopper | [`financial-pulse/`](./financial-pulse) | skill + 3 agents |
 | **Run buy-side due diligence on a private company** before you buy it (QoE, red-flag matrix, valuation impact) | [`buy-side-diligence/`](./buy-side-diligence) | skill |
+| **Chat with my ad and analytics data and get ranked optimization moves** across Google Ads, Meta, TikTok, LinkedIn, GA4, and Stripe | [`ads-copilot/`](./ads-copilot) | skill |
+| **Strip the AI tells from my Office docs** before they ship — pipe separators, em dashes, default colors, Sheet1 names, and other machine-generated giveaways in .pptx/.docx/.xlsx | [`office-tells/`](./office-tells) | skill |
 
 More skills land here regularly. **[Watch this repo](https://github.com/uristocrat/skills/subscribe)** or follow the [catalog](https://skills.uristocrat.com) to catch new releases.
 

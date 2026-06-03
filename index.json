@@ -1,4 +1,17 @@
 {
+  "ads-copilot": {
+    "slug": "ads-copilot",
+    "kind": "skill",
+    "name": "ads-copilot",
+    "description": "Chat with your ad-platform and analytics data and get specific, ranked optimization recommendations. Discovers whatever sources are reachable in the session (connected MCP servers for Google Ads, Meta, TikTok, LinkedIn, GA4, Stripe, or CSV exports the user pastes/uploads), answers plain-language questions about ad performance first, then surfaces 3 to 5 ranked moves with expected effect and the assumption behind each one. Use this skill whenever the user says \"ads copilot\", \"how are my ads doing\", \"review my ad spend\", \"what should I do about my Meta ads\", \"optimize my ads\", \"audit my ads\", or \"why isn't growth working\" (even without the word \"ads\"). This is a veneer layer, not an attribution platform — it never builds tracking pixels, identity resolution, or multi-touch attribution, and it treats platform-reported conversions as self-reported.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/ads-copilot/skills/ads-copilot/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/ads-copilot/skills/ads-copilot",
+    "path": "ads-copilot/skills/ads-copilot/SKILL.md"
+  },
   "buy-side-diligence": {
     "slug": "buy-side-diligence",
     "kind": "skill",
@@ -8,8 +21,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/buy-side-diligence/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/buy-side-diligence",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/buy-side-diligence/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/buy-side-diligence",
     "path": "buy-side-diligence/SKILL.md"
   },
   "financial-pulse": {
@@ -21,8 +34,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/financial-pulse/skills/financial-pulse/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/financial-pulse/skills/financial-pulse",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/financial-pulse/skills/financial-pulse/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/financial-pulse/skills/financial-pulse",
     "path": "financial-pulse/skills/financial-pulse/SKILL.md"
   },
   "financial-pulse-grasshopper": {
@@ -34,8 +47,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/financial-pulse/agents/financial-pulse-grasshopper.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/financial-pulse/agents/financial-pulse-grasshopper.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
   },
   "financial-pulse-mercury": {
@@ -47,8 +60,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/financial-pulse/agents/financial-pulse-mercury.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/financial-pulse/agents/financial-pulse-mercury.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-mercury.md"
   },
   "financial-pulse-ramp": {
@@ -60,8 +73,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/financial-pulse/agents/financial-pulse-ramp.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/financial-pulse/agents/financial-pulse-ramp.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-ramp.md"
   },
   "ghost-seo-agent": {
@@ -73,8 +86,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/ghost-seo-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/ghost-seo-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/ghost-seo-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
   },
   "llm-visibility-agent": {
@@ -86,9 +99,22 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/llm-visibility-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/llm-visibility-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/llm-visibility-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
+  },
+  "office-tells": {
+    "slug": "office-tells",
+    "kind": "skill",
+    "name": "office-tells",
+    "description": "Mandatory anti-AI quality gate for every PowerPoint (.pptx), Word (.docx), and Excel (.xlsx) file Claude creates or edits. Strips the visual, structural, and metadata tells that mark a document as machine-generated: pipe separators, em dashes, accent lines under slide titles, beige/default-blue/default-grey color choices, zebra table banding, excessive conditional formatting, Sheet1 names, library-default file metadata, hardcoded totals, and boilerplate section names. Use this skill BEFORE writing any code or content whenever the user asks to build, create, generate, make, write, edit, update, or produce a deck, slides, presentation, slideshow, pitch deck, PowerPoint, Word doc, document, report, memo, letter, brief, one-pager, template, spreadsheet, Excel file, workbook, financial model, tracker, budget, dashboard, or any .pptx/.docx/.xlsx file. Triggers even when the user does NOT mention \"human,\" \"natural,\" or \"anti-AI\" wording, the file type alone is the trigger. This is a behavioral overlay on the pptx, docx, and xlsx skills: read the relevant format skill for technical instructions, then apply every rule here. Always load this skill for Office file output. Do not generate a .pptx, .docx, or .xlsx without it.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "Brian Aber",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/office-tells/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/office-tells",
+    "path": "office-tells/SKILL.md"
   },
   "unemployment-guide": {
     "slug": "unemployment-guide",
@@ -99,8 +125,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.1.1/unemployment-guide/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.1.1/unemployment-guide",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.2.0/unemployment-guide/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.2.0/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
   }
 }

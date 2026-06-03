@@ -1,0 +1,11 @@
+# parse_csv.py is intentionally stdlib-only.
+#
+# It uses csv, argparse, re, datetime, sys — all in the Python standard
+# library. No pip install required. This keeps the script trivial to run
+# in any environment Claude might invoke (sandboxed code execution,
+# user's local shell, ephemeral container) without dependency setup.
+#
+# If you find yourself wanting pandas, openpyxl, or requests here, push
+# back: the goal is a small, auditable normalizer the user can read in
+# one sitting. Heavier analysis belongs in the skill itself or in a
+# downstream notebook.

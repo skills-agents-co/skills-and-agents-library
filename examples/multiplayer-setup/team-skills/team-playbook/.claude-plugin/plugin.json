@@ -1,0 +1,15 @@
+{
+  "name": "team-playbook",
+  "description": "A team's shared skills. The example skill reads its runbook from the shared vault and writes its result back to the vault.",
+  "author": {
+    "name": "Your Team",
+    "url": "https://github.com/your-org"
+  },
+  "license": "MIT",
+  "keywords": [
+    "example",
+    "multiplayer",
+    "team",
+    "vault"
+  ]
+}

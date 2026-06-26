@@ -578,3 +578,50 @@ If you're a Ghost publisher running into issues with this skill, reach out:
 - "why aren't my posts showing up in Google"
 - "my Ghost posts aren't ranking"
 - "do a migration SEO check" (triggers Mode D)
+
+---
+
+## Eval Contract
+
+### Spec
+
+A correct run produces a diagnosis-then-fix report for a Ghost site: every non-indexed URL is categorized by its actual cause (never crawled vs crawled-not-indexed vs structural), every recommendation is specific and actionable with the exact Ghost field or theme code to change, meta-tag and excerpt coverage gaps are named per post, and structural issues (tag/author archives, sitemap, canonical, HTTPS, members-only excerpts) are surfaced with priority labels. The report distinguishes what was auto-fixed via Ghost MCP from what needs editorial or theme action, and it never recommends a change that would harm rankings (for example noindexing a content post, or editing a post body it was told not to touch).
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** If the run recommends an action that would harm rankings or remove live content (noindexing a published content post, deleting or unpublishing a post, changing a post slug, or pointing a canonical at the wrong URL), the run is an automatic fail regardless of total score.
+
+1. **Cause diagnosis** (weight 1) — Pass: each non-indexed URL is tied to a specific cause from the categorization table. Fail: URLs are listed without a cause, or the cause is a guess.
+2. **Recommendation specificity** (weight 1) — Pass: every recommendation names the exact Ghost field or theme file and gives the concrete change. Fail: vague advice like "improve SEO" or "add metadata" with no target.
+3. **Meta-tag coverage** (weight 1) — Pass: meta description, meta title, and excerpt gaps are checked and reported per affected post. Fail: metadata coverage not assessed.
+4. **Structural audit completeness** (weight 1) — Pass: sitemap submission, canonical presence, HTTPS canonical, and archive-page handling are all checked. Fail: any of these four skipped without reason.
+5. **Auto-fix vs manual separation** (weight 1) — Pass: report clearly splits MCP-applied fixes from editorial/theme actions. Fail: the two are blended so the publisher can't tell what's done.
+6. **Members-only excerpt handling** (weight 1) — Pass: gated posts with no excerpt are flagged because Googlebot can't see gated content. Fail: members-only posts treated like public posts.
+7. **Priority labeling** (weight 1) — Pass: structural issues carry Critical/High/Medium/Low labels. Fail: issues listed flat with no priority.
+8. **Scope discipline** (weight 1) — Pass: does not edit post bodies, change slugs, or modify theme files directly; surfaces code instead. Fail: takes an out-of-scope write action.
+
+**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is fail regardless of total.
+
+### Self-Test
+
+**Scenario A — Coverage report shows a published 1,200-word post in "Crawled - currently not indexed" with no meta description and no custom excerpt.**
+- The output MUST categorize this as a metadata-thin crawled-not-indexed case, not a discovery problem.
+- The output MUST recommend setting `meta_description` and `custom_excerpt` on that specific post.
+- The output MUST NOT recommend noindexing the post.
+- The output MUST NOT recommend editing the post body text.
+
+**Scenario B — A `/tag/sneakers/` archive URL and a members-only post with no excerpt both appear in the non-indexed list.**
+- The output MUST flag the tag-archive URL as a structural issue with a noindex theme fix, with a priority label.
+- The output MUST flag the members-only post as needing a teaser excerpt because gated content is invisible to Googlebot.
+- The output MUST NOT recommend noindexing the members-only content post itself.
+
+**Scenario C — View-source on a sample post shows the canonical tag uses `http://` instead of `https://`.**
+- The output MUST flag the HTTP canonical as a high-priority structural issue.
+- The output MUST point the fix at the Ghost config `url` property, not at editing individual posts.
+- The output MUST NOT silently ignore the protocol mismatch.
+
+### Version
+
+1.0.0

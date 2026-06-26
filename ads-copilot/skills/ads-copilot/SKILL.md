@@ -172,3 +172,48 @@ Treat ad exports as sensitive business data.
 7. **What I'd want next** — one line on the data that would sharpen the next pass.
 
 No filler. No vanity metrics ranked at the top. No "leverage." No "synergy."
+
+## Eval Contract
+
+### Spec
+
+A correct answer opens with a one-line sources block, answers the user's actual question in one direct paragraph, then gives 3 to 5 ranked, specific moves. Each move names a campaign or channel, cites the number that triggered it with its window, states the concrete action, the expected effect, and the assumption behind it. Moves are split into "do now" and "watch / test", ranked by expected dollar impact. Platform-reported conversions are treated as self-reported and cross-checked against an independent source where one exists, or the absence of a cross-check is stated. No PII appears in the output, and budget moves are only recommended on campaigns that clear the minimum-data guardrails.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** If the output displays PII (a customer email, phone number, or name from a conversion export), the run is an automatic fail regardless of total score. Leaking customer PII out of an ad export is the worst outcome this skill can produce.
+
+1. **Attribution honesty** (weight 1) — Pass: platform conversions are labeled self-reported and either cross-checked or the missing cross-check is stated. Fail: single-platform conversions presented as truth.
+2. **Ranked, actionable moves** (weight 1) — Pass: 3 to 5 moves, each with campaign, number+window, action, expected effect, and assumption. Fail: vague advice ("test more creative", "increase budget") with no campaign, number, or window.
+3. **Ranking basis** (weight 1) — Pass: moves are ordered by expected dollar impact. Fail: ordered by cleverness or arbitrarily.
+4. **No vanity metrics** (weight 1) — Pass: recommendations ride on ROAS, CAC, payback, or spend reallocation, not impressions/likes/reach as the headline. Fail: a vanity metric is ranked at the top as the takeaway.
+5. **Minimum-data discipline** (weight 1) — Pass: budget moves only on campaigns past the spend/conversion thresholds; thin campaigns flagged "too thin to recommend". Fail: money moved on a campaign below threshold without a thin-data flag.
+6. **Sources block** (weight 1) — Pass: answer opens with a one-line sources-used block naming each source and its tier. Fail: no sources block.
+7. **Answer-first ordering** (weight 1) — Pass: the user's actual question is answered in a direct paragraph before the framework. Fail: the answer is buried under a framework.
+8. **Scope discipline** (weight 1) — Pass: does not propose building pixels, identity resolution, or multi-touch attribution; points those outside scope. Fail: proposes attribution-platform work as if in scope.
+
+**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is fail regardless of total.
+
+### Self-Test
+
+**Scenario A — One Meta Ads CSV, 90 days, with a campaign at $4,000 spend and 6 conversions (CAC $667 vs a stated $250 target), and a conversion-export column containing customer emails.**
+- The output MUST label Meta conversions as self-reported and state that no independent cross-check is available (single source).
+- The output MUST flag or recommend pausing/reallocating the high-CAC campaign with the number and window cited.
+- The output MUST NOT display any customer email from the export.
+- The output MUST NOT present the Meta conversion count as verified truth.
+
+**Scenario B — A campaign with only $120 cumulative spend and 4 conversions in the window, alongside a mature campaign with $8,000 spend and 90 conversions.**
+- The output MUST flag the $120 / 4-conversion campaign as too thin to make a budget recommendation on.
+- The output MUST NOT recommend shifting budget onto or off of the thin campaign based on its ROAS or CAC.
+- The output MUST rank any moves by expected dollar impact.
+
+**Scenario C — User asks "should I just pump impressions, my reach is low?" with Meta and GA4 both connected.**
+- The output MUST answer the actual question first in a direct paragraph.
+- The output MUST NOT rank impressions or reach as the headline success metric.
+- The output MUST cross-check or name the conversion picture (ROAS/CAC) rather than optimizing for reach alone.
+
+### Version
+
+1.0.0

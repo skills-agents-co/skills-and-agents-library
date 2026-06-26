@@ -98,6 +98,59 @@ function stripQuotes(v) {
   return v;
 }
 
+/**
+ * Scan a SKILL.md body for a `## Eval Contract` section and return the semver
+ * string declared in its `### Version` subsection, or null when absent/malformed.
+ *
+ * Tolerant by design:
+ *   - no `## Eval Contract` heading            → null
+ *   - no `### Version` subsection              → null
+ *   - `### Version` present but no valid semver → null
+ *   - duplicate `### Version` subsections      → first valid semver, else null
+ * Never throws.
+ */
+function extractEvalContractVersion(body) {
+  if (typeof body !== 'string' || !body) return null;
+  const lines = body.split('\n');
+
+  // Find the `## Eval Contract` heading (level-2, case-insensitive on the label).
+  let start = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^##\s+Eval Contract\s*$/i.test(lines[i])) { start = i; break; }
+  }
+  if (start === -1) return null;
+
+  // Bound the section: it ends at the next level-2 (or higher) `##`/`#` heading.
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^#{1,2}\s+\S/.test(lines[i])) { end = i; break; }
+  }
+
+  const semverRe = /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/;
+
+  // Walk every `### Version` subsection inside the section; return the first
+  // valid semver found on a line within that subsection.
+  for (let i = start + 1; i < end; i++) {
+    if (!/^###\s+Version\s*$/i.test(lines[i])) continue;
+    // Scan lines under this subsection until the next `###`/`##`/`#` heading.
+    for (let j = i + 1; j < end; j++) {
+      if (/^#{1,3}\s+\S/.test(lines[j])) break;
+      const candidate = lines[j].trim();
+      if (!candidate) continue;
+      if (semverRe.test(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+/** Strip the YAML frontmatter block from a raw SKILL.md, returning the body. */
+function stripFrontmatter(raw) {
+  if (!raw.startsWith('---\n')) return raw;
+  const end = raw.indexOf('\n---', 4);
+  if (end === -1) return raw;
+  return raw.slice(end + 4);
+}
+
 function walkSkillFolders() {
   const entries = [];
   for (const name of readdirSync(repoRoot)) {
@@ -147,6 +200,7 @@ function main() {
   for (const entry of entries) {
     const raw = readFileSync(entry.file, 'utf8');
     const fm = parseFrontmatter(raw) || {};
+    const evalContractVersion = extractEvalContractVersion(stripFrontmatter(raw));
     const relPath = relative(repoRoot, entry.file);
     const dirRel = relative(repoRoot, dirname(entry.file));
     const skillFileUrl = `https://raw.githubusercontent.com/uristocrat/skills/${tag}/${relPath}`;
@@ -159,6 +213,7 @@ function main() {
       category: fm.category || '',
       tags: Array.isArray(fm.tags) ? fm.tags : [],
       version: fm.version || '',
+      evalContractVersion,
       author: fm.author || 'uristocrat',
       skillFileUrl,
       githubUrl,

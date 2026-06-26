@@ -8,8 +8,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/ads-copilot/skills/ads-copilot/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/ads-copilot/skills/ads-copilot",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/ads-copilot/skills/ads-copilot/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/ads-copilot/skills/ads-copilot",
     "path": "ads-copilot/skills/ads-copilot/SKILL.md"
   },
   "ap-invoice-processing": {
@@ -21,8 +21,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/ap-invoice-processing/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/ap-invoice-processing",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/ap-invoice-processing/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/ap-invoice-processing",
     "path": "ap-invoice-processing/SKILL.md"
   },
   "buy-side-diligence": {
@@ -34,9 +34,22 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/buy-side-diligence/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/buy-side-diligence",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/buy-side-diligence/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/buy-side-diligence",
     "path": "buy-side-diligence/SKILL.md"
+  },
+  "card-receipt-forwarding": {
+    "slug": "card-receipt-forwarding",
+    "kind": "skill",
+    "name": "card-receipt-forwarding",
+    "description": "Forward recurring corporate-card receipts (e.g. Divvy, Ramp, Expensify) to the card/AP system and keep those vendors out of invoice processing to avoid double-counting. Use for known recurring card vendors only; flag anything off-list for review.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/card-receipt-forwarding/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/card-receipt-forwarding",
+    "path": "card-receipt-forwarding/SKILL.md"
   },
   "financial-pulse": {
     "slug": "financial-pulse",
@@ -47,8 +60,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/financial-pulse/skills/financial-pulse/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/financial-pulse/skills/financial-pulse",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/financial-pulse/skills/financial-pulse/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/financial-pulse/skills/financial-pulse",
     "path": "financial-pulse/skills/financial-pulse/SKILL.md"
   },
   "financial-pulse-grasshopper": {
@@ -60,8 +73,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/financial-pulse/agents/financial-pulse-grasshopper.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/financial-pulse/agents/financial-pulse-grasshopper.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
   },
   "financial-pulse-mercury": {
@@ -73,8 +86,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/financial-pulse/agents/financial-pulse-mercury.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/financial-pulse/agents/financial-pulse-mercury.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-mercury.md"
   },
   "financial-pulse-ramp": {
@@ -86,8 +99,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/financial-pulse/agents/financial-pulse-ramp.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/financial-pulse/agents/financial-pulse-ramp.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-ramp.md"
   },
   "ghost-seo-agent": {
@@ -99,8 +112,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/ghost-seo-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/ghost-seo-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/ghost-seo-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
   },
   "learn-quiz": {
@@ -112,8 +125,8 @@
     "tags": [],
     "version": "",
     "author": "Thariq Shihipar",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/learn-quiz/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/learn-quiz",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/learn-quiz/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/learn-quiz",
     "path": "learn-quiz/SKILL.md"
   },
   "llm-visibility-agent": {
@@ -125,8 +138,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/llm-visibility-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/llm-visibility-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/llm-visibility-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
   },
   "office-tells": {
@@ -138,8 +151,8 @@
     "tags": [],
     "version": "",
     "author": "Brian Aber",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/office-tells/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/office-tells",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/office-tells/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/office-tells",
     "path": "office-tells/SKILL.md"
   },
   "unemployment-guide": {
@@ -151,8 +164,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/unemployment-guide/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/unemployment-guide",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.4.0/unemployment-guide/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.4.0/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
   }
 }

@@ -183,3 +183,7 @@ When competitors are named in the body, format them as markdown links to their s
 ## Scope
 
 On-demand only. There is no scheduled cron for v1. The user runs this when they want the editorial read on the most recent weekly measurement.
+
+---
+
+**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/llm-visibility-agent/).

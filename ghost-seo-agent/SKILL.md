@@ -578,3 +578,7 @@ If you're a Ghost publisher running into issues with this skill, reach out:
 - "why aren't my posts showing up in Google"
 - "my Ghost posts aren't ranking"
 - "do a migration SEO check" (triggers Mode D)
+
+---
+
+**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ghost-seo-agent/).

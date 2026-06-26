@@ -29,6 +29,7 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 | **Run buy-side due diligence on a private company** before you buy it (QoE, red-flag matrix, valuation impact) | [`buy-side-diligence/`](./buy-side-diligence) | skill |
 | **Chat with my ad and analytics data and get ranked optimization moves** across Google Ads, Meta, TikTok, LinkedIn, GA4, and Stripe | [`ads-copilot/`](./ads-copilot) | skill |
 | **Strip the AI tells from my Office docs** before they ship — pipe separators, em dashes, default colors, Sheet1 names, and other machine-generated giveaways in .pptx/.docx/.xlsx | [`office-tells/`](./office-tells) | skill |
+| **Actually understand the code Claude just wrote** — a teaching loop that quizzes you on the problem, solution, design decisions, and edge cases until you've demonstrably got it | [`learn-quiz/`](./learn-quiz) | skill |
 
 More skills land here regularly. **[Watch this repo](https://github.com/uristocrat/skills/subscribe)** or follow the [catalog](https://skills.uristocrat.com) to catch new releases.
 
@@ -39,7 +40,7 @@ Every skill installs the same way — one `curl` into `~/.claude/skills/`, then 
 ```bash
 mkdir -p ~/.claude/skills/<skill-name>
 curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
-  https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/<skill-name>/SKILL.md
+  https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/<skill-name>/SKILL.md
 ```
 
 The fastest path is **[skills.uristocrat.com](https://skills.uristocrat.com)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.

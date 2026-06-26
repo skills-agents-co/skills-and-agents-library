@@ -1,0 +1,29 @@
+{
+  "name": "team-skills",
+  "owner": {
+    "name": "Your Team",
+    "url": "https://github.com/your-org"
+  },
+  "metadata": {
+    "description": "Example team skills pack for the multiplayer setup. Replace with your team's own skills.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "team-playbook",
+      "source": "./team-playbook",
+      "description": "A team's shared skills. The example skill reads its runbook from the shared vault and writes its result back to the vault.",
+      "author": {
+        "name": "Your Team",
+        "url": "https://github.com/your-org"
+      },
+      "license": "MIT",
+      "keywords": [
+        "example",
+        "multiplayer",
+        "team",
+        "vault"
+      ]
+    }
+  ]
+}

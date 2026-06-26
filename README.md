@@ -49,8 +49,7 @@ The fastest path is **[skills.uristocrat.com](https://skills.uristocrat.com)** �
 
 ## Why these skills exist
 
-Every skill in this repo solves a problem we actually had at uristocrat — then we generalized it so anyone can use it. That's the bar: it has to be useful on day one, not a demo. If a skill stops being useful, we deprecate it instead of letting it rot.
-
+Every skill in this repo solves a problem we actually had at uristocrat — then we generalized it so anyone can use it.
 We pin every install URL to a tagged release (never `main`), so the skill you install today behaves the same way next month.
 
 ## For skill authors

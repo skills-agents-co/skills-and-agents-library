@@ -12,6 +12,19 @@
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/ads-copilot/skills/ads-copilot",
     "path": "ads-copilot/skills/ads-copilot/SKILL.md"
   },
+  "ap-invoice-processing": {
+    "slug": "ap-invoice-processing",
+    "kind": "skill",
+    "name": "ap-invoice-processing",
+    "description": "Watch an inbox for vendor invoices, extract the key fields, dedupe against the AP log, log them, forward to the AP system, and file the email. Use for daily accounts-payable intake when you want to automate the clerical part and keep a human in the loop before anything gets paid.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/ap-invoice-processing/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.3.0/ap-invoice-processing",
+    "path": "ap-invoice-processing/SKILL.md"
+  },
   "buy-side-diligence": {
     "slug": "buy-side-diligence",
     "kind": "skill",

@@ -64,6 +64,19 @@
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.6.0/contract-review",
     "path": "contract-review/SKILL.md"
   },
+  "expense-policy-check": {
+    "slug": "expense-policy-check",
+    "kind": "skill",
+    "name": "expense-policy-check",
+    "description": "Review expense reports against policy, flag violations and missing receipts, and draft the monthly missing-receipt chase. Use on an expense report or export, or at month-end. Every flag cites the policy rule it breaks; ambiguous items are flagged to confirm, never auto-approved or auto-rejected. The chase is a draft a person sends.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.6.0/expense-policy-check/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.6.0/expense-policy-check",
+    "path": "expense-policy-check/SKILL.md"
+  },
   "financial-pulse": {
     "slug": "financial-pulse",
     "kind": "skill",

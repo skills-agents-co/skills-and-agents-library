@@ -41,8 +41,8 @@ Notes on messy data:
 
 1. Read the expense data and the policy. Confirm the Rules placeholders below are filled; if any are
    blank, stop and ask.
-2. For each expense, check it against policy: over the per-category limit, wrong category, missing or
-   sub-threshold receipt, out-of-policy merchant.
+2. For each expense, check it against policy: over the per-category limit, wrong category, missing
+   receipt on an expense at or above the receipt-required threshold, out-of-policy merchant.
 3. Flag every violation citing both sides: the source (which row / file) and the exact policy clause
    or operator rule it breaks, with its value.
 4. List who is missing receipts and which items.

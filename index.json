@@ -64,6 +64,19 @@
     "githubUrl": "https://github.com/uristocrat/skills/tree/main/contract-review",
     "path": "contract-review/SKILL.md"
   },
+  "drip-api": {
+    "slug": "drip-api",
+    "kind": "skill",
+    "name": "drip-api",
+    "description": "Research Drip's premium financial newsletters and podcasts by searching topics, browsing sources, resolving named publications, newsletters, authors, podcast shows, Substack URLs, and direct article links, listing recent posts, presenting purchasable article options, fetching paid article summaries, and synthesizing or comparing selected paid articles. Also supports fetching structured stock picks for a given UTC day when users ask for stock recommendations, ticker-level long/short ideas, or analyst calls. Use for questions about finance commentary, analyst views, market themes, company or sector writeups, podcast/newsletter source discovery, stock picks, and paid Drip content. Paid post and stock-picks routes are gated by x402/MPP micropayments.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/main/drip-api/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/main/drip-api",
+    "path": "drip-api/SKILL.md"
+  },
   "equity-reconciliation": {
     "slug": "equity-reconciliation",
     "kind": "skill",

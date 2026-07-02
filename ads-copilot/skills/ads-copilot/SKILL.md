@@ -172,3 +172,7 @@ Treat ad exports as sensitive business data.
 7. **What I'd want next** — one line on the data that would sharpen the next pass.
 
 No filler. No vanity metrics ranked at the top. No "leverage." No "synergy."
+
+---
+
+**More from SkillsAndAgents.co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ads-copilot/).

@@ -101,3 +101,7 @@ The strongest analytical edge is cross-referencing every document against every 
 ---
 
 *Methodology adapted from the buy-side due diligence operating system circulated on the SearchFunder forum. This skill is an analytical aid; it does not constitute accounting, legal, or investment advice.*
+
+---
+
+**More from SkillsAndAgents.co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/buy-side-diligence/).

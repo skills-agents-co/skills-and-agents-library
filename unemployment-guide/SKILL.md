@@ -461,3 +461,7 @@ Waiting period: "1 wk" means the first eligible week is unpaid. "None" means ben
 - **Phone:** 307-473-3789
 - **Waiting period:** 1 wk
 - **Notes:** Must register at Wyoming at Work.
+
+---
+
+**More from SkillsAndAgents.co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/unemployment-guide/).

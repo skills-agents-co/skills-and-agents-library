@@ -50,3 +50,7 @@ understood everything on your list.
 ---
 
 *Adapted from a public gist by Thariq Shihipar; the variant that inspired this was Suzanne's.*
+
+---
+
+**More from SkillsAndAgents.co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/learn-quiz/).

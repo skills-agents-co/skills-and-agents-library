@@ -155,3 +155,7 @@ This skill owns structural language: slide titles, section headers, sheet names,
 - [ ] Sheet names, slide titles, and section headers are specific and descriptive
 - [ ] Example data is lumpy, not suspiciously round or evenly spaced
 - [ ] You rendered the file to images and looked at it
+
+---
+
+**More from SkillsAndAgents.co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/office-tells/).

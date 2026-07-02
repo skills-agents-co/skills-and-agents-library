@@ -217,3 +217,8 @@ Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
 ### Version
 
 1.0.0
+
+---
+
+**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ads-copilot/).
+

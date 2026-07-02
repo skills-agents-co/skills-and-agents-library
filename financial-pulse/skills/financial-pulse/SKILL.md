@@ -171,3 +171,7 @@ No filler. No "great news!" No financial therapy. Numbers, trends, actions.
 - If the source returns identity data (SSN, DOB), do not display it
 - Never frame recommendations as financial advice
 - If the user says "stop," halt immediately
+
+---
+
+**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/financial-pulse/).

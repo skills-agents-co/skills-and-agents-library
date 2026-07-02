@@ -147,3 +147,7 @@ Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
 ---
 
 *Methodology adapted from the buy-side due diligence operating system circulated on the SearchFunder forum. This skill is an analytical aid; it does not constitute accounting, legal, or investment advice.*
+
+---
+
+**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/buy-side-diligence/).

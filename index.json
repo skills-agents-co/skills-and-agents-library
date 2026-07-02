@@ -13,6 +13,20 @@
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/ads-copilot/skills/ads-copilot",
     "path": "ads-copilot/skills/ads-copilot/SKILL.md"
   },
+  "ap-invoice-processing": {
+    "slug": "ap-invoice-processing",
+    "kind": "skill",
+    "name": "ap-invoice-processing",
+    "description": "Watch an inbox for vendor invoices, extract the key fields, dedupe against the AP log, log them, forward to the AP system, and file the email. Use for daily accounts-payable intake when you want to automate the clerical part and keep a human in the loop before anything gets paid.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/ap-invoice-processing/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/ap-invoice-processing",
+    "path": "ap-invoice-processing/SKILL.md"
+  },
   "buy-side-diligence": {
     "slug": "buy-side-diligence",
     "kind": "skill",
@@ -26,6 +40,118 @@
     "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/buy-side-diligence/SKILL.md",
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/buy-side-diligence",
     "path": "buy-side-diligence/SKILL.md"
+  },
+  "card-receipt-forwarding": {
+    "slug": "card-receipt-forwarding",
+    "kind": "skill",
+    "name": "card-receipt-forwarding",
+    "description": "Forward recurring corporate-card receipts (e.g. Divvy, Ramp, Expensify) to the card/AP system and keep those vendors out of invoice processing to avoid double-counting. Use for known recurring card vendors only; flag anything off-list for review.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/card-receipt-forwarding/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/card-receipt-forwarding",
+    "path": "card-receipt-forwarding/SKILL.md"
+  },
+  "contract-review": {
+    "slug": "contract-review",
+    "kind": "skill",
+    "name": "contract-review",
+    "description": "Review a vendor, customer, payor, or partner contract before sign-off. Extracts key terms with clause citations, flags risks and cost obligations ranked by severity, notes what's missing versus a standard contract of its type, and drafts a decision-maker (CFO/GC) memo. Use when a new or renewing contract needs analysis before signing.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/contract-review/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/contract-review",
+    "path": "contract-review/SKILL.md"
+  },
+  "drip-api": {
+    "slug": "drip-api",
+    "kind": "skill",
+    "name": "drip-api",
+    "description": "Research Drip's premium financial newsletters and podcasts by searching topics, browsing sources, resolving named publications, newsletters, authors, podcast shows, Substack URLs, and direct article links, listing recent posts, presenting purchasable article options, fetching paid article summaries, and synthesizing or comparing selected paid articles. Also supports fetching structured stock picks for a given UTC day when users ask for stock recommendations, ticker-level long/short ideas, or analyst calls. Use for questions about finance commentary, analyst views, market themes, company or sector writeups, podcast/newsletter source discovery, stock picks, and paid Drip content. Paid post and stock-picks routes are gated by x402/MPP micropayments.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/drip-api/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/drip-api",
+    "path": "drip-api/SKILL.md"
+  },
+  "equity-reconciliation": {
+    "slug": "equity-reconciliation",
+    "kind": "skill",
+    "name": "equity-reconciliation",
+    "description": "Reconcile equity records against the HRIS to catch termination-date mismatches and active grants for terminated employees. Use periodically and before any capital raise or audit.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/equity-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/equity-reconciliation",
+    "path": "equity-reconciliation/SKILL.md"
+  },
+  "equity-reconciliation-carta": {
+    "slug": "equity-reconciliation-carta",
+    "kind": "skill",
+    "name": "equity-reconciliation-carta",
+    "description": "Live equity reconciliation powered by the Carta MCP server. Pulls cap-table data directly from Carta, compares it against your HRIS export, and surfaces termination-date mismatches, active grants for terminated employees, lapsed exercise windows, and missing source documents. Use periodically and before any capital raise or audit.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/equity-reconciliation-carta/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/equity-reconciliation-carta",
+    "path": "equity-reconciliation-carta/SKILL.md"
+  },
+  "expense-access-audit": {
+    "slug": "expense-access-audit",
+    "kind": "skill",
+    "name": "expense-access-audit",
+    "description": "Generate the onboarding or offboarding checklist for the expense/card tool, and audit it against the HRIS to catch terminated people with active cards or missing approvers. Use on a new hire, a termination, or a periodic access review.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/expense-access-audit/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/expense-access-audit",
+    "path": "expense-access-audit/SKILL.md"
+  },
+  "expense-policy-check": {
+    "slug": "expense-policy-check",
+    "kind": "skill",
+    "name": "expense-policy-check",
+    "description": "Review expense reports against policy, flag violations and missing receipts, and draft the monthly missing-receipt chase. Use on an expense report or export, or at month-end. Every flag cites the policy rule it breaks; ambiguous items are flagged to confirm, never auto-approved or auto-rejected. The chase is a draft a person sends.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/expense-policy-check/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/expense-policy-check",
+    "path": "expense-policy-check/SKILL.md"
+  },
+  "financial-model-qa": {
+    "slug": "financial-model-qa",
+    "kind": "skill",
+    "name": "financial-model-qa",
+    "description": "Scan a financial model for formula errors and logic defects, and check scenario outputs after input changes. Cites the exact sheet and cell for every issue and never edits the model. Use before sharing or relying on a model.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/financial-model-qa/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/financial-model-qa",
+    "path": "financial-model-qa/SKILL.md"
   },
   "financial-pulse": {
     "slug": "financial-pulse",
@@ -97,6 +223,20 @@
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
   },
+  "gl-to-report": {
+    "slug": "gl-to-report",
+    "kind": "skill",
+    "name": "gl-to-report",
+    "description": "Turn a raw accounting/GL export into a clean reporting template (flash report) and draft variance commentary against prior actuals and budget. Use for the monthly close and the recurring flash report.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/gl-to-report/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/gl-to-report",
+    "path": "gl-to-report/SKILL.md"
+  },
   "learn-quiz": {
     "slug": "learn-quiz",
     "kind": "skill",
@@ -125,6 +265,20 @@
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
   },
+  "meeting-memo": {
+    "slug": "meeting-memo",
+    "kind": "skill",
+    "name": "meeting-memo",
+    "description": "Turn a meeting transcript into the team's standardized notes format (commentary, observations, action items with owners and dates) and carry forward unresolved items from the last meeting. Use after any recurring meeting. Writes against your frozen template, flags missing owners, invents no decisions.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/meeting-memo/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/meeting-memo",
+    "path": "meeting-memo/SKILL.md"
+  },
   "office-tells": {
     "slug": "office-tells",
     "kind": "skill",
@@ -139,6 +293,20 @@
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/office-tells",
     "path": "office-tells/SKILL.md"
   },
+  "statement-reconciliation": {
+    "slug": "statement-reconciliation",
+    "kind": "skill",
+    "name": "statement-reconciliation",
+    "description": "Check a vendor statement against the AP log to confirm every invoice is recorded, and draft a request for any that are missing. Use when a vendor statement arrives.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/statement-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/statement-reconciliation",
+    "path": "statement-reconciliation/SKILL.md"
+  },
   "unemployment-guide": {
     "slug": "unemployment-guide",
     "kind": "skill",
@@ -152,5 +320,19 @@
     "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/unemployment-guide/SKILL.md",
     "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
+  },
+  "vendor-contract-extraction": {
+    "slug": "vendor-contract-extraction",
+    "kind": "skill",
+    "name": "vendor-contract-extraction",
+    "description": "Extract key terms, risk provisions, cost obligations, renewal/termination clauses, and authorized user counts across a vendor portfolio into one risk-and-cost register. Use to build or refresh a vendor risk and cost inventory.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "evalContractVersion": null,
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/vendor-contract-extraction/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/vendor-contract-extraction",
+    "path": "vendor-contract-extraction/SKILL.md"
   }
 }

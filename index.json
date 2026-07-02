@@ -7,9 +7,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": "1.0.0",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/ads-copilot/skills/ads-copilot/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/ads-copilot/skills/ads-copilot",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/ads-copilot/skills/ads-copilot/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/ads-copilot/skills/ads-copilot",
     "path": "ads-copilot/skills/ads-copilot/SKILL.md"
   },
   "ap-invoice-processing": {
@@ -20,9 +21,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/ap-invoice-processing/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/ap-invoice-processing",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/ap-invoice-processing/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/ap-invoice-processing",
     "path": "ap-invoice-processing/SKILL.md"
   },
   "buy-side-diligence": {
@@ -33,9 +35,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": "1.0.0",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/buy-side-diligence/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/buy-side-diligence",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/buy-side-diligence/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/buy-side-diligence",
     "path": "buy-side-diligence/SKILL.md"
   },
   "card-receipt-forwarding": {
@@ -46,9 +49,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/card-receipt-forwarding/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/card-receipt-forwarding",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/card-receipt-forwarding/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/card-receipt-forwarding",
     "path": "card-receipt-forwarding/SKILL.md"
   },
   "contract-review": {
@@ -59,9 +63,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/contract-review/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/contract-review",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/contract-review/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/contract-review",
     "path": "contract-review/SKILL.md"
   },
   "drip-api": {
@@ -72,9 +77,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/drip-api/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/drip-api",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/drip-api/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/drip-api",
     "path": "drip-api/SKILL.md"
   },
   "equity-reconciliation": {
@@ -85,9 +91,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/equity-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/equity-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/equity-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/equity-reconciliation",
     "path": "equity-reconciliation/SKILL.md"
   },
   "equity-reconciliation-carta": {
@@ -98,9 +105,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/equity-reconciliation-carta/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/equity-reconciliation-carta",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/equity-reconciliation-carta/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/equity-reconciliation-carta",
     "path": "equity-reconciliation-carta/SKILL.md"
   },
   "expense-access-audit": {
@@ -111,9 +119,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/expense-access-audit/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/expense-access-audit",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/expense-access-audit/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/expense-access-audit",
     "path": "expense-access-audit/SKILL.md"
   },
   "expense-policy-check": {
@@ -124,9 +133,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/expense-policy-check/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/expense-policy-check",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/expense-policy-check/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/expense-policy-check",
     "path": "expense-policy-check/SKILL.md"
   },
   "financial-model-qa": {
@@ -137,9 +147,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-model-qa/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-model-qa",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/financial-model-qa/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/financial-model-qa",
     "path": "financial-model-qa/SKILL.md"
   },
   "financial-pulse": {
@@ -150,9 +161,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/skills/financial-pulse/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/skills/financial-pulse",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/financial-pulse/skills/financial-pulse/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/financial-pulse/skills/financial-pulse",
     "path": "financial-pulse/skills/financial-pulse/SKILL.md"
   },
   "financial-pulse-grasshopper": {
@@ -163,9 +175,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/agents/financial-pulse-grasshopper.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/financial-pulse/agents/financial-pulse-grasshopper.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
   },
   "financial-pulse-mercury": {
@@ -176,9 +189,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/agents/financial-pulse-mercury.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/financial-pulse/agents/financial-pulse-mercury.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-mercury.md"
   },
   "financial-pulse-ramp": {
@@ -189,9 +203,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/agents/financial-pulse-ramp.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/financial-pulse/agents/financial-pulse-ramp.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-ramp.md"
   },
   "ghost-seo-agent": {
@@ -202,9 +217,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": "1.0.0",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/ghost-seo-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/ghost-seo-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/ghost-seo-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
   },
   "gl-to-report": {
@@ -215,9 +231,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/gl-to-report/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/gl-to-report",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/gl-to-report/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/gl-to-report",
     "path": "gl-to-report/SKILL.md"
   },
   "learn-quiz": {
@@ -228,9 +245,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "Thariq Shihipar",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/learn-quiz/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/learn-quiz",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/learn-quiz/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/learn-quiz",
     "path": "learn-quiz/SKILL.md"
   },
   "llm-visibility-agent": {
@@ -241,9 +259,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/llm-visibility-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/llm-visibility-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/llm-visibility-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
   },
   "meeting-memo": {
@@ -254,9 +273,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/meeting-memo/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/meeting-memo",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/meeting-memo/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/meeting-memo",
     "path": "meeting-memo/SKILL.md"
   },
   "office-tells": {
@@ -267,9 +287,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "Brian Aber",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/office-tells/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/office-tells",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/office-tells/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/office-tells",
     "path": "office-tells/SKILL.md"
   },
   "statement-reconciliation": {
@@ -280,9 +301,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/statement-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/statement-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/statement-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/statement-reconciliation",
     "path": "statement-reconciliation/SKILL.md"
   },
   "unemployment-guide": {
@@ -293,9 +315,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": "1.0.0",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/unemployment-guide/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/unemployment-guide",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/unemployment-guide/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
   },
   "vendor-contract-extraction": {
@@ -306,9 +329,10 @@
     "category": "",
     "tags": [],
     "version": "",
+    "evalContractVersion": null,
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/vendor-contract-extraction/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/vendor-contract-extraction",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.14.0/vendor-contract-extraction/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.14.0/vendor-contract-extraction",
     "path": "vendor-contract-extraction/SKILL.md"
   }
 }

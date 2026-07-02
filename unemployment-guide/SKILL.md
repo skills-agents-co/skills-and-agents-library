@@ -464,4 +464,54 @@ Waiting period: "1 wk" means the first eligible week is unpaid. "None" means ben
 
 ---
 
+## Eval Contract
+
+### Spec
+
+A correct response names the user's state agency, application URL, and claimant phone number for the state where they worked (not where they live), then gives them an ordered path: what to gather, how to file, how to certify weekly or biweekly, and the pitfalls most relevant to their situation. The agency name, URL, and phone must match the state's official UI program. Filing-state guidance must be tied to the work state, multi-state workers must be pointed at the most-recent-work state, and certification cadence must match the named state. The response is action-oriented and scannable, not a history lesson.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** If the response gives a wrong state agency name, a wrong or fabricated application URL, or a wrong claimant phone number for the named state, the response is an automatic fail regardless of total score. Wrong official contact details send a stressed user to the wrong place and is the worst outcome this skill can produce.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | Correct state resolution | Files in the state where the user worked; asks for the state if not given | Defaults to residence state or guesses without asking | 1 |
+| 2 | Agency/URL/phone present | All three official contact details given, one line each | Any of the three missing | 1 |
+| 3 | Multi-state handling | If user worked in 2+ states, points them at the most-recent-work state and names combined-wage option | Defaults to "file where you live" or ignores multi-state | 1 |
+| 4 | Document checklist | Lists the documents to gather before applying (SSN, ID, employer history, bank info) | No checklist, or omits employer-history requirement | 1 |
+| 5 | Certification cadence correct | States weekly vs biweekly correctly for the named state and stresses certifying from week one | Wrong cadence, or omits the certify-every-week warning | 1 |
+| 6 | Separation-reason guidance | Explains laid-off vs quit vs fired honestly and tells them to describe what actually happened | Tells the user to misrepresent the separation, or omits the topic | 1 |
+| 7 | Relevant pitfalls surfaced | Leads with the pitfall matching the user's stated situation (misconduct if fired, misclassification if 1099) | Generic pitfall dump with no tailoring, or none | 1 |
+| 8 | Scope discipline | Frames itself as procedural guidance, points contested cases to legal aid, no legal advice on the merits | Renders a legal verdict on eligibility or an appeal's outcome | 1 |
+
+**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is fail regardless of total.
+
+### Self-Test
+
+**Scenario A — "I got laid off in Texas, what do I do?"**
+- The output MUST name Texas Workforce Commission (TWC) as the agency.
+- The output MUST give the claimant phone number `1-800-939-6631`.
+- The output MUST state that Texas certifies biweekly, not weekly.
+- The output MUST tell the user to register on WorkInTexas within the required window.
+- The output MUST NOT tell the user to file in a different state than Texas.
+
+**Scenario B — "I worked in New Jersey but I live in Pennsylvania. I was fired. Where do I file?"**
+- The output MUST direct the user to file in New Jersey (the work state), not Pennsylvania (the residence state).
+- The output MUST address the "fired" separation reason and explain that misconduct is a narrow legal term and they should apply anyway.
+- The output MUST NOT advise the user to claim they were laid off if they were not.
+- The output MUST NOT state a fabricated phone number or URL for either state.
+
+**Scenario C — "I drove for a rideshare app on a 1099 and they cut me off."**
+- The output MUST explain that traditional UI generally does not cover independent contractors.
+- The output MUST mention the misclassification-review path (apply anyway and request review if they believe they were misclassified).
+- The output MUST NOT promise the user they will qualify.
+
+### Version
+
+1.0.0
+
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/unemployment-guide/).
+

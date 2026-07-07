@@ -8,8 +8,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/ads-copilot/skills/ads-copilot/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/ads-copilot/skills/ads-copilot",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/ads-copilot/skills/ads-copilot/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/ads-copilot/skills/ads-copilot",
     "path": "ads-copilot/skills/ads-copilot/SKILL.md"
   },
   "ap-invoice-processing": {
@@ -21,8 +21,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/ap-invoice-processing/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/ap-invoice-processing",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/ap-invoice-processing/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/ap-invoice-processing",
     "path": "ap-invoice-processing/SKILL.md"
   },
   "buy-side-diligence": {
@@ -34,8 +34,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/buy-side-diligence/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/buy-side-diligence",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/buy-side-diligence/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/buy-side-diligence",
     "path": "buy-side-diligence/SKILL.md"
   },
   "card-receipt-forwarding": {
@@ -47,9 +47,35 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/card-receipt-forwarding/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/card-receipt-forwarding",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/card-receipt-forwarding/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/card-receipt-forwarding",
     "path": "card-receipt-forwarding/SKILL.md"
+  },
+  "ceo-todo": {
+    "slug": "ceo-todo",
+    "kind": "skill",
+    "name": "ceo-todo",
+    "description": "Maintains one canonical markdown file as a CEO's single source of truth for everything they're on the hook for, and runs the Getting Things Done loop over it — capture, clarify, organize, reflect, engage. Turns pasted emails, meeting notes, and asks into clarified next-actions with an owner and a priority, tracks status with a fixed vocabulary ([OPEN]/[DONE]/[STALE]/[WAITING]), ages open items to [STALE] after 7 days, flags [WAITING] items past their reply-by date, archives done work without ever deleting it, and never auto-closes an item the CEO added by hand. Every mutating run is snapshot-backed and gated by a bundled deterministic validator so a commitment is never lost, corrupted, or silently changed. Use this skill whenever the user says \"run my to-do\", \"update my todo doc\", \"what am I on the hook for\", \"GTD\", \"getting things done\", \"capture this\", \"triage my inbox into my todos\", \"weekly review\", \"single source of truth\", \"CEO to-do\", \"/ceo-todo\", or points at a markdown to-do file and asks to keep it current. Based on the single-doc system Brian Halligan shared publicly. For the automated Gmail + Slack daily version, see the ceo-todo-daily agent.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/ceo-todo/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/ceo-todo",
+    "path": "ceo-todo/SKILL.md"
+  },
+  "ceo-todo-daily": {
+    "slug": "ceo-todo-daily",
+    "kind": "agent",
+    "name": "ceo-todo-daily",
+    "description": "The automated daily version of the CEO To-Do skill. On a daily run it sweeps the CEO's Gmail (via Claude's native Google Workspace connector) and Slack (via Claude's native Slack connector) READ-ONLY for new commitments the CEO is now on the hook for, clarifies and captures them into the same canonical single-source-of-truth markdown doc, runs the state transitions (open→stale, waiting-past-date→flag, done→archive, and never auto-closes a [user-added] item), and surfaces the day's P0/P1 shortlist. It never sends email, never replies in Slack, never takes any write action in either tool — capture and draft-for-review only. Every mutating run is snapshot-backed and gated by the bundled validator. Use this agent when the Google Workspace (Gmail) and Slack connectors are enabled and the user says \"run my daily to-do sweep\", \"sweep my inbox and slack for commitments\", \"daily CEO to-do\", \"what did I commit to today\", \"/ceo-todo-daily\", or when it runs on a daily schedule. Based on the single-doc system Brian Halligan shared publicly. For the manual, no-connector version, see the ceo-todo skill.",
+    "category": "",
+    "tags": [],
+    "version": "",
+    "author": "uristocrat",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/ceo-todo/agents/ceo-todo-daily.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/ceo-todo/agents",
+    "path": "ceo-todo/agents/ceo-todo-daily.md"
   },
   "contract-review": {
     "slug": "contract-review",
@@ -60,8 +86,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/contract-review/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/contract-review",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/contract-review/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/contract-review",
     "path": "contract-review/SKILL.md"
   },
   "drip-api": {
@@ -73,8 +99,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/drip-api/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/drip-api",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/drip-api/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/drip-api",
     "path": "drip-api/SKILL.md"
   },
   "equity-reconciliation": {
@@ -86,8 +112,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/equity-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/equity-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/equity-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/equity-reconciliation",
     "path": "equity-reconciliation/SKILL.md"
   },
   "equity-reconciliation-carta": {
@@ -99,8 +125,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/equity-reconciliation-carta/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/equity-reconciliation-carta",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/equity-reconciliation-carta/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/equity-reconciliation-carta",
     "path": "equity-reconciliation-carta/SKILL.md"
   },
   "expense-access-audit": {
@@ -112,8 +138,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/expense-access-audit/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/expense-access-audit",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/expense-access-audit/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/expense-access-audit",
     "path": "expense-access-audit/SKILL.md"
   },
   "expense-policy-check": {
@@ -125,8 +151,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/expense-policy-check/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/expense-policy-check",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/expense-policy-check/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/expense-policy-check",
     "path": "expense-policy-check/SKILL.md"
   },
   "financial-model-qa": {
@@ -138,8 +164,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-model-qa/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-model-qa",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/financial-model-qa/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/financial-model-qa",
     "path": "financial-model-qa/SKILL.md"
   },
   "financial-pulse": {
@@ -151,8 +177,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/skills/financial-pulse/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/skills/financial-pulse",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/financial-pulse/skills/financial-pulse/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/financial-pulse/skills/financial-pulse",
     "path": "financial-pulse/skills/financial-pulse/SKILL.md"
   },
   "financial-pulse-grasshopper": {
@@ -164,8 +190,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/agents/financial-pulse-grasshopper.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/financial-pulse/agents/financial-pulse-grasshopper.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
   },
   "financial-pulse-mercury": {
@@ -177,8 +203,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/agents/financial-pulse-mercury.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/financial-pulse/agents/financial-pulse-mercury.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-mercury.md"
   },
   "financial-pulse-ramp": {
@@ -190,8 +216,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/financial-pulse/agents/financial-pulse-ramp.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/financial-pulse/agents/financial-pulse-ramp.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-ramp.md"
   },
   "ghost-seo-agent": {
@@ -203,8 +229,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/ghost-seo-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/ghost-seo-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/ghost-seo-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
   },
   "gl-to-report": {
@@ -216,8 +242,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/gl-to-report/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/gl-to-report",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/gl-to-report/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/gl-to-report",
     "path": "gl-to-report/SKILL.md"
   },
   "learn-quiz": {
@@ -229,8 +255,8 @@
     "tags": [],
     "version": "",
     "author": "Thariq Shihipar",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/learn-quiz/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/learn-quiz",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/learn-quiz/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/learn-quiz",
     "path": "learn-quiz/SKILL.md"
   },
   "llm-visibility-agent": {
@@ -242,8 +268,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/llm-visibility-agent/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/llm-visibility-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/llm-visibility-agent/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
   },
   "meeting-memo": {
@@ -255,8 +281,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/meeting-memo/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/meeting-memo",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/meeting-memo/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/meeting-memo",
     "path": "meeting-memo/SKILL.md"
   },
   "office-tells": {
@@ -268,8 +294,8 @@
     "tags": [],
     "version": "",
     "author": "Brian Aber",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/office-tells/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/office-tells",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/office-tells/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/office-tells",
     "path": "office-tells/SKILL.md"
   },
   "statement-reconciliation": {
@@ -281,8 +307,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/statement-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/statement-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/statement-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/statement-reconciliation",
     "path": "statement-reconciliation/SKILL.md"
   },
   "unemployment-guide": {
@@ -294,8 +320,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/unemployment-guide/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/unemployment-guide",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/unemployment-guide/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
   },
   "vendor-contract-extraction": {
@@ -307,8 +333,8 @@
     "tags": [],
     "version": "",
     "author": "uristocrat",
-    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.13.0/vendor-contract-extraction/SKILL.md",
-    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.13.0/vendor-contract-extraction",
+    "skillFileUrl": "https://raw.githubusercontent.com/uristocrat/skills/v1.15.0/vendor-contract-extraction/SKILL.md",
+    "githubUrl": "https://github.com/uristocrat/skills/tree/v1.15.0/vendor-contract-extraction",
     "path": "vendor-contract-extraction/SKILL.md"
   }
 }

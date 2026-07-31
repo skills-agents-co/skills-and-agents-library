@@ -1,0 +1,51 @@
+{
+  "name": "uristocrat-skills",
+  "owner": {
+    "name": "Uristocrat",
+    "url": "https://github.com/uristocrat"
+  },
+  "metadata": {
+    "description": "Uristocrat's catalog of Claude Code plugins — AI-driven personal and business finance tools.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "financial-pulse",
+      "source": "./financial-pulse",
+      "description": "Bank-agnostic spending analysis — a categorized 30-day breakdown plus 3 actionable things to look into from 60-day trends. Includes connector agents for Grasshopper, Mercury, and Ramp.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Uristocrat",
+        "url": "https://github.com/uristocrat"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "finance",
+        "banking",
+        "spending",
+        "expenses",
+        "mcp"
+      ]
+    },
+    {
+      "name": "product-builder",
+      "source": "./plugins/product-builder",
+      "description": "Skills for building and shipping a product — code review, PR summaries, research, competitor intel, and document drafting.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Uristocrat",
+        "url": "https://github.com/uristocrat"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "product",
+        "coding",
+        "research",
+        "writing",
+        "documents"
+      ]
+    }
+  ]
+}

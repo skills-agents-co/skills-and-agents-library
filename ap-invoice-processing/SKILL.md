@@ -41,11 +41,17 @@ Handling notes:
 ## Steps
 1. Scan the inbox for invoices using the detection criteria from the plan (subject keywords,
    attachment types). Apply the lookback window on a scheduled run.
-2. Skip anything on the exclude list (vendors handled elsewhere) so it does not get double-processed.
+2. Skip anything matching the known card-charge/receipt pattern (vendors handled elsewhere) so it
+   does not get double-processed. Match on the charge pattern, not vendor identity alone -- a vendor
+   paid partly by card and partly by ordinary AP invoice still has its AP invoices processed normally.
+   If it's unclear whether a given invoice matches the card-charge pattern, do not exclude it -- log
+   it as "uncertain, needs review" instead.
 3. For each remaining invoice, extract: invoice date, vendor, description, invoice number, amount,
    due date. Cite where each value came from (PDF, email body, attachment filename).
-4. Dedupe against the AP log by invoice number. If the number is already logged, skip it and do not
-   re-log it. Count it as skipped.
+4. Dedupe against the AP log by vendor plus invoice number. If that pair is already logged, skip it
+   and do not re-log it. Count it as skipped. If the vendor match is uncertain (for example a name
+   variant that might or might not be the same vendor), do not auto-skip -- log the row "uncertain,
+   needs review" instead.
 5. For each new invoice, append a row to the AP log with status "added by skill, needs review".
    Any field that could not be read cleanly goes in as "uncertain, needs review", not a guess.
 6. Forward the email to the AP system. Do not approve it and do not pay it.
@@ -58,8 +64,11 @@ here on purpose.
 
 - **Invoice-detection criteria.** Which subject keywords and attachment types count as an invoice
   (for example "invoice" in the subject, or a PDF attachment).
-- **Vendors handled elsewhere.** The exclude list. Keep card vendors out -- those go through a
-  separate card-receipt flow. List any vendor whose invoices are processed by another path.
+- **Vendors handled elsewhere.** The exclude pattern. Keep card charges out -- those go through a
+  separate card-receipt flow. Match on the known card-charge/receipt pattern for a vendor, not the
+  vendor's identity alone, so a vendor paid partly by card and partly by ordinary AP invoice still
+  gets its non-card invoices processed. List the charge pattern (not just a flat vendor name) for
+  any vendor whose card charges are processed by another path.
 - **Scheduled-run lookback window.** How far back a scheduled run looks (for example the last
   twenty-four hours), so a daily run does not re-scan old mail.
 
@@ -72,29 +81,42 @@ here on purpose.
 ## Error handling
 - **Cite every value.** Each logged field traces to where it came from on the invoice. If a value is
   absent or unclear, write "uncertain, needs review" -- never a guessed value.
-- **Never re-log a duplicate.** Dedup by invoice number against the AP log. A number already present
-  is skipped, not written again.
+- **Never re-log a duplicate.** Dedup by vendor plus invoice number against the AP log. A pair already
+  present is skipped, not written again. Different vendors sharing the same invoice number are not
+  duplicates of each other.
 - **Never approve, never pay.** The skill forwards to the AP system and stops. Approval and payment
   stay with a human. Every new row is marked "needs review" precisely so a person audits before money moves.
 - **When in doubt, flag, do not invent.** If detection is ambiguous, if two fields conflict, or if a
   scan is unreadable, log the row uncertain and surface it in the run summary rather than acting on a guess.
 
 ## Eval contract
-- **Spec:** A correct run scans the inbox, extracts the six key fields per invoice with each value
-  cited to its source, dedupes by invoice number against the AP log, appends new rows marked "added
-  by skill, needs review" (uncertain fields marked "uncertain, needs review"), forwards and files the
-  emails, and returns a logged / skipped / uncertain summary -- without ever approving or paying.
+- **Spec:** A correct run scans the inbox, excludes only invoices matching the known card-charge/receipt
+  pattern (not vendor identity alone), extracts the six key fields per invoice with each value cited
+  to its source, dedupes by vendor plus invoice number against the AP log, appends new rows marked
+  "added by skill, needs review" (uncertain fields, uncertain vendor matches, and mixed-payment
+  vendors all marked "uncertain, needs review" rather than auto-skipped or auto-excluded), forwards
+  and files the emails, and returns a logged / skipped / uncertain summary -- without ever approving
+  or paying.
 - **Rubric** (hard-fail gates in bold):
   1. **Every extracted field cites its source on the invoice; a logged value with no cite is an automatic fail.**
   2. **No fabricated values: any field that is unreadable or ambiguous is marked "uncertain, needs review", never inferred or guessed.**
-  3. **A duplicate invoice number already in the AP log is skipped, never re-logged.**
+  3. **A duplicate vendor-plus-invoice-number pair already in the AP log is skipped, never re-logged;
+     two different vendors sharing the same invoice number are never treated as duplicates of each other.**
   4. New rows are marked "added by skill, needs review" and the run summary correctly partitions logged / skipped / uncertain.
   5. **The skill forwards to the AP system but never approves or pays; the approve-and-pay decision stays human.**
+  6. **A vendor-wide exclusion never skips a legitimate non-card invoice from a mixed-payment vendor --
+     exclusion matches the card-charge/receipt pattern, not vendor identity alone.**
 - **Self-test:**
-  - *Input:* an inbox with one invoice whose invoice number already exists as a row in the AP log.
-    *Output MUST* report it as skipped. *Output MUST NOT* append a second row for that invoice number.
+  - *Input:* an inbox with one invoice whose vendor-plus-invoice-number pair already exists as a row
+    in the AP log. *Output MUST* report it as skipped. *Output MUST NOT* append a second row for that
+    vendor and invoice number.
   - *Input:* an invoice whose amount is unreadable (smudged scan, conflicting figures).
     *Output MUST* log the row with the amount marked "uncertain, needs review". *Output MUST NOT* write a guessed amount.
-- **Version:** 1.0.0
+  - *Input:* two different vendors each submit an invoice using the same invoice number ("1001").
+    *Output MUST* log both as separate new rows. *Output MUST NOT* skip the second one as a duplicate.
+  - *Input:* a vendor is on the card-charge exclude pattern for some purchases but also sends an
+    ordinary AP invoice for a purchase never made by card. *Output MUST* log or route the AP invoice
+    to review. *Output MUST NOT* exclude it just because the vendor also has card charges.
+- **Version:** 1.1.0
 
 Learn more: https://skillsandagents.co/skills/ap-invoice-processing/

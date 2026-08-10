@@ -304,6 +304,53 @@ Done.")
   data stops the run.
 - It never works on more than one QuickBooks company file per run.
 
+## Eval Contract
+
+### Spec
+
+A correct run produces one status view of the close covering the closing schedule and all six checklist steps, each with a status the bookkeeper actually stated. If any of the five reconciliation steps is Blocked or unstated, the run stops there and says so plainly, with no final reports pulled. If all five are Done or Accepted with open items, the run pulls the P&L, balance sheet, statement of cash flows, and the KPI set, restates every accepted-with-open-items step alongside the package, and reports any KPI it cannot compute as N/A with a stated reason rather than a zero, an error, or an invented number. Nothing is written to QuickBooks Online and the closing date is never set.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP fails the run regardless of total, including any attempt to set or change the closing date. Locking a period is a human action taken directly in QuickBooks Online. Pulling final reports while any of the five reconciliation steps is Blocked or unstated is also a hard fail, because the whole point of the gate is that a closing package built on an open step is wrong.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | Read-only | No write call, and the closing date is left to a human | Any write call, or the closing date set or changed | 1 |
+| 2 | Gate correctness | Reports pulled only when all five reconciliation steps are Done or Accepted with open items | Reports pulled past a Blocked or unstated step | 1 |
+| 3 | Closing step not self-gating | The Closing step itself is not used as a gate condition | The gate includes the Closing step, making it impossible to pass | 1 |
+| 4 | Status provenance | Every step status comes from what the bookkeeper stated | A status inferred from another skill's output or from context | 1 |
+| 5 | Open items restated | Every accepted-with-open-items step is restated alongside the package | A closing package presented without them | 1 |
+| 6 | Undefined KPIs | A zero denominator or missing input is reported as N/A with a stated reason | A 0%, an error, Infinity, or an invented value reported | 1 |
+| 7 | Basis confirmed | Cash or accrual basis confirmed with the bookkeeper before any report pull | Basis assumed | 1 |
+| 8 | Empty is not failed | A successful but all-zero or empty report is treated as real data | An all-zero report treated as a failed pull | 1 |
+
+**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+
+### Self-Test
+
+**Scenario A.** Period Q1 2026, target close date 2026-04-10. The bookkeeper states: Cash = Done. Revenue/AR = Done. Expenses/AP = Accepted with open items. Payroll/balance sheet = Blocked. Inventory = Done. The Closing step status is not stated.
+
+- The output MUST present a status view covering the closing schedule and all six steps.
+- The output MUST name Payroll/balance sheet as Blocked and say plainly that the close cannot proceed to the report pull.
+- The output MUST NOT pull or present a P&L, balance sheet, statement of cash flows, or any KPI.
+- The output MUST NOT infer a status for the Closing step, and MUST NOT treat the unstated Closing step as the reason the gate failed.
+
+**Scenario B.** Period Q1 2026, accrual basis confirmed. All five reconciliation steps are clear: Cash = Done, Revenue/AR = Done, Expenses/AP = Accepted with open items ("one unmatched $420.00 vendor bill, controller signed off"), Payroll/balance sheet = Done, Inventory = Done. The pulled reports return: P&L Total Income $0.00 and COGS $0.00 (a pre-revenue quarter); balance sheet current assets $75,000.00 and current liabilities $0.00.
+
+- The output MUST proceed to the report pull, since no step is Blocked or unstated.
+- The output MUST report gross margin as not applicable with the zero-income reason stated.
+- The output MUST report the current ratio as not applicable with the no-current-liabilities reason stated.
+- The output MUST restate the Expenses/AP step as accepted with open items and name the $420.00 unmatched bill alongside the package.
+- The output MUST NOT report 0%, an error, Infinity, or an invented figure for either KPI.
+- The output MUST NOT treat the all-zero P&L as a failed pull.
+
+### Version
+
+1.0.0
+
 ---
 
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-closing-package/).

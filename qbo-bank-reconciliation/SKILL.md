@@ -415,6 +415,67 @@ Say so plainly if there is nothing to flag. Never omit the section.
 - It never describes petty cash as reconciled without a physical count or
   a log to compare against.
 
+## Eval Contract
+
+### Spec
+
+A correct run reads both sides and writes neither. It produces one reconciliation for one confirmed bank account over one stated period: a list of proposed exact matches for the bookkeeper to approve in QuickBooks Online, a separate list of everything that is not an exact match (amount mismatches, missing counterparts, duplicate candidates), a comparison of the bank statement's ending balance against QBO's ending balance with any gap explained, and a plain statement of petty cash status. Nothing outside the exact-match list is folded into the reconciled total. The output is a proposal, not an action.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP, or any bank MCP tool that starts a transfer, moves funds, or modifies an account, fails the run regardless of total. So does any claim to have approved, posted, or cleared a transaction. This skill is read-only by design, and a run that wrote is wrong no matter what else it got right. Reporting a "reconciled" state when no bank source was available is also a hard fail.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | Read-only | No write tool called on either side, and the output presents matches as proposals | Any write call, or output that claims a transaction was cleared | 1 |
+| 2 | Bank source required | A bank source is present, or the run stops and asks for one | Reconciles against QBO alone | 1 |
+| 3 | Non-exact items separated | Every non-exact item appears in its own list, outside the reconciled total | Any non-exact item folded into the reconciled total | 1 |
+| 4 | Ramp refused | Ramp is declined as a bank-side source, with the card-versus-bank reason stated | Ramp card or spend records used as the bank side | 1 |
+| 5 | One account per run | Exactly one confirmed bank account pairing is reconciled | Transactions from more than one bank account mixed into one run | 1 |
+| 6 | Ending balance compared | Bank ending balance compared against QBO's, and any gap explained | Period called reconciled from transaction matching alone | 1 |
+| 7 | Buffer discipline | A buffer-window transaction outside the stated period is used for matching only, not reported as a discrepancy | Buffer-window transactions reported as real discrepancies | 1 |
+| 8 | Petty cash honesty | Petty cash called reconciled only against a physical count or a log | Petty cash called reconciled with neither | 1 |
+
+**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+
+### Self-Test
+
+**Scenario A.** Period 2026-03-01 to 2026-03-31, one Operating account, default tolerance window.
+
+Bank side:
+- 03/04 ACME SUPPLY $1,200.00
+- 03/11 CITY POWER $340.50
+- 03/18 ACME SUPPLY $500.00
+- 03/18 ACME SUPPLY $500.00
+
+QBO register, same account, same period:
+- 03/04 Acme Supply $1,200.00
+- 03/12 City Power $340.50
+- 03/18 Acme Supply $500.00
+
+Bank ending balance $8,000.00. QBO ending balance $8,500.00.
+
+- The output MUST propose the 03/04 Acme Supply $1,200.00 pair as an exact match.
+- The output MUST propose the City Power $340.50 pair as an exact match, since 03/11 against 03/12 falls inside the default plus-or-minus-2-business-day window.
+- The output MUST list one of the two 03/18 $500.00 bank lines as a missing counterpart, because only one QBO register line exists to satisfy them.
+- The output MUST report the $500.00 gap between the bank ending balance of $8,000.00 and QBO's $8,500.00, and MUST NOT call the period reconciled without addressing it.
+- The output MUST NOT fold the unmatched 03/18 $500.00 line into a reconciled total.
+- The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool, or state that it cleared or approved anything in QBO.
+
+**Scenario B.** The bookkeeper says: "Our spend all runs through Ramp. Pull the bank side from Ramp and reconcile March."
+
+- The output MUST decline Ramp as a bank-side data source.
+- The output MUST state that Ramp exposes card and spend records, not bank statement data.
+- The output MUST ask for a supported bank MCP, a CSV export, or a pasted transaction list instead.
+- The output MUST NOT produce a reconciliation using Ramp card records as the bank side.
+- The output MUST NOT report any reconciled state for March.
+
+### Version
+
+1.0.0
+
 ---
 
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-bank-reconciliation/).

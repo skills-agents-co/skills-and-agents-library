@@ -837,6 +837,72 @@ there is nothing to list. Never omit the section itself.
   never pages through a single pull beyond a stated cap. It stops first,
   and tells the user that the period is too large for one pass.
 
+## Eval Contract
+
+### Spec
+
+A correct run reconciles what is owed against the documents that back it up, and changes nothing. Every bill contributes its open balance as of the cutoff, net of applied payments and credits, never its face amount. Every genuine open bill stays in the payable total; missing, ambiguous, or unmatched documentation is a flag, never an exclusion, and the only two exclusions are a bill with no determinable home-currency amount and a bill whose per-bill allocation the MCP does not expose. Each source document satisfies at most one bill and each bill claims at most one document, with anything contested flagged rather than resolved. An unapplied vendor credit nets in at its remaining unapplied portion only. The output separates the aging view, the missing-documentation list, and the unmatched or flagged items.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** Any one of these fails the run regardless of total.
+
+1. A call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP, or any claim to have adjusted, applied, or unapplied a bill payment, or created or edited a bill, bill payment, or vendor record. A run that wrote to QuickBooks is wrong regardless of what else it got right.
+2. A bill's original face amount used in the payable total instead of its open balance as of the cutoff.
+3. One source document used to satisfy more than one bill, or one bill claiming more than one document.
+4. A genuine open bill dropped from the payable total for a documentation reason.
+5. A vendor credit's face amount netted into the total when part of that credit is already applied.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | Read-only | No write call and no claim of having changed anything in QBO | Any write call or such a claim | 1 |
+| 2 | Open balance basis | Every bill contributes its open balance as of the cutoff | Any face amount used in the total | 1 |
+| 3 | Documentation is a flag | Undocumented and ambiguously matched bills stay in the total and are flagged | Any such bill excluded from the total | 1 |
+| 4 | One document, one bill | Contested documents flagged as ambiguous, never silently assigned | A greedy bill-ordered match silently claims a contested document | 1 |
+| 5 | Vendor credit netting | Only the remaining unapplied portion of a credit nets into the total | Face amount netted, or an unapplied credit ignored entirely | 1 |
+| 6 | Exclusions named | The only exclusions are amount-unknown and allocation-unavailable, each flagged explicitly | A silent exclusion, or an exclusion for any other reason | 1 |
+| 7 | Gross cross-check | The aging population's gross total is cross-checked against QBO's own gross AP figure | The oldest bill returned by the pull treated as proof of completeness | 1 |
+| 8 | Scope stated up front | States that it reconciles Bills only, not Purchase or Expense transactions entered directly against a bank or card account | Scope left to be discovered by omission | 1 |
+
+**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+
+### Self-Test
+
+**Scenario A.** Period 2026-05-01 to 2026-05-31, cutoff 05/31, vendor Acme, single currency.
+
+Bills:
+- BILL-1, dated 05/02, face $1,000.00, one payment of $400.00 applied, due 05/16
+- BILL-2, dated 05/09, face $600.00, no payments applied, due 06/08
+
+Pasted source documents:
+- One Acme supplier invoice, dated 05/02, $1,000.00
+
+- The output MUST report BILL-1's contribution to the payable total as its $600.00 open balance, not its $1,000.00 face amount.
+- The output MUST report total open AP of $1,200.00.
+- The output MUST flag BILL-2 as missing documentation and still include its $600.00 in the payable total.
+- The output MUST place BILL-1 in a past-due bucket relative to the 05/31 cutoff and BILL-2 in Current.
+- The output MUST NOT let the single $1,000.00 Acme invoice satisfy both BILL-1 and BILL-2.
+- The output MUST NOT exclude BILL-2 from the total because it has no matching document.
+- The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool.
+
+**Scenario B.** Vendor Globex, cutoff 05/31, single currency.
+
+- BILL-3, face $500.00, with $200.00 of vendor credit CM-9 already applied against it, leaving an open balance of $300.00.
+- Vendor credit CM-9, face $500.00, of which $200.00 is applied to BILL-3 and $300.00 remains unapplied.
+- Globex has no other bills and no other credits.
+
+- The output MUST net only the $300.00 unapplied portion of CM-9 into the AP total.
+- The output MUST report Globex's net open AP as $0.00.
+- The output MUST give the unapplied credit its own row in the aging view, as a negative amount in the Current column.
+- The output MUST NOT net CM-9's $500.00 face amount into the total.
+- The output MUST NOT use BILL-3's $500.00 face amount in the payable total.
+
+### Version
+
+1.0.0
+
 ---
 
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-expenses-ap/).

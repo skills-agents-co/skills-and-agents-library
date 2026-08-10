@@ -451,6 +451,54 @@ reporting a $0 balance.
   two are independent, so a broken Step 3 pull skips only the
   payroll-to-income check, never Step 4.
 
+## Eval Contract
+
+### Spec
+
+A correct run compares payroll expense against QuickBooks Online income for the period and lists what changed period over period on loans, accrued expenses, deferred revenue, and equipment or fixed assets. It states its tolerance band and its flagging threshold in every report, because both are generic defaults standing in for real client data. It reports the payroll ratio as not applicable, with the reason stated, rather than dividing by a zero or negative income figure or comparing mismatched currencies or unit scales. It qualifies the ratio result whenever the payroll source is gross-pay-only or its basis is unconfirmed, stating every qualification that applies. It gives each clearly classified account its own row rather than one blended row per category, and marks any category with no clear account match as unavailable rather than $0. It reads only, on both the QuickBooks and the payroll side.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 7. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP fails the run regardless of total, as does any write, submission, or modification in a payroll provider's system. The payroll side is read from an uploaded or pasted report only. A run that wrote is wrong regardless of what else it got right.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | Read-only | No write call on either side | Any write call, or any claim of having submitted payroll data | 1 |
+| 2 | No nonsense ratio | Zero or negative income, or mismatched currency or unit scale, reported as not applicable with the reason | A ratio computed anyway, or a 0%, error, or Infinity reported | 1 |
+| 3 | Band and threshold stated | Both the tolerance band and the flagging threshold appear in the report | Either one omitted | 1 |
+| 4 | Qualifications complete | Every applicable qualification stated, both together when both apply | One qualification dropped to fit a single phrase | 1 |
+| 5 | One row per account | Each clearly classified account gets its own row | Accounts in a category netted into one blended row | 1 |
+| 6 | No guessed mapping | A category with no clear account match is marked unavailable | An account mapping guessed, or the category reported as a $0 balance | 1 |
+| 7 | Independent steps | A failed income pull skips only the payroll-to-income check, never the balance sheet review | A failed income pull cancels the balance sheet review | 1 |
+
+**Score to action:** 7/7 ship. 5 to 6 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+
+### Self-Test
+
+**Scenario A.** Period Q1 2026. The uploaded payroll report shows gross pay of $40,000.00 and nothing else, is stated on a paycheck-date basis, and the bookkeeper cannot confirm whether it reflects wages earned in the period or checks paid in the period. QuickBooks Online Total Income for the period, accrual basis, is $0.00.
+
+- The output MUST report the payroll ratio as not applicable and state the zero-income reason.
+- The output MUST state both the tolerance band and the flagging threshold in the report.
+- The output MUST carry both qualifications: that the payroll figure is gross pay only and excludes employer taxes and benefits, and that the payroll basis is unconfirmed against accrual income.
+- The output MUST NOT report a percentage, a 0%, an error, or Infinity for the ratio.
+- The output MUST NOT drop either qualification to fit a single fixed phrase.
+- The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool.
+
+**Scenario B.** Period Q1 2026 against Q4 2025. The balance sheet shows two accounts classified as Loans: a bank note payable moving from $50,000.00 to $46,000.00, and a vehicle loan moving from $10,000.00 to $14,000.00. The chart of accounts has no account that clearly matches deferred revenue in either period.
+
+- The output MUST give the bank note payable and the vehicle loan their own separate rows.
+- The output MUST show the bank note's $4,000.00 decrease and the vehicle loan's $4,000.00 increase as distinct movements.
+- The output MUST mark the deferred revenue category as unavailable with no clear account match, for both periods.
+- The output MUST list the account names it used for the rows it did classify.
+- The output MUST NOT report deferred revenue as a $0.00 balance.
+- The output MUST NOT net the two Loans movements into a single $0 change for the category.
+
+### Version
+
+1.0.0
+
 ---
 
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-payroll-balance-sheet/).

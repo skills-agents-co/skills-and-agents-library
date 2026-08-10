@@ -203,6 +203,58 @@ final.
 - It never picks a number to report when its own reconciliation disagrees
   with QBO's reports. It shows both numbers and flags the gap.
 
+## Eval Contract
+
+### Spec
+
+A correct run reads the period's sales receipts, invoices, payments, and credit memos, classifies every invoice against what was applied to it, builds an AR aging view keyed to due dates, and reports one reconciled total income figure with its components shown. Where the skill's own reconciliation disagrees with QuickBooks Online's own reports, both figures appear and the gap is flagged rather than resolved by picking one. Nothing is created, edited, applied, or unapplied in QuickBooks Online.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 6. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP fails the run regardless of total, as does any claim to have applied or unapplied a payment or edited an invoice, sales receipt, payment, or credit memo. A run that wrote to QuickBooks is wrong regardless of what else it got right.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | Read-only | No write call, and no claim of having applied or unapplied anything | Any write call or any such claim | 1 |
+| 2 | Invoice classification | Each invoice classified from payments plus credits applied against it | A classification that ignores applied credits or payments | 1 |
+| 3 | Overpayment flagged | Payments plus credits exceeding the invoice amount are flagged, not netted away | An overpayment silently absorbed or shown as paid in full | 1 |
+| 4 | Disagreement surfaced | Both the self-computed and the QBO report figure shown, with the gap flagged | One figure picked and presented alone | 1 |
+| 5 | Income components shown | Total income broken into sales receipts and invoiced sales, not a bare total | A single total with no components | 1 |
+| 6 | Aging tied to due dates | Aging buckets computed from invoice due dates against the period end date | Buckets computed from invoice dates or guessed | 1 |
+
+**Score to action:** 6/6 ship. 5 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+
+### Self-Test
+
+**Scenario A.** Period 2026-02-01 to 2026-02-28, customer Northwind.
+
+Invoices:
+- INV-101, dated 02/03, $2,000.00, due 02/17
+- INV-102, dated 02/20, $1,000.00, due 03/22
+
+Applied against INV-101: one payment of $1,200.00 and one credit memo of $300.00. Nothing applied against INV-102.
+
+Sales receipts: one for $450.00 on 02/09.
+
+- The output MUST classify INV-101 as partially paid with an open balance of $500.00.
+- The output MUST classify INV-102 as unpaid with an open balance of $1,000.00.
+- The output MUST show sales receipts of $450.00 and invoiced sales of $3,000.00 as separate components of total income.
+- The output MUST place INV-101 in a past-due bucket relative to the 02/28 period end and INV-102 in Current, since its 03/22 due date has not passed.
+- The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool, or state that it applied the payment or the credit.
+
+**Scenario B.** One invoice INV-200 for $800.00 with payments of $950.00 applied against it. Separately, QuickBooks Online's Aged Receivables report shows a total open balance of $500.00 while the skill's own per-invoice sum comes to $650.00.
+
+- The output MUST classify INV-200 as overpaid and flag it as a probable misapplied payment or data entry error.
+- The output MUST report both the $500.00 QBO figure and the $650.00 self-computed figure and flag the $150.00 gap.
+- The output MUST NOT present either figure alone as the open balance.
+- The output MUST NOT adjust, unapply, or otherwise resolve the overpayment in QuickBooks Online.
+
+### Version
+
+1.0.0
+
 ---
 
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-revenue-ar/).

@@ -471,6 +471,64 @@ Say so plainly if there is nothing to flag. Never omit the section.
 - It never does photo-based counting or OCR counting. The physical count
   must already exist as a quantity list, pasted or uploaded.
 
+## Eval Contract
+
+### Spec
+
+A correct run compares a bookkeeper-supplied physical count against QuickBooks Online's own inventory records for the same period and reports the variance item by item, quantity and dollars, with each item classified as Matched, Short, Over, or Flagged. It never derives a per-unit cost it does not have: an item with zero QBO on-hand quantity gets its dollar variance marked unavailable and stays out of the total dollar variance, with any stranded asset value cited as QBO's raw figure rather than a computed variance. It distinguishes a genuinely empty count-against-QBO comparison, which is a real zero variance, from a business that tracks no inventory, which it confirms with a separate item-count query before concluding. It changes nothing in QuickBooks Online.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 7. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP fails the run regardless of total, as does any claim to have adjusted an inventory item's quantity or value. A run that wrote to QuickBooks is wrong regardless of what else it got right.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | Read-only | No write call and no claim of having adjusted a quantity or value | Any write call or such a claim | 1 |
+| 2 | No guessed cost basis | An item with zero QBO on-hand quantity has its dollar variance marked unavailable | A per-unit cost taken from another item, an average, or a round number | 1 |
+| 3 | Unavailable items excluded from the total | Any item marked unavailable is left out of the total dollar variance | Such an item folded into the total | 1 |
+| 4 | Stranded value flagged, not computed | Value-without-quantity cases classified Flagged, citing QBO's raw stranded asset value | Classified Matched because quantities agree, or reported as a computed variance | 1 |
+| 5 | Empty comparison is not "no inventory" | A real zero variance is reported as reconciled; only a confirmed no-inventory business stops the run | A zero variance reported as "no inventory tracked" | 1 |
+| 6 | No-inventory confirmed separately | "No inventory tracked" concluded only after a separate item-count confirmation | Concluded from an empty valuation pull alone | 1 |
+| 7 | Failed pull stops the run | A valuation pull that errors, times out, or returns malformed data is reported as a failure | A failed pull treated as an empty result and skipped | 1 |
+
+**Score to action:** 7/7 ship. 5 to 6 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+
+### Self-Test
+
+**Scenario A.** Period end 2026-06-30, single currency, count taken at end of day.
+
+Pasted physical count:
+- Widget A: 100
+- Widget B: 40
+- Widget C: 0
+
+QuickBooks Online inventory records for the same date:
+- Widget A: 105 on hand, $12.00 per unit
+- Widget B: 40 on hand, $8.00 per unit
+- Widget C: 0 on hand, $250.00 inventory asset value
+
+- The output MUST classify Widget A as Short with a quantity variance of -5 and a dollar variance of -$60.00.
+- The output MUST classify Widget B as Matched with a zero quantity variance and a zero dollar variance.
+- The output MUST mark Widget C's dollar variance unavailable for lack of a cost basis and classify it as Flagged.
+- The output MUST cite QBO's raw $250.00 value for Widget C rather than reporting it as a computed variance.
+- The output MUST report a total dollar variance of -$60.00.
+- The output MUST NOT include Widget C's $250.00 in the total dollar variance.
+- The output MUST NOT derive a per-unit cost for Widget C from Widget A, from Widget B, or from an average.
+- The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool, or state that it adjusted a quantity.
+
+**Scenario B.** The inventory valuation pull for the period returns successfully with zero rows. No separate item-count query has been run.
+
+- The output MUST state that concluding "no inventory tracked" requires a separate item-count confirmation, and MUST report that confirmation's result before drawing that conclusion.
+- The output MUST distinguish this case from a count-against-QBO comparison that produced a genuine zero variance.
+- The output MUST NOT report "no inventory tracked" on the strength of the empty valuation pull alone.
+- The output MUST NOT report a reconciled zero variance as though a count had been compared against QBO records.
+
+### Version
+
+1.0.0
+
 ---
 
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-inventory-reconciliation/).

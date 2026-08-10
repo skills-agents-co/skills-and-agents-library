@@ -95,6 +95,64 @@ Default order, used when no previous deck is supplied to match: period and basis
 
 This skill doesn't generate slides, PowerPoint, or Google Slides files. It doesn't produce charts or images. It doesn't cover the non-finance sections of a board deck (product, hiring, GTM). It's not a variance-report generation tool for the monthly close (see GL to Report for that) and it's not the investor/LP update (see Investor Update for that).
 
+## Eval Contract
+
+### Spec
+
+A correct run states the period and the comparison basis it actually has, reports headline metrics that exist in the input or are computed from figures in the input, shows movement against whatever comparison basis exists, and explains each material movement with a sentence that either cites a calculation from the input, cites an attributed CFO context note, or is explicitly labeled an assumption. Every figure traces back to the input. No cause is asserted that cannot be localized to the data. The "what this skill couldn't figure out" section appears on every output, even when everything traced cleanly. The result is structured text a CFO edits into their own template: no slides, no charts, no images.
+
+### Rubric
+
+Score each dimension 0 or 1, total out of 7. Run the hard-fail gate first.
+
+**Hard-fail gate (check before scoring):** A figure in the output that does not trace back to a figure in the input or to a calculation over figures in the input fails the run regardless of total. So does a narrative sentence asserting a cause that is neither cited to the input, nor attributed to a CFO context note, nor explicitly labeled an assumption. A missing "what this skill couldn't figure out" section is also a hard fail, because that section is what keeps the rest of the draft honest.
+
+| # | Dimension | Pass | Fail | Weight |
+|---|-----------|------|------|--------|
+| 1 | No invented figures | Every number traces to the input or a calculation over it | Any fabricated or estimated figure | 1 |
+| 2 | No invented causes | Every narrative sentence is cited, attributed, or labeled an assumption | A cause inferred from the size and direction of a movement alone | 1 |
+| 3 | Gaps section always present | The couldn't-figure-out section appears on every output | Omitted, including when everything traced cleanly | 1 |
+| 4 | Comparison basis stated | The period and the actual comparison basis are stated up front | A comparison manufactured, or the basis left unstated | 1 |
+| 5 | Subtotal reconciliation | A stated subtotal that disagrees with its own parts is flagged, naming both figures | One figure silently picked over the other | 1 |
+| 6 | Zero and missing bases handled | A zero denominator or absent prior figure is reported as n/a, not divided or treated as zero | A percentage computed against a zero or absent base | 1 |
+| 7 | Format discipline | Structured text only, with no slide layout, chart placeholders, or speaker notes | Slide, chart, or image output attempted | 1 |
+
+**Score to action:** 7/7 ship. 5 to 6 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+
+### Self-Test
+
+**Scenario A.** Current-period P&L only, Q2 2026, whole dollars. No prior period, no plan figures, no CFO context notes.
+
+- Revenue: $500,000
+- COGS: $200,000
+- Gross profit (stated): $310,000
+- Marketing: $80,000
+- R&D: $120,000
+- G&A: $40,000
+- Total opex (stated): $240,000
+
+- The output MUST state that the period is Q2 2026 and that neither prior-period actuals nor plan figures are available.
+- The output MUST flag the gross profit mismatch, naming the stated $310,000 against the $300,000 that Revenue minus COGS produces.
+- The output MUST list headcount, or any other board-expected metric absent from the input, in the couldn't-figure-out section.
+- The output MUST NOT compute any period-over-period or actual-versus-plan percentage change.
+- The output MUST NOT silently adopt either $310,000 or $300,000 as the gross profit figure.
+
+**Scenario B.** Q2 2026 against Q1 2026, whole dollars, no CFO context notes.
+
+- Q1 2026: Total opex $180,000, supplied as a single line with no per-category breakdown.
+- Q2 2026: Marketing $80,000, R&D $95,000, G&A $40,000, Contractors $25,000, Total opex $240,000.
+
+- The output MUST report the total opex movement as an increase of $60,000, with the percentage change computed against the $180,000 base.
+- The output MUST report the Contractors line as new this period rather than computing a percentage change against an absent Q1 figure.
+- The output MUST place the unexplained portion of the opex increase in the couldn't-figure-out section, since Q1 has no per-category breakdown to localize it against.
+- The output MUST include the couldn't-figure-out section even though the headline figures themselves traced cleanly.
+- The output MUST NOT attribute the opex increase to a cause such as a headcount ramp or seasonality, since no such driver appears in the input.
+- The output MUST NOT treat the absent Q1 Contractors figure as $0 in order to produce a percentage.
+
+### Version
+
+1.0.0
+
 ---
 
 **More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/board-deck/).

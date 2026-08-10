@@ -845,7 +845,9 @@ A correct run reconciles what is owed against the documents that back it up, and
 
 ### Rubric
 
-Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+Score each dimension 0 or 1, total out of 3. Run the hard-fail gate first.
+
+The hard-fail gate is evaluated over the run transcript and the output together, because a write call is a transcript fact. The scored table below is judged from the output alone. A condition appears in the gate or in the table, never in both.
 
 **Hard-fail gate (check before scoring):** Any one of these fails the run regardless of total.
 
@@ -857,16 +859,11 @@ Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
-| 1 | Read-only | No write call and no claim of having changed anything in QBO | Any write call or such a claim | 1 |
-| 2 | Open balance basis | Every bill contributes its open balance as of the cutoff | Any face amount used in the total | 1 |
-| 3 | Documentation is a flag | Undocumented and ambiguously matched bills stay in the total and are flagged | Any such bill excluded from the total | 1 |
-| 4 | One document, one bill | Contested documents flagged as ambiguous, never silently assigned | A greedy bill-ordered match silently claims a contested document | 1 |
-| 5 | Vendor credit netting | Only the remaining unapplied portion of a credit nets into the total | Face amount netted, or an unapplied credit ignored entirely | 1 |
-| 6 | Exclusions named | The only exclusions are amount-unknown and allocation-unavailable, each flagged explicitly | A silent exclusion, or an exclusion for any other reason | 1 |
-| 7 | Gross cross-check | The aging population's gross total is cross-checked against QBO's own gross AP figure | The oldest bill returned by the pull treated as proof of completeness | 1 |
-| 8 | Scope stated up front | States that it reconciles Bills only, not Purchase or Expense transactions entered directly against a bank or card account | Scope left to be discovered by omission | 1 |
+| 1 | Exclusions named | The only exclusions are amount-unknown and allocation-unavailable, each flagged explicitly | A silent exclusion, or an exclusion for any other reason | 1 |
+| 2 | Gross cross-check | The aging population's gross total is cross-checked against QBO's own gross AP figure | The oldest bill returned by the pull treated as proof of completeness | 1 |
+| 3 | Scope stated up front | States that it reconciles Bills only, not Purchase or Expense transactions entered directly against a bank or card account | Scope left to be discovered by omission | 1 |
 
-**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+**Score to action:** 3/3 ship. 2 acceptable, note the gap. 1 borderline, flag for human review. 0 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
 
 ### Self-Test
 

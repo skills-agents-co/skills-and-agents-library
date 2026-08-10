@@ -211,20 +211,21 @@ A correct run reads the period's sales receipts, invoices, payments, and credit 
 
 ### Rubric
 
-Score each dimension 0 or 1, total out of 6. Run the hard-fail gate first.
+Score each dimension 0 or 1, total out of 5. Run the hard-fail gate first.
+
+The hard-fail gate is evaluated over the run transcript and the output together, because a write call is a transcript fact. The scored table below is judged from the output alone. A condition appears in the gate or in the table, never in both.
 
 **Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP fails the run regardless of total, as does any claim to have applied or unapplied a payment or edited an invoice, sales receipt, payment, or credit memo. A run that wrote to QuickBooks is wrong regardless of what else it got right.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
-| 1 | Read-only | No write call, and no claim of having applied or unapplied anything | Any write call or any such claim | 1 |
-| 2 | Invoice classification | Each invoice classified from payments plus credits applied against it | A classification that ignores applied credits or payments | 1 |
-| 3 | Overpayment flagged | Payments plus credits exceeding the invoice amount are flagged, not netted away | An overpayment silently absorbed or shown as paid in full | 1 |
-| 4 | Disagreement surfaced | Both the self-computed and the QBO report figure shown, with the gap flagged | One figure picked and presented alone | 1 |
-| 5 | Income components shown | Total income broken into sales receipts and invoiced sales, not a bare total | A single total with no components | 1 |
-| 6 | Aging tied to due dates | Aging buckets computed from invoice due dates against the period end date | Buckets computed from invoice dates or guessed | 1 |
+| 1 | Invoice classification | Each invoice classified from payments plus credits applied against it | A classification that ignores applied credits or payments | 1 |
+| 2 | Overpayment flagged | Payments plus credits exceeding the invoice amount are flagged, not netted away | An overpayment silently absorbed or shown as paid in full | 1 |
+| 3 | Disagreement surfaced | Both the self-computed and the QBO report figure shown, with the gap flagged | One figure picked and presented alone | 1 |
+| 4 | Income components shown | Total income broken into sales receipts and invoiced sales, not a bare total | A single total with no components | 1 |
+| 5 | Aging tied to due dates | Aging buckets computed from invoice due dates against the period end date | Buckets computed from invoice dates or guessed | 1 |
 
-**Score to action:** 6/6 ship. 5 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+**Score to action:** 5/5 ship. 4 acceptable, note the gap. 2 to 3 borderline, flag for human review. 0 to 1 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
 
 ### Self-Test
 

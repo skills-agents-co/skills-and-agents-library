@@ -103,21 +103,20 @@ A correct run states the period and the comparison basis it actually has, report
 
 ### Rubric
 
-Score each dimension 0 or 1, total out of 7. Run the hard-fail gate first.
+Score each dimension 0 or 1, total out of 4. Run the hard-fail gate first.
+
+The hard-fail gate is evaluated over the run transcript and the output together, because tracing a figure back to the input is a transcript fact. The scored table below is judged from the output alone. A condition appears in the gate or in the table, never in both.
 
 **Hard-fail gate (check before scoring):** A figure in the output that does not trace back to a figure in the input or to a calculation over figures in the input fails the run regardless of total. So does a narrative sentence asserting a cause that is neither cited to the input, nor attributed to a CFO context note, nor explicitly labeled an assumption. A missing "what this skill couldn't figure out" section is also a hard fail, because that section is what keeps the rest of the draft honest.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
-| 1 | No invented figures | Every number traces to the input or a calculation over it | Any fabricated or estimated figure | 1 |
-| 2 | No invented causes | Every narrative sentence is cited, attributed, or labeled an assumption | A cause inferred from the size and direction of a movement alone | 1 |
-| 3 | Gaps section always present | The couldn't-figure-out section appears on every output | Omitted, including when everything traced cleanly | 1 |
-| 4 | Comparison basis stated | The period and the actual comparison basis are stated up front | A comparison manufactured, or the basis left unstated | 1 |
-| 5 | Subtotal reconciliation | A stated subtotal that disagrees with its own parts is flagged, naming both figures | One figure silently picked over the other | 1 |
-| 6 | Zero and missing bases handled | A zero denominator or absent prior figure is reported as n/a, not divided or treated as zero | A percentage computed against a zero or absent base | 1 |
-| 7 | Format discipline | Structured text only, with no slide layout, chart placeholders, or speaker notes | Slide, chart, or image output attempted | 1 |
+| 1 | Comparison basis stated | The period and the actual comparison basis are stated up front | A comparison manufactured, or the basis left unstated | 1 |
+| 2 | Subtotal reconciliation | A stated subtotal that disagrees with its own parts is flagged, naming both figures | One figure silently picked over the other | 1 |
+| 3 | Zero and missing bases handled | A zero denominator or absent prior figure is reported as n/a, not divided or treated as zero | A percentage computed against a zero or absent base | 1 |
+| 4 | Format discipline | Structured text only, with no slide layout, chart placeholders, or speaker notes | Slide, chart, or image output attempted | 1 |
 
-**Score to action:** 7/7 ship. 5 to 6 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+**Score to action:** 4/4 ship. 3 acceptable, note the gap. 2 borderline, flag for human review. 0 to 1 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
 
 ### Self-Test
 

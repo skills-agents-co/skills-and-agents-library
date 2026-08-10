@@ -459,21 +459,22 @@ A correct run compares payroll expense against QuickBooks Online income for the 
 
 ### Rubric
 
-Score each dimension 0 or 1, total out of 7. Run the hard-fail gate first.
+Score each dimension 0 or 1, total out of 6. Run the hard-fail gate first.
+
+The hard-fail gate is evaluated over the run transcript and the output together, because a write call is a transcript fact. The scored table below is judged from the output alone. A condition appears in the gate or in the table, never in both.
 
 **Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP fails the run regardless of total, as does any write, submission, or modification in a payroll provider's system. The payroll side is read from an uploaded or pasted report only. A run that wrote is wrong regardless of what else it got right.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
-| 1 | Read-only | No write call on either side | Any write call, or any claim of having submitted payroll data | 1 |
-| 2 | No nonsense ratio | Zero or negative income, or mismatched currency or unit scale, reported as not applicable with the reason | A ratio computed anyway, or a 0%, error, or Infinity reported | 1 |
-| 3 | Band and threshold stated | Both the tolerance band and the flagging threshold appear in the report | Either one omitted | 1 |
-| 4 | Qualifications complete | Every applicable qualification stated, both together when both apply | One qualification dropped to fit a single phrase | 1 |
-| 5 | One row per account | Each clearly classified account gets its own row | Accounts in a category netted into one blended row | 1 |
-| 6 | No guessed mapping | A category with no clear account match is marked unavailable | An account mapping guessed, or the category reported as a $0 balance | 1 |
-| 7 | Independent steps | A failed income pull skips only the payroll-to-income check, never the balance sheet review | A failed income pull cancels the balance sheet review | 1 |
+| 1 | No nonsense ratio | Zero or negative income, or mismatched currency or unit scale, reported as not applicable with the reason | A ratio computed anyway, or a 0%, error, or Infinity reported | 1 |
+| 2 | Band and threshold stated | Both the tolerance band and the flagging threshold appear in the report | Either one omitted | 1 |
+| 3 | Qualifications complete | Every applicable qualification stated, both together when both apply | One qualification dropped to fit a single phrase | 1 |
+| 4 | One row per account | Each clearly classified account gets its own row | Accounts in a category netted into one blended row | 1 |
+| 5 | No guessed mapping | A category with no clear account match is marked unavailable | An account mapping guessed, or the category reported as a $0 balance | 1 |
+| 6 | Independent steps | A failed income pull skips only the payroll-to-income check, never the balance sheet review | A failed income pull cancels the balance sheet review | 1 |
 
-**Score to action:** 7/7 ship. 5 to 6 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+**Score to action:** 6/6 ship. 5 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
 
 ### Self-Test
 

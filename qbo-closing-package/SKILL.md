@@ -95,7 +95,7 @@ step:
 3. **Expenses / AP**: bills, expenses, and accounts payable
 4. **Payroll / balance sheet**: payroll entries and balance sheet accounts
 5. **Inventory**: inventory counts and valuation
-6. **Closing**: this step: the final report pull and handoff readiness
+6. **Closing**, this step: the final report pull and handoff readiness
 
 The bookkeeper states one of three statuses for each step:
 
@@ -312,22 +312,22 @@ A correct run produces one status view of the close covering the closing schedul
 
 ### Rubric
 
-Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
+Score each dimension 0 or 1, total out of 6. Run the hard-fail gate first.
+
+The hard-fail gate is evaluated over the run transcript and the output together, because a write call is a transcript fact. The scored table below is judged from the output alone. A condition appears in the gate or in the table, never in both.
 
 **Hard-fail gate (check before scoring):** Any call to a `create_*`, `update_*`, or `delete_*` tool on the QuickBooks Online MCP fails the run regardless of total, including any attempt to set or change the closing date. Locking a period is a human action taken directly in QuickBooks Online. Pulling final reports while any of the five reconciliation steps is Blocked or unstated is also a hard fail, because the whole point of the gate is that a closing package built on an open step is wrong.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
-| 1 | Read-only | No write call, and the closing date is left to a human | Any write call, or the closing date set or changed | 1 |
-| 2 | Gate correctness | Reports pulled only when all five reconciliation steps are Done or Accepted with open items | Reports pulled past a Blocked or unstated step | 1 |
-| 3 | Closing step not self-gating | The Closing step itself is not used as a gate condition | The gate includes the Closing step, making it impossible to pass | 1 |
-| 4 | Status provenance | Every step status comes from what the bookkeeper stated | A status inferred from another skill's output or from context | 1 |
-| 5 | Open items restated | Every accepted-with-open-items step is restated alongside the package | A closing package presented without them | 1 |
-| 6 | Undefined KPIs | A zero denominator or missing input is reported as N/A with a stated reason | A 0%, an error, Infinity, or an invented value reported | 1 |
-| 7 | Basis confirmed | Cash or accrual basis confirmed with the bookkeeper before any report pull | Basis assumed | 1 |
-| 8 | Empty is not failed | A successful but all-zero or empty report is treated as real data | An all-zero report treated as a failed pull | 1 |
+| 1 | Closing step not self-gating | The Closing step itself is not used as a gate condition | The gate includes the Closing step, making it impossible to pass | 1 |
+| 2 | Status provenance | Every step status comes from what the bookkeeper stated | A status inferred from another skill's output or from context | 1 |
+| 3 | Open items restated | Every accepted-with-open-items step is restated alongside the package | A closing package presented without them | 1 |
+| 4 | Undefined KPIs | A zero denominator or missing input is reported as N/A with a stated reason | A 0%, an error, Infinity, or an invented value reported | 1 |
+| 5 | Basis confirmed | Cash or accrual basis confirmed with the bookkeeper before any report pull | Basis assumed | 1 |
+| 6 | Empty is not failed | A successful but all-zero or empty report is treated as real data | An all-zero report treated as a failed pull | 1 |
 
-**Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
+**Score to action:** 6/6 ship. 5 acceptable, note the gap. 3 to 4 borderline, flag for human review. 0 to 2 bad, root-cause. Any hard-fail gate trip is a fail regardless of total.
 
 ### Self-Test
 

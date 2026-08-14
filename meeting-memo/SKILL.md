@@ -27,6 +27,10 @@ scheduled auto-run, and the discipline to flag rather than fabricate.
 Do not reach for this if you just want a one-off summary of a single transcript with no template and
 no carry-forward. A plain chatbot prompt already does that.
 
+**See also:** if what you want is a per-entity mention history against people/organizations/meetings
+you already track (not a circulate-ready memo), use [`meeting-scribe`](../meeting-scribe/SKILL.md)
+instead. The two are complementary and can both run against the same transcript.
+
 ## Inputs — how to give it the data
 
 Default path, no setup required:

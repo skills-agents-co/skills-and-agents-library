@@ -410,4 +410,4 @@ Sales receipts: one for $450.00 on 02/09.
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-revenue-ar/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-revenue-ar/).

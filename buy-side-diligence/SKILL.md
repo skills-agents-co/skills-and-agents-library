@@ -150,4 +150,4 @@ Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/buy-side-diligence/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/buy-side-diligence/).

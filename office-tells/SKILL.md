@@ -158,4 +158,4 @@ This skill owns structural language: slide titles, section headers, sheet names,
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/office-tells/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/office-tells/).

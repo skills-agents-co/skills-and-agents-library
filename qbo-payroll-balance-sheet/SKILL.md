@@ -502,4 +502,4 @@ The hard-fail gate is evaluated over the run transcript and the output together,
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-payroll-balance-sheet/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-payroll-balance-sheet/).

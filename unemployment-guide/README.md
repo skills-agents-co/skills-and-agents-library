@@ -2,7 +2,7 @@
 
 A free Claude Code skill that walks you through filing for unemployment insurance in any US state. Provides the official state agency name, application URL, phone number, eligibility rules, step-by-step application instructions, required documents, weekly certification rules, and the common pitfalls that cause denials — tailored to your state.
 
-**Need help?** Email **skills@uristocrat.com** or visit **[skills.uristocrat.com](https://skills.uristocrat.com)**
+**Need help?** Email **contact@skillsandagents.co** or visit **[skillsandagents.co](https://skillsandagents.co)**
 
 ---
 
@@ -122,7 +122,7 @@ This skill provides general procedural guidance based on publicly available info
 
 ## Need help?
 
-Email **skills@uristocrat.com** or visit **[skills.uristocrat.com](https://skills.uristocrat.com)**
+Email **contact@skillsandagents.co** or visit **[skillsandagents.co](https://skillsandagents.co)**
 
 ---
 

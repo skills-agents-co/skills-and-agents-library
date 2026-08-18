@@ -8,7 +8,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ads-copilot/skills/ads-copilot/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ads-copilot/skills/ads-copilot",
     "path": "ads-copilot/skills/ads-copilot/SKILL.md"
@@ -22,7 +22,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ap-invoice-processing/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ap-invoice-processing",
     "path": "ap-invoice-processing/SKILL.md"
@@ -36,7 +36,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/board-deck/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/board-deck",
     "path": "board-deck/SKILL.md"
@@ -50,7 +50,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/buy-side-diligence/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/buy-side-diligence",
     "path": "buy-side-diligence/SKILL.md"
@@ -64,7 +64,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/card-receipt-forwarding/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/card-receipt-forwarding",
     "path": "card-receipt-forwarding/SKILL.md"
@@ -78,7 +78,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ceo-todo/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ceo-todo",
     "path": "ceo-todo/SKILL.md"
@@ -92,7 +92,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ceo-todo/agents/ceo-todo-daily.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ceo-todo/agents",
     "path": "ceo-todo/agents/ceo-todo-daily.md"
@@ -106,7 +106,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/contract-review/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/contract-review",
     "path": "contract-review/SKILL.md"
@@ -120,7 +120,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/drip-api/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/drip-api",
     "path": "drip-api/SKILL.md"
@@ -134,7 +134,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/equity-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/equity-reconciliation",
     "path": "equity-reconciliation/SKILL.md"
@@ -148,7 +148,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/equity-reconciliation-carta/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/equity-reconciliation-carta",
     "path": "equity-reconciliation-carta/SKILL.md"
@@ -162,7 +162,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/expense-access-audit/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/expense-access-audit",
     "path": "expense-access-audit/SKILL.md"
@@ -176,7 +176,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/expense-policy-check/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/expense-policy-check",
     "path": "expense-policy-check/SKILL.md"
@@ -190,7 +190,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-model-qa/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-model-qa",
     "path": "financial-model-qa/SKILL.md"
@@ -204,7 +204,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/skills/financial-pulse/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/skills/financial-pulse",
     "path": "financial-pulse/skills/financial-pulse/SKILL.md"
@@ -218,7 +218,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/agents/financial-pulse-grasshopper.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
@@ -232,7 +232,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/agents/financial-pulse-mercury.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-mercury.md"
@@ -246,7 +246,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/agents/financial-pulse-ramp.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-ramp.md"
@@ -260,7 +260,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ghost-seo-agent/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
@@ -274,7 +274,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/gl-to-report/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/gl-to-report",
     "path": "gl-to-report/SKILL.md"
@@ -288,7 +288,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/investor-update/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/investor-update",
     "path": "investor-update/SKILL.md"
@@ -302,7 +302,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/invoice-generation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/invoice-generation",
     "path": "invoice-generation/SKILL.md"
@@ -330,7 +330,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/llm-visibility-agent/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
@@ -344,7 +344,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/meeting-memo/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/meeting-memo",
     "path": "meeting-memo/SKILL.md"
@@ -358,7 +358,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/meeting-scribe/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/meeting-scribe",
     "path": "meeting-scribe/SKILL.md"
@@ -386,7 +386,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-bank-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-bank-reconciliation",
     "path": "qbo-bank-reconciliation/SKILL.md"
@@ -400,7 +400,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-closing-package/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-closing-package",
     "path": "qbo-closing-package/SKILL.md"
@@ -414,7 +414,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-expenses-ap/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-expenses-ap",
     "path": "qbo-expenses-ap/SKILL.md"
@@ -428,7 +428,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-inventory-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-inventory-reconciliation",
     "path": "qbo-inventory-reconciliation/SKILL.md"
@@ -442,7 +442,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-payroll-balance-sheet/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-payroll-balance-sheet",
     "path": "qbo-payroll-balance-sheet/SKILL.md"
@@ -456,7 +456,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.1.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-revenue-ar/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-revenue-ar",
     "path": "qbo-revenue-ar/SKILL.md"
@@ -470,7 +470,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/statement-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/statement-reconciliation",
     "path": "statement-reconciliation/SKILL.md"
@@ -484,7 +484,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": "1.0.0",
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/unemployment-guide/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
@@ -498,7 +498,7 @@
     "tags": [],
     "version": "",
     "evalContractVersion": null,
-    "author": "uristocrat",
+    "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/vendor-contract-extraction/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/vendor-contract-extraction",
     "path": "vendor-contract-extraction/SKILL.md"

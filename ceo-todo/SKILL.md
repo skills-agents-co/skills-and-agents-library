@@ -144,4 +144,4 @@ For a hands-off daily run that sweeps the CEO's Gmail and Slack for new commitme
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ceo-todo/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ceo-todo/).

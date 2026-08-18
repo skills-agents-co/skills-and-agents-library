@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "A two-layer finance toolkit: a bank-agnostic Financial Pulse skill that produces a categorized 30-day spending breakdown and 3 things to look into from 60-day trends, plus connector agents that authenticate to a specific bank's MCP server and feed transactions into the shared analysis.",
   "author": {
-    "name": "Uristocrat",
-    "url": "https://github.com/uristocrat"
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/Anlo-Ventures"
   },
-  "homepage": "https://skills.uristocrat.com",
+  "homepage": "https://skillsandagents.co",
   "repository": "https://github.com/Anlo-Ventures/skills-and-agents-marketplace",
   "license": "MIT",
   "keywords": ["finance", "banking", "spending-analysis", "expenses", "subscriptions", "mcp"]

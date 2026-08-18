@@ -325,4 +325,4 @@ independently built version — it does not reuse USV's code or internal deal-lo
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/meeting-scribe/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/meeting-scribe/).

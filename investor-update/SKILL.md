@@ -142,4 +142,4 @@ After the draft, briefly note: which format you used and why, which sources you 
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/investor-update/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/investor-update/).

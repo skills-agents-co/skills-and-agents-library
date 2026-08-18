@@ -2,7 +2,7 @@
 
 A free Claude Code skill for Ghost publishers. Runs a fully autonomous SEO audit — pulls non-indexed URLs from Google Search Console, diagnoses each one, applies metadata fixes directly to your Ghost posts, and submits re-indexing requests. No CSV exports, no clicking through dashboards.
 
-**Need help?** Email **skills@uristocrat.com** or visit **[skills.uristocrat.com](https://skills.uristocrat.com)**
+**Need help?** Email **contact@skillsandagents.co** or visit **[skillsandagents.co](https://skillsandagents.co)**
 
 ---
 
@@ -187,7 +187,7 @@ Claude will ask for your site URL and then handle everything from there — logg
 
 ## Need help?
 
-Email **skills@uristocrat.com** or visit **[skills.uristocrat.com](https://skills.uristocrat.com)**
+Email **contact@skillsandagents.co** or visit **[skillsandagents.co](https://skillsandagents.co)**
 
 ---
 

@@ -6,7 +6,7 @@ Local only. Nothing was pushed, tagged, or opened as a PR.
 
 ## Goal
 
-Make the 8 existing public skills discoverable on skills.sh under the Uristocrat
+Make the 8 existing public skills discoverable on skills.sh under the Skills and Agents Co
 Studios umbrella, as a free distribution channel that links back to the
 Skills & Agents catalog (skillsandagents.co).
 
@@ -52,34 +52,34 @@ Each SKILL.md gained this footer at the very bottom of the body (slug substitute
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/<slug>/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/<slug>/).
 ```
 
 Exact line per skill:
 
 - `unemployment-guide/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/unemployment-guide/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/unemployment-guide/).`
 - `learn-quiz/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/learn-quiz/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/learn-quiz/).`
 - `ghost-seo-agent/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ghost-seo-agent/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ghost-seo-agent/).`
 - `office-tells/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/office-tells/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/office-tells/).`
 - `buy-side-diligence/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/buy-side-diligence/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/buy-side-diligence/).`
 - `llm-visibility-agent/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/llm-visibility-agent/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/llm-visibility-agent/).`
 - `financial-pulse/skills/financial-pulse/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/financial-pulse/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/financial-pulse/).`
 - `ads-copilot/skills/ads-copilot/SKILL.md`
-  `**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ads-copilot/).`
+  `**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ads-copilot/).`
 
 Validated by `node scripts/check-backlinks.mjs` (offline, no network): `all 8 backlinks OK`.
 
 ## README install section added
 
 A new `## Install via skills.sh` section was added (the prior `## Install in 30
-seconds` curl section and the `skills.uristocrat.com` reference are preserved).
+seconds` curl section and the `skillsandagents.co` reference are preserved).
 The uncommitted tagline reword on lines 3 and 9 of the working-tree README is
 also preserved. The added section reads:
 
@@ -163,13 +163,13 @@ not required and is out of scope for this task.
 
 After push + tag:
 
-1. Search for "uristocrat" on https://skills.sh and confirm the repo/skills surface.
+1. Search for "skills-and-agents" on https://skills.sh and confirm the repo/skills surface.
 2. Test a single install:
    ```bash
    npx skills add Anlo-Ventures/skills-and-agents-library --skill unemployment-guide
    ```
    Confirm it installs and that the installed SKILL.md ends with the
-   "More from Uristocrat Studios" backlink to
+   "More from Skills and Agents Co" backlink to
    `https://skillsandagents.co/skills/unemployment-guide/`.
 3. Test the whole-catalog install:
    ```bash

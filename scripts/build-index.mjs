@@ -7,7 +7,7 @@
  *
  * The SKILL.md frontmatter shape is the Claude Code skill plugin format
  * (name, description, optional license). The richer catalog metadata
- * (category, tags, runbook) lives in uristocrat-skills/src/content/, not here.
+ * (category, tags, runbook) lives in skills-and-agents-marketplace/src/content/, not here.
  *
  * Usage:
  *   node scripts/build-index.mjs --tag v1.0.0
@@ -214,7 +214,7 @@ function main() {
       tags: Array.isArray(fm.tags) ? fm.tags : [],
       version: fm.version || '',
       evalContractVersion,
-      author: fm.author || 'uristocrat',
+      author: fm.author || 'Skills and Agents Co',
       skillFileUrl,
       githubUrl,
       path: relPath,

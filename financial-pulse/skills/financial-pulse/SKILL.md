@@ -174,4 +174,4 @@ No filler. No "great news!" No financial therapy. Numbers, trends, actions.
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/financial-pulse/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/financial-pulse/).

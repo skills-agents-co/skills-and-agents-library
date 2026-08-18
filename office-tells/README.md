@@ -2,7 +2,7 @@
 
 A Claude Code skill that acts as an anti-AI quality gate for every PowerPoint (.pptx), Word (.docx), and Excel (.xlsx) file Claude creates or edits. Authored by Brian Aber.
 
-- **Live directory:** https://skills.uristocrat.com
+- **Live directory:** https://skillsandagents.co
 
 ## What this is
 

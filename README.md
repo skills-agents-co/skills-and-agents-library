@@ -2,7 +2,7 @@
 
 **Skills that make [Claude Code](https://claude.ai/code) more capable. Install one with a single command.**
 
-Browse the live catalog at **[skills.uristocrat.com](https://skills.uristocrat.com)** · Built and maintained by [uristocrat](https://uristocrat.com)
+Browse the live catalog at **[skillsandagents.co](https://skillsandagents.co)** · Built and maintained by [Skills and Agents Co](https://skillsandagents.co)
 
 ---
 
@@ -31,7 +31,7 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 | **Actually understand the code Claude just wrote** — a teaching loop that quizzes you on the problem, solution, design decisions, and edge cases until you've demonstrably got it | [`learn-quiz/`](./learn-quiz) | skill |
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
 
-More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library/subscribe)** or follow the [catalog](https://skills.uristocrat.com) to catch new releases.
+More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library/subscribe)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
 ## Install in 30 seconds
 
@@ -43,7 +43,7 @@ curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
   https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.3.0/<skill-name>/SKILL.md
 ```
 
-The fastest path is **[skills.uristocrat.com](https://skills.uristocrat.com)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
+The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
 
 > Some skills (e.g. `financial-pulse`) ship as plugins with nested `skills/` and `agents/` directories. The catalog handles the path automatically; if you're installing by hand, follow that skill's README.
 
@@ -77,7 +77,7 @@ The full catalog, with per-skill pages and pinned install commands, lives at [sk
 
 ## Why these skills exist
 
-Every skill in this repo solves a problem we actually had at uristocrat — then we generalized it so anyone can use it.
+Every skill in this repo solves a problem we actually had running our own companies — then we generalized it so anyone can use it.
 We pin every install URL to a tagged release (never `main`), so the skill you install today behaves the same way next month.
 
 ## For skill authors

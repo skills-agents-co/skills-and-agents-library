@@ -532,4 +532,4 @@ QuickBooks Online inventory records for the same date:
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-inventory-reconciliation/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-inventory-reconciliation/).

@@ -4,7 +4,7 @@ Turns a meeting transcript into structured meeting memory: a dated meeting note,
 line per entity the transcript actually names, and a recap email drafted for review but never sent.
 Files-first, no platform account, no connector required. MIT licensed.
 
-- **Live directory:** https://skills.uristocrat.com
+- **Live directory:** https://skillsandagents.co
 - **Catalog page:** https://skillsandagents.co/skills/meeting-scribe/
 - **License:** [MIT](../LICENSE)
 

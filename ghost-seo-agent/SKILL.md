@@ -561,8 +561,8 @@ If Google requires re-authentication mid-session:
 
 If you're a Ghost publisher running into issues with this skill, reach out:
 
-- Email: **skills@uristocrat.com**
-- More skills and documentation: **[skills.uristocrat.com](https://skills.uristocrat.com)**
+- Email: **contact@skillsandagents.co**
+- More skills and documentation: **[skillsandagents.co](https://skillsandagents.co)**
 
 ---
 
@@ -626,5 +626,5 @@ Score each dimension 0 or 1, total out of 8. Run the hard-fail gate first.
 
 1.0.0
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ghost-seo-agent/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/ghost-seo-agent/).
 

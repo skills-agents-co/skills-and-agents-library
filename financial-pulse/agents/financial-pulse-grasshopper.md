@@ -83,7 +83,7 @@ All Financial Pulse privacy rules apply, plus:
 
 ## Composability
 
-This agent works with other Uristocrat finance skills:
+This agent works with other Skills and Agents Co finance skills:
 - **Cancel Subscriptions**: Can hand off SaaS cancellations (requires Gmail MCP separately)
 - **Expense Tracker**: Can hand off for deeper category analysis or custom date ranges
 

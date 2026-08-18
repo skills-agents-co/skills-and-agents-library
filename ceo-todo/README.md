@@ -5,7 +5,7 @@ canonical markdown file, kept current by the Getting Things Done loop, with a
 reliability guarantee enforced in code. Distributed as a Claude Skill and a
 companion Agent. MIT licensed.
 
-- **Live directory:** https://skills.uristocrat.com
+- **Live directory:** https://skillsandagents.co
 - **Catalog page:** https://skillsandagents.co/skills/ceo-todo/
 - **License:** [MIT](../LICENSE)
 

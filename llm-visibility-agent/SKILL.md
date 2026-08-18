@@ -186,4 +186,4 @@ On-demand only. There is no scheduled cron for v1. The user runs this when they 
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/llm-visibility-agent/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/llm-visibility-agent/).

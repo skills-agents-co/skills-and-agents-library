@@ -1,8 +1,8 @@
-# uristocrat/skills
+# Anlo-Ventures/skills-and-agents-library
 
 **Skills that make [Claude Code](https://claude.ai/code) more capable. Install one with a single command.**
 
-Browse the live catalog at **[skills.uristocrat.com](https://skills.uristocrat.com)** · Built and maintained by [uristocrat](https://uristocrat.com)
+Browse the live catalog at **[skillsandagents.co](https://skillsandagents.co)** · Built and maintained by [Skills and Agents Co](https://skillsandagents.co)
 
 ---
 
@@ -31,7 +31,7 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 | **Actually understand the code Claude just wrote** — a teaching loop that quizzes you on the problem, solution, design decisions, and edge cases until you've demonstrably got it | [`learn-quiz/`](./learn-quiz) | skill |
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
 
-More skills land here regularly. **[Watch this repo](https://github.com/uristocrat/skills/subscribe)** or follow the [catalog](https://skills.uristocrat.com) to catch new releases.
+More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library/subscribe)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
 ## Install in 30 seconds
 
@@ -40,10 +40,10 @@ Every skill installs the same way — one `curl` into `~/.claude/skills/`, then 
 ```bash
 mkdir -p ~/.claude/skills/<skill-name>
 curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
-  https://raw.githubusercontent.com/uristocrat/skills/v1.3.0/<skill-name>/SKILL.md
+  https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.3.0/<skill-name>/SKILL.md
 ```
 
-The fastest path is **[skills.uristocrat.com](https://skills.uristocrat.com)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
+The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
 
 > Some skills (e.g. `financial-pulse`) ship as plugins with nested `skills/` and `agents/` directories. The catalog handles the path automatically; if you're installing by hand, follow that skill's README.
 
@@ -52,13 +52,13 @@ The fastest path is **[skills.uristocrat.com](https://skills.uristocrat.com)** �
 These skills are also installable through [skills.sh](https://skills.sh), the open skills registry. Install the whole catalog at once:
 
 ```bash
-npx skills add uristocrat/skills
+npx skills add Anlo-Ventures/skills-and-agents-library
 ```
 
 Or pull a single skill by its slug:
 
 ```bash
-npx skills add uristocrat/skills --skill <slug>
+npx skills add Anlo-Ventures/skills-and-agents-library --skill <slug>
 ```
 
 Available skills and their slugs:
@@ -77,7 +77,7 @@ The full catalog, with per-skill pages and pinned install commands, lives at [sk
 
 ## Why these skills exist
 
-Every skill in this repo solves a problem we actually had at uristocrat — then we generalized it so anyone can use it.
+Every skill in this repo solves a problem we actually had running our own companies — then we generalized it so anyone can use it.
 We pin every install URL to a tagged release (never `main`), so the skill you install today behaves the same way next month.
 
 ## For skill authors
@@ -94,7 +94,7 @@ Cutting a release:
 1. Bump `version` in frontmatter for any changed `SKILL.md`.
 2. Tag: `git tag v1.x.0 && git push origin v1.x.0`.
 3. Rebuild the index: `node scripts/build-index.mjs --tag v1.x.0` and commit.
-4. Update the catalog entries in [uristocrat/uristocrat-skills](https://github.com/uristocrat/uristocrat-skills) to point at the new tag.
+4. Update the catalog entries in [Anlo-Ventures/skills-and-agents-marketplace](https://github.com/Anlo-Ventures/skills-and-agents-marketplace) to point at the new tag.
 
 ## License
 
@@ -102,4 +102,4 @@ MIT — see [LICENSE](./LICENSE). Individual skill folders may carry their own l
 
 ---
 
-**Questions, bug reports, or skill ideas?** Open an [issue](https://github.com/uristocrat/skills/issues) or PR. We read every one.
+**Questions, bug reports, or skill ideas?** Open an [issue](https://github.com/Anlo-Ventures/skills-and-agents-library/issues) or PR. We read every one.

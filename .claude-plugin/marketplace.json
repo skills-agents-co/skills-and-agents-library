@@ -1,11 +1,11 @@
 {
-  "name": "uristocrat-skills",
+  "name": "skills-and-agents",
   "owner": {
-    "name": "Uristocrat",
-    "url": "https://github.com/uristocrat"
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/Anlo-Ventures"
   },
   "metadata": {
-    "description": "Uristocrat's catalog of Claude Code plugins — AI-driven personal and business finance tools.",
+    "description": "Skills and Agents Co's catalog of Claude Code plugins — AI-driven personal and business finance tools.",
     "version": "1.0.0"
   },
   "plugins": [
@@ -15,8 +15,8 @@
       "description": "Bank-agnostic spending analysis — a categorized 30-day breakdown plus 3 actionable things to look into from 60-day trends. Includes connector agents for Grasshopper, Mercury, and Ramp.",
       "version": "1.0.0",
       "author": {
-        "name": "Uristocrat",
-        "url": "https://github.com/uristocrat"
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/Anlo-Ventures"
       },
       "homepage": "https://skillsandagents.co",
       "license": "MIT",
@@ -34,8 +34,8 @@
       "description": "Skills for building and shipping a product — code review, PR summaries, research, competitor intel, and document drafting.",
       "version": "1.0.0",
       "author": {
-        "name": "Uristocrat",
-        "url": "https://github.com/uristocrat"
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/Anlo-Ventures"
       },
       "homepage": "https://skillsandagents.co",
       "license": "MIT",

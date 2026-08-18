@@ -3,7 +3,7 @@
 A two-layer architecture for AI-driven personal and business finance analysis,
 distributed as Claude Skills and Agents. MIT licensed.
 
-- **Live directory:** https://skills.uristocrat.com
+- **Live directory:** https://skillsandagents.co
 - **License:** [MIT](../LICENSE)
 
 ## What this is

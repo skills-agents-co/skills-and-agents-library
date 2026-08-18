@@ -6,7 +6,7 @@ Pure read and synthesize layer. No crawling. No scraping. No model calls. The me
 
 ## Install
 
-Copy [`SKILL.md`](./SKILL.md) into a Claude Project's instructions, or load via the Uristocrat skills catalog.
+Copy [`SKILL.md`](./SKILL.md) into a Claude Project's instructions, or load via the Skills and Agents catalog.
 
 ## Requires
 

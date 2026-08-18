@@ -2,7 +2,7 @@
 
 A Claude Code skill that lets you chat with your ad-platform and analytics data, then returns ranked optimization recommendations. MIT licensed.
 
-- **Live directory:** https://skills.uristocrat.com
+- **Live directory:** https://skillsandagents.co
 - **License:** [MIT](../LICENSE)
 
 ## What this is

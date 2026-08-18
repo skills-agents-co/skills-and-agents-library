@@ -478,4 +478,4 @@ Bank ending balance $8,000.00. QBO ending balance $8,500.00.
 
 ---
 
-**More from Uristocrat Studios:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-bank-reconciliation/).
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/qbo-bank-reconciliation/).

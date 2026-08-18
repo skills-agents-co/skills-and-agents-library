@@ -134,7 +134,7 @@ The skill uses your browser to log into Google Search Console on your behalf. Th
 Run this command in Terminal to add the Ghost SEO Agent skill to Claude Code:
 
 ```bash
-claude skills add https://raw.githubusercontent.com/uristocrat/ghost-seo-agent/main/SKILL.md
+npx skills add Anlo-Ventures/skills-and-agents-library --skill ghost-seo-agent
 ```
 
 ---

@@ -51,7 +51,7 @@ If you don't have Claude Code yet:
 Run this command in Terminal:
 
 ```bash
-claude skills add https://raw.githubusercontent.com/uristocrat/unemployment-guide/main/SKILL.md
+npx skills add Anlo-Ventures/skills-and-agents-library --skill unemployment-guide
 ```
 
 That's it. The skill is now installed and will trigger automatically when you mention being laid off, losing your job, or filing for unemployment.

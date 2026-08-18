@@ -14,8 +14,6 @@ import argparse
 import csv
 import re
 import sys
-import time
-from typing import Any
 from urllib.parse import quote_plus
 
 CSV_HEADER = [

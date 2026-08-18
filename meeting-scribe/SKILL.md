@@ -30,7 +30,9 @@ want is the team's standard circulate-ready notes (Commentary / Observations / T
 frozen template) with carry-forward of open action items across meetings, use `meeting-memo` instead
 — see [`../meeting-memo/SKILL.md`](../meeting-memo/SKILL.md). The two are complementary: run
 `meeting-memo` for the notes your team reads, run `meeting-scribe` to keep your people/company/project
-files current. Nothing stops you running both against the same transcript.
+files current. Nothing stops you running both against the same transcript. For pre-meeting prep instead
+— a dated brief on who's about to be in the room, before the meeting happens — use
+[`../calendar-agent/SKILL.md`](../calendar-agent/SKILL.md).
 
 ## Untrusted input
 

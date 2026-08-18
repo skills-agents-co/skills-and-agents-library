@@ -30,6 +30,7 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 | **Strip the AI tells from my Office docs** before they ship — pipe separators, em dashes, default colors, Sheet1 names, and other machine-generated giveaways in .pptx/.docx/.xlsx | [`office-tells/`](./office-tells) | skill |
 | **Actually understand the code Claude just wrote** — a teaching loop that quizzes you on the problem, solution, design decisions, and edge cases until you've demonstrably got it | [`learn-quiz/`](./learn-quiz) | skill |
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
+| **Prep for an upcoming meeting** — read your calendar export, match attendees and companies against the people/companies you track, and get a dated brief with their full mention history before you walk in | [`calendar-agent/`](./calendar-agent) | skill |
 
 More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library/subscribe)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
@@ -72,6 +73,7 @@ Available skills and their slugs:
 - `financial-pulse` (weekly cashflow pulse across Mercury, Ramp, and Grasshopper)
 - `ads-copilot` (chat with your ad and analytics data for ranked optimization moves)
 - `meeting-scribe` (turn a meeting transcript into structured meeting memory, inspired by USV)
+- `calendar-agent` (prep briefs for upcoming meetings against your tracked people/companies, inspired by USV)
 
 The full catalog, with per-skill pages and pinned install commands, lives at [skillsandagents.co](https://skillsandagents.co/). Skills surface on skills.sh automatically through install telemetry, so there is no registration step on our end.
 

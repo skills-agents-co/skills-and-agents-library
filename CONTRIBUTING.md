@@ -1,8 +1,8 @@
 # Contributing
 
-This repo holds Claude Code skills and agents. The catalog site at [skills.uristocrat.com](https://skills.uristocrat.com) renders entries from [uristocrat/uristocrat-skills](https://github.com/uristocrat/uristocrat-skills), which points back here for the actual `SKILL.md` files.
+This repo holds Claude Code skills and agents. The catalog site at [skills.uristocrat.com](https://skills.uristocrat.com) renders entries from [Anlo-Ventures/skills-and-agents-marketplace](https://github.com/Anlo-Ventures/skills-and-agents-marketplace), which points back here for the actual `SKILL.md` files.
 
-For the full editorial process (when to ship a skill, how to write the catalog entry, review checklist), see [CONTRIBUTING.md in the catalog repo](https://github.com/uristocrat/uristocrat-skills/blob/main/CONTRIBUTING.md).
+For the full editorial process (when to ship a skill, how to write the catalog entry, review checklist), see [CONTRIBUTING.md in the catalog repo](https://github.com/Anlo-Ventures/skills-and-agents-marketplace/blob/main/CONTRIBUTING.md).
 
 ## Folder layout
 
@@ -40,8 +40,8 @@ author: "uristocrat"
 publishedAt: 2026-01-01
 updatedAt: 2026-01-01
 status: published
-githubUrl: "https://github.com/uristocrat/skills/tree/v1.0.0/<skill-name>"
-skillFileUrl: "https://raw.githubusercontent.com/uristocrat/skills/v1.0.0/<skill-name>/SKILL.md"
+githubUrl: "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/v1.0.0/<skill-name>"
+skillFileUrl: "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.0.0/<skill-name>/SKILL.md"
 ---
 ```
 

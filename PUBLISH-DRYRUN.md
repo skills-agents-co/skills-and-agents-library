@@ -89,13 +89,13 @@ also preserved. The added section reads:
 These skills are also installable through [skills.sh](https://skills.sh), the open skills registry. Install the whole catalog at once:
 
 ```bash
-npx skills add uristocrat/skills
+npx skills add Anlo-Ventures/skills-and-agents-library
 ```
 
 Or pull a single skill by its slug:
 
 ```bash
-npx skills add uristocrat/skills --skill <slug>
+npx skills add Anlo-Ventures/skills-and-agents-library --skill <slug>
 ```
 
 Available skills and their slugs:
@@ -166,14 +166,14 @@ After push + tag:
 1. Search for "uristocrat" on https://skills.sh and confirm the repo/skills surface.
 2. Test a single install:
    ```bash
-   npx skills add uristocrat/skills --skill unemployment-guide
+   npx skills add Anlo-Ventures/skills-and-agents-library --skill unemployment-guide
    ```
    Confirm it installs and that the installed SKILL.md ends with the
    "More from Uristocrat Studios" backlink to
    `https://skillsandagents.co/skills/unemployment-guide/`.
 3. Test the whole-catalog install:
    ```bash
-   npx skills add uristocrat/skills
+   npx skills add Anlo-Ventures/skills-and-agents-library
    ```
 4. Spot-check one nested skill (e.g. `financial-pulse` or `ads-copilot`) to
    confirm the slug-based `--skill` flag resolves the nested layout.

@@ -203,8 +203,8 @@ function main() {
     const evalContractVersion = extractEvalContractVersion(stripFrontmatter(raw));
     const relPath = relative(repoRoot, entry.file);
     const dirRel = relative(repoRoot, dirname(entry.file));
-    const skillFileUrl = `https://raw.githubusercontent.com/uristocrat/skills/${tag}/${relPath}`;
-    const githubUrl = `https://github.com/uristocrat/skills/tree/${tag}/${dirRel}`;
+    const skillFileUrl = `https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/${tag}/${relPath}`;
+    const githubUrl = `https://github.com/Anlo-Ventures/skills-and-agents-library/tree/${tag}/${dirRel}`;
     index[entry.slug] = {
       slug: entry.slug,
       kind: entry.kind,

@@ -20,7 +20,7 @@ Folder name is the slug used in catalog URLs. Lowercase, hyphen-separated, no sp
 
 ## SKILL.md frontmatter
 
-The catalog site validates every skill against a Zod schema. Match it exactly. Required keys for a skill:
+This repo requires two keys: `name` and `description`. The lint workflow checks those and nothing else. Everything below is catalog metadata that a maintainer fills in when they write the catalog entry after your PR merges. Include what you know, leave out what you are unsure of.
 
 ```yaml
 ---
@@ -45,7 +45,7 @@ skillFileUrl: "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents
 ---
 ```
 
-Agents add `runbook` (array of `{num, title, body, code?}`) and `troubleshooting` (array of `{symptom, fix}`, can be `[]`). See the catalog site for the canonical shape.
+Agents add `runbook` (array of `{num, title, body, code?}`) and `troubleshooting` (array of `{symptom, fix}`, can be `[]`). Nothing in this repo validates either one. A maintainer confirms the exact shape when they write the catalog entry, so open the PR with your best reading rather than blocking on it.
 
 ## Eval contract
 
@@ -82,7 +82,7 @@ Before approving a skill that adds or changes a contract:
 1. Branch off `main`.
 2. Make the change in the relevant `<skill-name>/` folder.
 3. Bump `version` in frontmatter if behavior changed.
-4. Open a PR. CI runs the lint workflow and the install smoke test.
+4. Open a PR. CI runs the lint workflow. The install smoke test runs on tagged releases, not on PRs.
 5. After merge, a maintainer tags a new release and updates the catalog entry.
 
 ## Local checks

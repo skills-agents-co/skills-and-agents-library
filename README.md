@@ -10,6 +10,20 @@ Each skill adds a specific capability to Claude: check your business cashflow, s
 
 This repo is the source of truth for every skill we publish. Each is MIT-licensed, version-tagged, and ready to drop into Claude Code, Claude Desktop, or any Anthropic-compatible runtime that loads `SKILL.md` files.
 
+## Install the plugin marketplace
+
+Add the marketplace once, then install any plugin from it:
+
+```bash
+/plugin marketplace add Anlo-Ventures/skills-and-agents-library
+```
+
+```bash
+/plugin install financial-pulse@skills-and-agents
+```
+
+Swap `financial-pulse` for any plugin listed in [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json). `financial-pulse` connects to Mercury, Ramp, and Grasshopper for a cashflow pulse. `product-builder` bundles code review, PR summaries, research briefs, competitor intel, and document drafting.
+
 ## Who this is for
 
 - **End users** who want Claude to handle a specific task end-to-end — no prompting tricks, no glue code. Pick a skill, install it, ask Claude.
@@ -32,7 +46,7 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
 | **Prep for an upcoming meeting** — read your calendar export, match attendees and companies against the people/companies you track, and get a dated brief with their full mention history before you walk in | [`calendar-agent/`](./calendar-agent) | skill |
 
-More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library/subscribe)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
+More skills land here regularly. **[Star or watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
 ## Install in 30 seconds
 
@@ -41,12 +55,12 @@ Every skill installs the same way — one `curl` into `~/.claude/skills/`, then 
 ```bash
 mkdir -p ~/.claude/skills/<skill-name>
 curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
-  https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.3.0/<skill-name>/SKILL.md
+  https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.23.0/<skill-name>/SKILL.md
 ```
 
 The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
 
-> Some skills (e.g. `financial-pulse`) ship as plugins with nested `skills/` and `agents/` directories. The catalog handles the path automatically; if you're installing by hand, follow that skill's README.
+> Two skills nest their `SKILL.md` one level deeper: `ads-copilot` and `financial-pulse`. For those, the path is `<skill-name>/skills/<skill-name>/SKILL.md`. Every other skill in this repo is flat. The catalog generates the right path either way, so this only matters when you install by hand.
 
 ## Install via skills.sh
 
@@ -96,7 +110,6 @@ Cutting a release:
 1. Bump `version` in frontmatter for any changed `SKILL.md`.
 2. Tag: `git tag v1.x.0 && git push origin v1.x.0`.
 3. Rebuild the index: `node scripts/build-index.mjs --tag v1.x.0` and commit.
-4. Update the catalog entries in [Anlo-Ventures/skills-and-agents-marketplace](https://github.com/Anlo-Ventures/skills-and-agents-marketplace) to point at the new tag.
 
 ## License
 

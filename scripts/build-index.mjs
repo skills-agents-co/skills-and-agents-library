@@ -7,7 +7,7 @@
  *
  * The SKILL.md frontmatter shape is the Claude Code skill plugin format
  * (name, description, optional license). The richer catalog metadata
- * (category, tags, runbook) lives in skills-and-agents-marketplace/src/content/, not here.
+ * (category, tags, runbook) lives in the catalog site, not here.
  *
  * Usage:
  *   node scripts/build-index.mjs --tag v1.0.0

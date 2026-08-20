@@ -47,3 +47,5 @@ End with a summary: overall quality assessment, top 3 things to fix, and what's 
 ## Output Format
 
 Organized review with severity-labeled sections. Include code snippets for all suggested fixes.
+
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/code-reviewer/).

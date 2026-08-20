@@ -211,3 +211,5 @@ curl "https://dripstack.xyz/api/v1/publications/newsletter.doomberg.com?limit=5"
 # GET https://dripstack.xyz/api/v1/stock-picks?date=2026-05-30
 
 ```
+
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/drip-api/).

@@ -52,3 +52,5 @@ Produce a structured PR summary with:
 ## Output Format
 
 A structured markdown summary suitable for posting as a PR comment or sharing in Slack/docs.
+
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/github-pr-summarizer/).

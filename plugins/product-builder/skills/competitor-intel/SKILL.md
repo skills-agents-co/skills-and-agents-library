@@ -53,3 +53,5 @@ If the user provided their own company's context, add a "vs. us" section compari
 ## Output Format
 
 A structured competitive brief in markdown, with sources noted for key data points.
+
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/competitor-intel/).

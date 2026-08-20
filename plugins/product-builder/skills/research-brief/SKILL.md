@@ -40,3 +40,5 @@ Ask: "Want me to go deeper on any section, or explore a specific angle?"
 ## Output Format
 
 A structured markdown brief with clear section headers, suitable for sharing or saving.
+
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/research-brief/).

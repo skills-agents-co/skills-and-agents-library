@@ -23,7 +23,7 @@ jobs:
 
           // The SKILL.md files use the Claude Code skill plugin format.
           // Required keys are minimal: name and description. Anything richer
-          // belongs in the catalog frontmatter at uristocrat-skills/src/content/.
+          // belongs in the catalog frontmatter on the catalog site.
           const REQUIRED_KEYS = ['name', 'description'];
 
           const skillFiles = [];

@@ -1,8 +1,8 @@
 # Contributing
 
-This repo holds Claude Code skills and agents. The catalog site at [skillsandagents.co](https://skillsandagents.co) renders entries from [Anlo-Ventures/skills-and-agents-marketplace](https://github.com/Anlo-Ventures/skills-and-agents-marketplace), which points back here for the actual `SKILL.md` files.
+This repo holds Claude Code skills and agents. The catalog site at [skillsandagents.co](https://skillsandagents.co) renders these skills and points back here for the actual `SKILL.md` files.
 
-For the full editorial process (when to ship a skill, how to write the catalog entry, review checklist), see [CONTRIBUTING.md in the catalog repo](https://github.com/Anlo-Ventures/skills-and-agents-marketplace/blob/main/CONTRIBUTING.md).
+The editorial bar this repo enforces is below: the eval contract rules, the writing rules, and how to submit a change. After your PR merges, a maintainer writes the catalog entry.
 
 ## Folder layout
 
@@ -20,7 +20,7 @@ Folder name is the slug used in catalog URLs. Lowercase, hyphen-separated, no sp
 
 ## SKILL.md frontmatter
 
-The catalog (`src/content.config.ts` in `skills-and-agents-marketplace`) validates every skill against a Zod schema. Match it exactly. Required keys for a skill:
+The catalog site validates every skill against a Zod schema. Match it exactly. Required keys for a skill:
 
 ```yaml
 ---
@@ -45,7 +45,7 @@ skillFileUrl: "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents
 ---
 ```
 
-Agents add `runbook` (array of `{num, title, body, code?}`) and `troubleshooting` (array of `{symptom, fix}`, can be `[]`). See `src/content.config.ts` in the catalog repo for the canonical shape.
+Agents add `runbook` (array of `{num, title, body, code?}`) and `troubleshooting` (array of `{symptom, fix}`, can be `[]`). See the catalog site for the canonical shape.
 
 ## Eval contract
 

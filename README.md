@@ -96,7 +96,7 @@ Cutting a release:
 1. Bump `version` in frontmatter for any changed `SKILL.md`.
 2. Tag: `git tag v1.x.0 && git push origin v1.x.0`.
 3. Rebuild the index: `node scripts/build-index.mjs --tag v1.x.0` and commit.
-4. Update the catalog entries in [Anlo-Ventures/skills-and-agents-marketplace](https://github.com/Anlo-Ventures/skills-and-agents-marketplace) to point at the new tag.
+4. Update the catalog entries on [skillsandagents.co](https://skillsandagents.co) to point at the new tag.
 
 ## License
 

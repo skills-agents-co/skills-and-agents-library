@@ -139,6 +139,10 @@ instructions.
    duplicate.
 7. Draft the recap email in the run output. Do not send it — there is no send step in this skill.
 
+This skill is files-first: mention lines are markdown, not JSON. A future platform/brain version of
+this skill would consume the same identify/match/propose/flag logic against a JSON shape instead —
+that shape is frozen in `references/mention-proposal.md` for whoever builds that version.
+
 ## Rules (confirm in the plan)
 
 These vary by team; confirm before the first run, then treat them as frozen for later runs:

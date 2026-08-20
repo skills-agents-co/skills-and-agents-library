@@ -60,17 +60,18 @@ ceo-todo/
 │   └── ceo-todo-daily.md          # The daily Gmail + Slack agent (read-only)
 ├── references/
 │   ├── sample-todo.md             # A complete, validator-clean canonical doc
-│   ├── validate.mjs               # The reliability guarantee, in code
-│   └── evals/                     # Golden before/after cases + runner
-│       ├── run-evals.mjs
-│       ├── good-clean.md
-│       ├── good-dedup.md
-│       ├── good-prev-snapshot.md
-│       ├── bad-duplicate-id.md
-│       ├── bad-dropped-open.md
-│       ├── bad-stale-boundary.md
-│       └── bad-user-added-closed.md
+│   └── validate.mjs               # The reliability guarantee, in code
 └── README.md
+
+evals/ceo-todo/                    # Golden before/after cases + runner (repo-level,
+├── run-evals.mjs                  # not shipped with the installed skill)
+├── good-clean.md
+├── good-dedup.md
+├── good-prev-snapshot.md
+├── bad-duplicate-id.md
+├── bad-dropped-open.md
+├── bad-stale-boundary.md
+└── bad-user-added-closed.md
 ```
 
 ## Try it
@@ -86,7 +87,7 @@ CEO_TODO_TODAY=2026-07-06 node validate.mjs sample-todo.md
 Run the golden evals:
 
 ```
-node ceo-todo/references/evals/run-evals.mjs
+node evals/ceo-todo/run-evals.mjs
 ```
 
 Every good fixture exits 0, every bad fixture exits non-zero, and the run

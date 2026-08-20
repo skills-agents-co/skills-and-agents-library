@@ -27,7 +27,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const VALIDATE = join(here, '..', 'validate.mjs');
+const VALIDATE = join(here, '..', '..', 'ceo-todo', 'references', 'validate.mjs');
 const PINNED_TODAY = '2026-07-06';
 
 function runValidate(args) {

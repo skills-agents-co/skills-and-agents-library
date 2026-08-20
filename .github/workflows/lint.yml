@@ -86,6 +86,12 @@ jobs:
           if (fail > 0) { console.error('Lint failures: ' + fail); process.exit(1); }
           NODE
 
+      - name: Check skill files resolve inside their own folder
+        run: node scripts/check-skill-files.mjs
+
+      - name: Test the skill-files checker against its fixtures
+        run: node scripts/test-check-skill-files.mjs
+
       - name: Generate index.json
         run: node scripts/build-index.mjs --tag "${GITHUB_REF_NAME}"
 

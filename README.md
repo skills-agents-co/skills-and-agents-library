@@ -60,7 +60,7 @@ curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
 
 The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
 
-> Some skills (e.g. `financial-pulse`) ship as plugins with nested `skills/` and `agents/` directories. The catalog handles the path automatically; if you're installing by hand, follow that skill's README.
+> Two skills nest their `SKILL.md` one level deeper: `ads-copilot` and `financial-pulse`. For those, the path is `<skill-name>/skills/<skill-name>/SKILL.md`. Every other skill in this repo is flat. The catalog generates the right path either way, so this only matters when you install by hand.
 
 ## Install via skills.sh
 

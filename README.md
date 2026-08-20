@@ -32,7 +32,7 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
 | **Prep for an upcoming meeting** — read your calendar export, match attendees and companies against the people/companies you track, and get a dated brief with their full mention history before you walk in | [`calendar-agent/`](./calendar-agent) | skill |
 
-More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library/subscribe)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
+More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
 ## Install in 30 seconds
 

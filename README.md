@@ -22,7 +22,7 @@ Add the marketplace once, then install any plugin from it:
 /plugin install financial-pulse@skills-and-agents
 ```
 
-Two plugins ship today. `financial-pulse` gives you a cashflow pulse across Mercury, Ramp, and Grasshopper. `product-builder` bundles code review, PR summaries, research briefs, competitor intel, and document drafting.
+Swap `financial-pulse` for any plugin listed in [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json). `financial-pulse` connects to Mercury, Ramp, and Grasshopper for a cashflow pulse. `product-builder` bundles code review, PR summaries, research briefs, competitor intel, and document drafting.
 
 ## Who this is for
 
@@ -46,7 +46,7 @@ Two plugins ship today. `financial-pulse` gives you a cashflow pulse across Merc
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
 | **Prep for an upcoming meeting** — read your calendar export, match attendees and companies against the people/companies you track, and get a dated brief with their full mention history before you walk in | [`calendar-agent/`](./calendar-agent) | skill |
 
-More skills land here regularly. **[Watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
+More skills land here regularly. **[Star or watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
 ## Install in 30 seconds
 

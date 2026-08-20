@@ -92,6 +92,12 @@ jobs:
       - name: Test the skill-files checker against its fixtures
         run: node scripts/test-check-skill-files.mjs
 
+      - name: Check every skill links back to its catalog page
+        run: node scripts/check-backlinks.mjs
+
+      - name: Test the backlink checker against its fixtures
+        run: node scripts/test-check-backlinks.mjs
+
       - name: Generate index.json
         run: node scripts/build-index.mjs --tag "${GITHUB_REF_NAME}"
 

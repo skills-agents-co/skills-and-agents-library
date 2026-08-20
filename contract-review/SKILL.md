@@ -54,3 +54,5 @@ A cited terms table + a ranked risk list (severity, clause cite, recommendation)
   - *Input:* a base agreement that sets a 36-month term plus a later amendment that changes the term to 12 months. *Output MUST* reconcile the two and report the 12-month term (the amendment overrides the base), citing the amendment clause. *Output MUST NOT* report the base 36-month term as if the amendment did not exist, or analyze the two documents in isolation.
   - *Input:* a generic SaaS subscription agreement (seat-based pricing, an auto-renew clause, and a uncapped liability section) with no healthcare or payor terms. *Output MUST* extract the seat count and pricing with clause cites and flag the uncapped liability as a risk. *Output MUST NOT* assume an MLR, payor, or reinsurance frame that isn't in the document.
 - **Version:** 1.0.0
+
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/contract-review/).

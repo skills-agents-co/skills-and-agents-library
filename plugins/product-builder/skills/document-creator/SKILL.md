@@ -46,3 +46,5 @@ A complete document in markdown, ready to copy or export. Include a title, dated
 
 - **Too little context**: Ask targeted follow-up questions before writing — don't guess at the subject matter.
 - **Very long document requested**: Break into sections and confirm the structure before writing all of it.
+
+**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/document-creator/).

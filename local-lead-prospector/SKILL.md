@@ -1,16 +1,17 @@
 ---
 name: local-lead-prospector
-description: Assembles an outreach list of local businesses for an SDR from an industry + region pair. Returns a CSV with name, category, address, phone, website, rating, review count, and a Google Maps source URL, plus a markdown summary. Listing data only. No decision-maker names, no personal emails, no LinkedIn scraping. Google Places API (New) is the preferred path and requires GOOGLE_MAPS_API_KEY. A Playwright + Chromium scrape of public Google Maps results exists as an opt-in fallback, gated behind an explicit confirmation, because scraping Google Maps is against Google's Terms of Service. Use this skill when an SDR asks to "find me dentists in Austin", "build a lead list for HVAC companies in Denver", "I need contacts for law firms in Chicago", "give me a prospecting list", or "who should I cold-call in this market". Do NOT trigger on single-consumer lookups like "find me a good dentist near me", "what is the best taco place in Austin", or "where should I take a client to dinner in SoHo". Those are one-shot recommendations, not lead lists.
+description: Assembles an outreach list of local businesses for an SDR from an industry + region pair. Returns a CSV with name, category, address, phone, website, rating, review count, and a Google Maps source URL, plus a markdown summary. Listing data only. No decision-maker names, no personal emails, no LinkedIn scraping. The Google Places API (New) is the only path and requires GOOGLE_MAPS_API_KEY. Use this skill when an SDR asks to "find me dentists in Austin", "build a lead list for HVAC companies in Denver", "I need contacts for law firms in Chicago", "give me a prospecting list", or "who should I cold-call in this market". Do NOT trigger on single-consumer lookups like "find me a good dentist near me", "what is the best taco place in Austin", or "where should I take a client to dinner in SoHo". Those are one-shot recommendations, not lead lists.
 ---
 
 # Local Lead Prospector
 
 ## Compliance up front
 
-Google Maps listing data is the source. Two paths exist and they are not equal.
+Google Maps listing data is the source, and there is one way to get it.
 
-- **Preferred path: Google Places API (New).** Official, paid, billed per request. Requires `GOOGLE_MAPS_API_KEY` in the environment. Free tier is small, so a cost estimate is shown before any pull above 50 rows.
-- **Fallback path: Playwright scrape of Google Maps.** This is against Google's Terms of Service. It exists for cases where the user has no API key and accepts the risk. It only runs after the user explicitly confirms in the same turn. Do not run it silently.
+- **The only path: Google Places API (New).** Official, paid, billed per request. Requires `GOOGLE_MAPS_API_KEY` in the environment. Free tier is small, so a cost estimate is shown before any pull above 50 rows.
+
+Without a key, this skill stops. Do not scrape Google Maps, and do not reach for a browser-automation workaround. There is no fallback path here on purpose.
 
 Listing data only. Never produce decision-maker names, personal emails, or LinkedIn profiles. Enrichment past the public Google Maps listing is out of scope.
 
@@ -44,18 +45,16 @@ Both must be specific. If either is vague, ask one clarifying question and stop.
 
 Default is 40 rows. Ask only if the user has not stated a number. If the user asks for more than 100, push back and suggest splitting by sub-region (zip, neighborhood, adjacent city). Over 100 in one pull tends to hit the same dense cluster and waste cost.
 
-### 3. Pick the method
+### 3. Check for the API key
 
-- If `GOOGLE_MAPS_API_KEY` is set, use the API. No prompt, no scrape.
-- If the env var is missing, explain that the API is preferred, point at `references/places_api_setup.md`, and offer the scrape fallback. Do not run the scrape without explicit confirmation from the user in this turn.
+- If `GOOGLE_MAPS_API_KEY` is set, run the API path.
+- If it is missing, stop. Tell the user the Google Places API (New) is the only way this skill pulls listings, and point them at `references/places_api_setup.md` to get a key. Do not look for another source.
 
 ### 4. Cost estimate before large pulls
 
-If the requested count is above 50 and the API path is being used, surface the cost estimate first. Pricing tier is Places API (New) Text Search. At the time of writing, Text Search is billed per request and each request returns up to 20 results, so a 100-row pull is about 5 paginated requests. Show the estimate and ask the user to confirm before running.
+If the requested count is above 50, surface the cost estimate first. Pricing tier is Places API (New) Text Search. At the time of writing, Text Search is billed per request and each request returns up to 20 results, so a 100-row pull is about 5 paginated requests. Show the estimate and ask the user to confirm before running.
 
 ### 5. Run the script
-
-API path:
 
 ```
 python scripts/fetch_places_api.py \
@@ -65,20 +64,9 @@ python scripts/fetch_places_api.py \
   --out leads.csv
 ```
 
-Scrape path (only after user confirms):
-
-```
-python scripts/scrape_listings.py \
-  --industry "dentists" \
-  --region "Austin, TX" \
-  --count 40 \
-  --out leads.csv \
-  --yes-tos
-```
-
 ### 6. Write the CSV and the summary
 
-Both scripts emit the same CSV schema. Header line is byte-identical:
+The script emits this CSV schema. Header line is byte-identical:
 
 ```
 name,category,address,phone,website,rating,reviews,source_url
@@ -96,7 +84,7 @@ After the run, post this exact structure back to the user:
 - Total leads: <N>
 - With phone: <P> (<P/N>%)
 - With website: <W> (<W/N>%)
-- Source: Google Places API (New) | Google Maps scrape (ToS opt-in)
+- Source: Google Places API (New)
 - CSV: <path to leads.csv>
 
 ### Sample (first 10)
@@ -120,7 +108,7 @@ Numbers are derived directly from the CSV that was written. Sample table is the 
 Surface clear messages. Never dump a Python traceback at the user.
 
 - **Zero rows.** Exit cleanly. Tell the user the query returned nothing and suggest a broader industry term or a wider region. No traceback.
-- **Consent page (scrape only).** The fallback dismisses Google's consent interstitial. If it cannot, it exits with "Google consent page blocked the scrape" and suggests trying the API path.
+- **No API key.** The script exits with a message naming the Google Places API (New) as the only path and pointing at `references/places_api_setup.md`. Pass that along as-is. Do not offer another way to get the data.
 - **Over-broad region.** If the user is asking for a state or a country, do not run. Ask for a city or metro.
 - **Over-volume.** If the user asks for more than 100, do not run. Suggest splitting by sub-region.
 - **API quota exceeded.** Surface as "Google Places API quota exceeded for the current period. Either wait for reset or raise the quota in Google Cloud Console."
@@ -129,8 +117,7 @@ Surface clear messages. Never dump a Python traceback at the user.
 
 ## Dedupe
 
-- API path dedupes on `place_id` across paginated `pageToken` responses.
-- Scrape path dedupes on a `name + address` key across scroll batches.
+- Rows are deduped on `place_id` across paginated `pageToken` responses.
 
 ## Out of scope
 
@@ -145,13 +132,10 @@ Surface clear messages. Never dump a Python traceback at the user.
 
 See `references/places_api_setup.md` for how to enable Places API (New), create a key, and set `GOOGLE_MAPS_API_KEY`.
 
-The scrape fallback needs Playwright with Chromium:
+Install the script's dependencies once:
 
 ```
 pip install -r scripts/requirements.txt
-python -m playwright install chromium
 ```
-
-Do not run the scrape against Google Maps in CI or on a shared IP without understanding that it violates Google's Terms of Service.
 
 **More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/local-lead-prospector/).

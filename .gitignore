@@ -1,5 +1,6 @@
 .DS_Store
 
-# vendored eng-dev-harness payload; .eng-dev-version is the tracked pin,
-# run install.sh to materialize this after clone or when the pin changes
+# Local development tooling. Not part of the published library.
 .eng-dev/
+.eng-dev-version
+.claude/

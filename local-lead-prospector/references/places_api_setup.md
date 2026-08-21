@@ -1,6 +1,6 @@
 # Google Places API (New) setup
 
-This is the preferred path for Local Lead Prospector. It is the official, ToS-clean way to pull Google Maps listing data.
+This is how Local Lead Prospector pulls Google Maps listing data. It is the only path, so the skill needs a key before it can run.
 
 ## One-time setup
 

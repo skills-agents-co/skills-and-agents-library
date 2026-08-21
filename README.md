@@ -50,17 +50,22 @@ More skills land here regularly. **[Star or watch this repo](https://github.com/
 
 ## Install in 30 seconds
 
-Every skill installs the same way — one `curl` into `~/.claude/skills/`, then restart Claude Code:
+A skill is more than its `SKILL.md` — most ship `scripts/` and `references/` alongside it, and the skill's own instructions depend on those files being there. So installing means pulling the whole skill folder, not just one file. Every skill installs the same way — download the repo as a tarball (pinned to `main`), then extract just that skill's folder into `~/.claude/skills/`, then restart Claude Code:
 
 ```bash
-mkdir -p ~/.claude/skills/<skill-name>
-curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
-  https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.23.0/<skill-name>/SKILL.md
+skill=<skill-name>
+mkdir -p ~/.claude/skills/"$skill"
+tarball=$(mktemp)
+curl -fsSL -o "$tarball" \
+  https://codeload.github.com/Anlo-Ventures/skills-and-agents-library/tar.gz/main
+topdir=$(tar -tzf "$tarball" | head -1 | cut -d/ -f1)
+tar -xzf "$tarball" --strip-components=2 -C ~/.claude/skills/"$skill" "$topdir/$skill"
+rm -f "$tarball"
 ```
 
 The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
 
-> Two skills nest their `SKILL.md` one level deeper: `ads-copilot` and `financial-pulse`. For those, the path is `<skill-name>/skills/<skill-name>/SKILL.md`. Every other skill in this repo is flat. The catalog generates the right path either way, so this only matters when you install by hand.
+> Two skills nest their `SKILL.md` one level deeper: `ads-copilot` and `financial-pulse`. The command above doesn't change for them — it always extracts the whole `<skill-name>/` folder, so for those two you end up with `~/.claude/skills/<skill-name>/skills/<skill-name>/SKILL.md` plus that folder's `scripts/`/`references/`, instead of `SKILL.md` sitting at the top. Every other skill in this repo is flat, with `SKILL.md` directly at the top. The catalog generates the same command either way, so this only matters when you install by hand and go looking for `SKILL.md` afterward.
 
 ## Install via skills.sh
 

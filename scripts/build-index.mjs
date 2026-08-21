@@ -14,11 +14,51 @@
  */
 
 import { readFileSync, readdirSync, writeFileSync, statSync, existsSync } from 'node:fs';
-import { join, relative, dirname } from 'node:path';
+import { join, relative, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
+
+// --- install root/file-list resolution --------------------------------------
+// The "skill root" resolution rule below (flat vs. nested-under-`skills/`) is
+// copied from scripts/check-skill-files.mjs's resolveRootFor(), not imported,
+// because that script is an offline authoring check and restructuring it to
+// export this helper is out of scope for this change. Keep the two in sync by
+// hand if the layout rules ever change. See check-skill-files.mjs's header for
+// the full description of the three layouts.
+function resolveInstallRootForSkill(skillMdPath) {
+  const dir = dirname(skillMdPath);
+  const parent = dirname(dir);
+  if (dirname(parent) !== parent && basename(parent) === 'skills') {
+    return dirname(parent);
+  }
+  return dir;
+}
+
+/** Every regular file under `root`, as absolute paths (mirrors check-skill-files.mjs's listFilesUnder). */
+function listFilesUnder(root) {
+  const out = [];
+  function walk(dir) {
+    for (const name of readdirSync(dir)) {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) walk(full);
+      else out.push(full);
+    }
+  }
+  walk(root);
+  return out;
+}
+
+// The install/extraction depth (tar --strip-components) needed to land the
+// skill's resolution root directly inside the install destination, given a
+// GitHub codeload tarball whose entries are prefixed "<repo>-<ref>/<top-level-folder>/...".
+// Both flat skills (root = <top-level-folder>) and nested skills like
+// ads-copilot/financial-pulse (root is still their <top-level-folder>, since
+// resolveInstallRootForSkill climbs back out of the nested `skills/<name>/`
+// layer) resolve to the same depth: strip the "<repo>-<ref>" segment and the
+// "<top-level-folder>" segment, i.e. 2.
+const INSTALL_STRIP = 2;
 
 function parseArgs(argv) {
   const args = { tag: null };
@@ -205,6 +245,19 @@ function main() {
     const dirRel = relative(repoRoot, dirname(entry.file));
     const skillFileUrl = `https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/${tag}/${relPath}`;
     const githubUrl = `https://github.com/Anlo-Ventures/skills-and-agents-library/tree/${tag}/${dirRel}`;
+
+    // Install root: for a skill entry, the folder that lands in
+    // ~/.claude/skills/<name>/ per the README install command (flat root, or
+    // the outer folder for the two nested skills — see resolveInstallRootForSkill).
+    // For an agent entry (<top-level>/agents/<name>.md), the install root is
+    // that same top-level skill folder: agents/ ships as part of the skill install.
+    const installRoot = entry.kind === 'skill'
+      ? resolveInstallRootForSkill(entry.file)
+      : dirname(dirname(entry.file)); // .../agents/<name>.md -> top-level folder
+    const files = listFilesUnder(installRoot)
+      .map((f) => relative(repoRoot, f))
+      .sort();
+
     index[entry.slug] = {
       slug: entry.slug,
       kind: entry.kind,
@@ -218,6 +271,8 @@ function main() {
       skillFileUrl,
       githubUrl,
       path: relPath,
+      files,
+      installStrip: INSTALL_STRIP,
     };
   }
 

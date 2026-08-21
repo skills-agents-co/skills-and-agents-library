@@ -11,7 +11,15 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ads-copilot/skills/ads-copilot/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ads-copilot/skills/ads-copilot",
-    "path": "ads-copilot/skills/ads-copilot/SKILL.md"
+    "path": "ads-copilot/skills/ads-copilot/SKILL.md",
+    "files": [
+      "ads-copilot/README.md",
+      "ads-copilot/references/csv_schemas.md",
+      "ads-copilot/scripts/parse_csv.py",
+      "ads-copilot/scripts/requirements.txt",
+      "ads-copilot/skills/ads-copilot/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "ap-invoice-processing": {
     "slug": "ap-invoice-processing",
@@ -25,7 +33,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ap-invoice-processing/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ap-invoice-processing",
-    "path": "ap-invoice-processing/SKILL.md"
+    "path": "ap-invoice-processing/SKILL.md",
+    "files": [
+      "ap-invoice-processing/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "board-deck": {
     "slug": "board-deck",
@@ -39,7 +51,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/board-deck/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/board-deck",
-    "path": "board-deck/SKILL.md"
+    "path": "board-deck/SKILL.md",
+    "files": [
+      "board-deck/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "buy-side-diligence": {
     "slug": "buy-side-diligence",
@@ -53,7 +69,13 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/buy-side-diligence/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/buy-side-diligence",
-    "path": "buy-side-diligence/SKILL.md"
+    "path": "buy-side-diligence/SKILL.md",
+    "files": [
+      "buy-side-diligence/README.md",
+      "buy-side-diligence/SKILL.md",
+      "buy-side-diligence/references/prompt-library.md"
+    ],
+    "installStrip": 2
   },
   "calendar-agent": {
     "slug": "calendar-agent",
@@ -67,7 +89,17 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/calendar-agent/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/calendar-agent",
-    "path": "calendar-agent/SKILL.md"
+    "path": "calendar-agent/SKILL.md",
+    "files": [
+      "calendar-agent/README.md",
+      "calendar-agent/SKILL.md",
+      "calendar-agent/references/sample-calendar.ics",
+      "calendar-agent/references/sample-entities/organizations/anlo-robotics.md",
+      "calendar-agent/references/sample-entities/organizations/anlo-ventures.md",
+      "calendar-agent/references/sample-entities/people/jordan-lee.md",
+      "calendar-agent/references/sample-entities/people/sam-rivera.md"
+    ],
+    "installStrip": 2
   },
   "card-receipt-forwarding": {
     "slug": "card-receipt-forwarding",
@@ -81,7 +113,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/card-receipt-forwarding/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/card-receipt-forwarding",
-    "path": "card-receipt-forwarding/SKILL.md"
+    "path": "card-receipt-forwarding/SKILL.md",
+    "files": [
+      "card-receipt-forwarding/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "ceo-todo": {
     "slug": "ceo-todo",
@@ -95,7 +131,15 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ceo-todo/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ceo-todo",
-    "path": "ceo-todo/SKILL.md"
+    "path": "ceo-todo/SKILL.md",
+    "files": [
+      "ceo-todo/README.md",
+      "ceo-todo/SKILL.md",
+      "ceo-todo/agents/ceo-todo-daily.md",
+      "ceo-todo/references/sample-todo.md",
+      "ceo-todo/references/validate.mjs"
+    ],
+    "installStrip": 2
   },
   "ceo-todo-daily": {
     "slug": "ceo-todo-daily",
@@ -109,7 +153,15 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ceo-todo/agents/ceo-todo-daily.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ceo-todo/agents",
-    "path": "ceo-todo/agents/ceo-todo-daily.md"
+    "path": "ceo-todo/agents/ceo-todo-daily.md",
+    "files": [
+      "ceo-todo/README.md",
+      "ceo-todo/SKILL.md",
+      "ceo-todo/agents/ceo-todo-daily.md",
+      "ceo-todo/references/sample-todo.md",
+      "ceo-todo/references/validate.mjs"
+    ],
+    "installStrip": 2
   },
   "contract-review": {
     "slug": "contract-review",
@@ -123,7 +175,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/contract-review/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/contract-review",
-    "path": "contract-review/SKILL.md"
+    "path": "contract-review/SKILL.md",
+    "files": [
+      "contract-review/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "drip-api": {
     "slug": "drip-api",
@@ -137,7 +193,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/drip-api/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/drip-api",
-    "path": "drip-api/SKILL.md"
+    "path": "drip-api/SKILL.md",
+    "files": [
+      "drip-api/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "equity-reconciliation": {
     "slug": "equity-reconciliation",
@@ -151,7 +211,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/equity-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/equity-reconciliation",
-    "path": "equity-reconciliation/SKILL.md"
+    "path": "equity-reconciliation/SKILL.md",
+    "files": [
+      "equity-reconciliation/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "equity-reconciliation-carta": {
     "slug": "equity-reconciliation-carta",
@@ -165,7 +229,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/equity-reconciliation-carta/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/equity-reconciliation-carta",
-    "path": "equity-reconciliation-carta/SKILL.md"
+    "path": "equity-reconciliation-carta/SKILL.md",
+    "files": [
+      "equity-reconciliation-carta/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "expense-access-audit": {
     "slug": "expense-access-audit",
@@ -179,7 +247,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/expense-access-audit/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/expense-access-audit",
-    "path": "expense-access-audit/SKILL.md"
+    "path": "expense-access-audit/SKILL.md",
+    "files": [
+      "expense-access-audit/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "expense-policy-check": {
     "slug": "expense-policy-check",
@@ -193,7 +265,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/expense-policy-check/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/expense-policy-check",
-    "path": "expense-policy-check/SKILL.md"
+    "path": "expense-policy-check/SKILL.md",
+    "files": [
+      "expense-policy-check/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "financial-model-qa": {
     "slug": "financial-model-qa",
@@ -207,7 +283,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-model-qa/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-model-qa",
-    "path": "financial-model-qa/SKILL.md"
+    "path": "financial-model-qa/SKILL.md",
+    "files": [
+      "financial-model-qa/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "financial-pulse": {
     "slug": "financial-pulse",
@@ -221,7 +301,16 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/skills/financial-pulse/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/skills/financial-pulse",
-    "path": "financial-pulse/skills/financial-pulse/SKILL.md"
+    "path": "financial-pulse/skills/financial-pulse/SKILL.md",
+    "files": [
+      "financial-pulse/.claude-plugin/plugin.json",
+      "financial-pulse/README.md",
+      "financial-pulse/agents/financial-pulse-grasshopper.md",
+      "financial-pulse/agents/financial-pulse-mercury.md",
+      "financial-pulse/agents/financial-pulse-ramp.md",
+      "financial-pulse/skills/financial-pulse/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "financial-pulse-grasshopper": {
     "slug": "financial-pulse-grasshopper",
@@ -235,7 +324,16 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/agents/financial-pulse-grasshopper.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/agents",
-    "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
+    "path": "financial-pulse/agents/financial-pulse-grasshopper.md",
+    "files": [
+      "financial-pulse/.claude-plugin/plugin.json",
+      "financial-pulse/README.md",
+      "financial-pulse/agents/financial-pulse-grasshopper.md",
+      "financial-pulse/agents/financial-pulse-mercury.md",
+      "financial-pulse/agents/financial-pulse-ramp.md",
+      "financial-pulse/skills/financial-pulse/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "financial-pulse-mercury": {
     "slug": "financial-pulse-mercury",
@@ -249,7 +347,16 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/agents/financial-pulse-mercury.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/agents",
-    "path": "financial-pulse/agents/financial-pulse-mercury.md"
+    "path": "financial-pulse/agents/financial-pulse-mercury.md",
+    "files": [
+      "financial-pulse/.claude-plugin/plugin.json",
+      "financial-pulse/README.md",
+      "financial-pulse/agents/financial-pulse-grasshopper.md",
+      "financial-pulse/agents/financial-pulse-mercury.md",
+      "financial-pulse/agents/financial-pulse-ramp.md",
+      "financial-pulse/skills/financial-pulse/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "financial-pulse-ramp": {
     "slug": "financial-pulse-ramp",
@@ -263,7 +370,16 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/financial-pulse/agents/financial-pulse-ramp.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/financial-pulse/agents",
-    "path": "financial-pulse/agents/financial-pulse-ramp.md"
+    "path": "financial-pulse/agents/financial-pulse-ramp.md",
+    "files": [
+      "financial-pulse/.claude-plugin/plugin.json",
+      "financial-pulse/README.md",
+      "financial-pulse/agents/financial-pulse-grasshopper.md",
+      "financial-pulse/agents/financial-pulse-mercury.md",
+      "financial-pulse/agents/financial-pulse-ramp.md",
+      "financial-pulse/skills/financial-pulse/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "ghost-seo-agent": {
     "slug": "ghost-seo-agent",
@@ -277,7 +393,12 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/ghost-seo-agent/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/ghost-seo-agent",
-    "path": "ghost-seo-agent/SKILL.md"
+    "path": "ghost-seo-agent/SKILL.md",
+    "files": [
+      "ghost-seo-agent/README.md",
+      "ghost-seo-agent/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "gl-to-report": {
     "slug": "gl-to-report",
@@ -291,7 +412,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/gl-to-report/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/gl-to-report",
-    "path": "gl-to-report/SKILL.md"
+    "path": "gl-to-report/SKILL.md",
+    "files": [
+      "gl-to-report/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "investor-update": {
     "slug": "investor-update",
@@ -305,7 +430,12 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/investor-update/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/investor-update",
-    "path": "investor-update/SKILL.md"
+    "path": "investor-update/SKILL.md",
+    "files": [
+      "investor-update/README.md",
+      "investor-update/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "invoice-generation": {
     "slug": "invoice-generation",
@@ -319,7 +449,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/invoice-generation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/invoice-generation",
-    "path": "invoice-generation/SKILL.md"
+    "path": "invoice-generation/SKILL.md",
+    "files": [
+      "invoice-generation/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "learn-quiz": {
     "slug": "learn-quiz",
@@ -333,7 +467,11 @@
     "author": "Thariq Shihipar",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/learn-quiz/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/learn-quiz",
-    "path": "learn-quiz/SKILL.md"
+    "path": "learn-quiz/SKILL.md",
+    "files": [
+      "learn-quiz/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "llm-visibility-agent": {
     "slug": "llm-visibility-agent",
@@ -347,7 +485,12 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/llm-visibility-agent/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/llm-visibility-agent",
-    "path": "llm-visibility-agent/SKILL.md"
+    "path": "llm-visibility-agent/SKILL.md",
+    "files": [
+      "llm-visibility-agent/README.md",
+      "llm-visibility-agent/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "local-lead-prospector": {
     "slug": "local-lead-prospector",
@@ -361,7 +504,15 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/local-lead-prospector/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/local-lead-prospector",
-    "path": "local-lead-prospector/SKILL.md"
+    "path": "local-lead-prospector/SKILL.md",
+    "files": [
+      "local-lead-prospector/SKILL.md",
+      "local-lead-prospector/references/places_api_setup.md",
+      "local-lead-prospector/scripts/fetch_places_api.py",
+      "local-lead-prospector/scripts/requirements.txt",
+      "local-lead-prospector/scripts/scrape_listings.py"
+    ],
+    "installStrip": 2
   },
   "meeting-memo": {
     "slug": "meeting-memo",
@@ -375,7 +526,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/meeting-memo/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/meeting-memo",
-    "path": "meeting-memo/SKILL.md"
+    "path": "meeting-memo/SKILL.md",
+    "files": [
+      "meeting-memo/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "meeting-scribe": {
     "slug": "meeting-scribe",
@@ -389,7 +544,18 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/meeting-scribe/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/meeting-scribe",
-    "path": "meeting-scribe/SKILL.md"
+    "path": "meeting-scribe/SKILL.md",
+    "files": [
+      "meeting-scribe/README.md",
+      "meeting-scribe/SKILL.md",
+      "meeting-scribe/references/mention-proposal.md",
+      "meeting-scribe/references/sample-entities/organizations/anlo-robotics.md",
+      "meeting-scribe/references/sample-entities/organizations/anlo-ventures.md",
+      "meeting-scribe/references/sample-entities/people/jordan-lee.md",
+      "meeting-scribe/references/sample-entities/people/sam-rivera.md",
+      "meeting-scribe/references/sample-transcript.md"
+    ],
+    "installStrip": 2
   },
   "office-tells": {
     "slug": "office-tells",
@@ -403,7 +569,12 @@
     "author": "Brian Aber",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/office-tells/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/office-tells",
-    "path": "office-tells/SKILL.md"
+    "path": "office-tells/SKILL.md",
+    "files": [
+      "office-tells/README.md",
+      "office-tells/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "qbo-bank-reconciliation": {
     "slug": "qbo-bank-reconciliation",
@@ -417,7 +588,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-bank-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-bank-reconciliation",
-    "path": "qbo-bank-reconciliation/SKILL.md"
+    "path": "qbo-bank-reconciliation/SKILL.md",
+    "files": [
+      "qbo-bank-reconciliation/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "qbo-closing-package": {
     "slug": "qbo-closing-package",
@@ -431,7 +606,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-closing-package/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-closing-package",
-    "path": "qbo-closing-package/SKILL.md"
+    "path": "qbo-closing-package/SKILL.md",
+    "files": [
+      "qbo-closing-package/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "qbo-expenses-ap": {
     "slug": "qbo-expenses-ap",
@@ -445,7 +624,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-expenses-ap/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-expenses-ap",
-    "path": "qbo-expenses-ap/SKILL.md"
+    "path": "qbo-expenses-ap/SKILL.md",
+    "files": [
+      "qbo-expenses-ap/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "qbo-inventory-reconciliation": {
     "slug": "qbo-inventory-reconciliation",
@@ -459,7 +642,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-inventory-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-inventory-reconciliation",
-    "path": "qbo-inventory-reconciliation/SKILL.md"
+    "path": "qbo-inventory-reconciliation/SKILL.md",
+    "files": [
+      "qbo-inventory-reconciliation/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "qbo-payroll-balance-sheet": {
     "slug": "qbo-payroll-balance-sheet",
@@ -473,7 +660,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-payroll-balance-sheet/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-payroll-balance-sheet",
-    "path": "qbo-payroll-balance-sheet/SKILL.md"
+    "path": "qbo-payroll-balance-sheet/SKILL.md",
+    "files": [
+      "qbo-payroll-balance-sheet/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "qbo-revenue-ar": {
     "slug": "qbo-revenue-ar",
@@ -487,7 +678,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/qbo-revenue-ar/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/qbo-revenue-ar",
-    "path": "qbo-revenue-ar/SKILL.md"
+    "path": "qbo-revenue-ar/SKILL.md",
+    "files": [
+      "qbo-revenue-ar/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "resume-tailor": {
     "slug": "resume-tailor",
@@ -501,7 +696,17 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/resume-tailor/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/resume-tailor",
-    "path": "resume-tailor/SKILL.md"
+    "path": "resume-tailor/SKILL.md",
+    "files": [
+      "resume-tailor/SKILL.md",
+      "resume-tailor/references/cover_letter_template.md",
+      "resume-tailor/references/resume_template.md",
+      "resume-tailor/scripts/ats_score.py",
+      "resume-tailor/scripts/extract_jd_keywords.py",
+      "resume-tailor/scripts/render_pdf.py",
+      "resume-tailor/scripts/requirements.txt"
+    ],
+    "installStrip": 2
   },
   "statement-reconciliation": {
     "slug": "statement-reconciliation",
@@ -515,7 +720,11 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/statement-reconciliation/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/statement-reconciliation",
-    "path": "statement-reconciliation/SKILL.md"
+    "path": "statement-reconciliation/SKILL.md",
+    "files": [
+      "statement-reconciliation/SKILL.md"
+    ],
+    "installStrip": 2
   },
   "unemployment-guide": {
     "slug": "unemployment-guide",
@@ -529,7 +738,14 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/unemployment-guide/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/unemployment-guide",
-    "path": "unemployment-guide/SKILL.md"
+    "path": "unemployment-guide/SKILL.md",
+    "files": [
+      "unemployment-guide/.gitignore",
+      "unemployment-guide/README.md",
+      "unemployment-guide/SKILL.md",
+      "unemployment-guide/references/states.md"
+    ],
+    "installStrip": 2
   },
   "vendor-contract-extraction": {
     "slug": "vendor-contract-extraction",
@@ -543,6 +759,10 @@
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/vendor-contract-extraction/SKILL.md",
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/vendor-contract-extraction",
-    "path": "vendor-contract-extraction/SKILL.md"
+    "path": "vendor-contract-extraction/SKILL.md",
+    "files": [
+      "vendor-contract-extraction/SKILL.md"
+    ],
+    "installStrip": 2
   }
 }

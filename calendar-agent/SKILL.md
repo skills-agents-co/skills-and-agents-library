@@ -27,7 +27,9 @@ mention to it. If you want the after-the-fact counterpart — turning a transcri
 note, appended mention lines, and a draft recap email once the meeting is over — use `meeting-scribe`
 instead, see the `meeting-scribe` skill. The two are complementary and
 share one entity folder: run `calendar-agent` before a meeting to prep, run `meeting-scribe` after it
-to record. `calendar-agent` never appends a mention line; that stays `meeting-scribe`'s job.
+to record. `calendar-agent` never appends a mention line; that stays `meeting-scribe`'s job. A third
+sibling, the `news-monitor` skill, watches the same tracked entity folder on its own schedule rather
+than around a meeting, surfacing news on the people and companies you track between meetings.
 
 ## Untrusted input
 

@@ -45,6 +45,7 @@ Swap `financial-pulse` for any plugin listed in [`.claude-plugin/marketplace.jso
 | **Actually understand the code Claude just wrote** — a teaching loop that quizzes you on the problem, solution, design decisions, and edge cases until you've demonstrably got it | [`learn-quiz/`](./learn-quiz) | skill |
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
 | **Prep for an upcoming meeting** — read your calendar export, match attendees and companies against the people/companies you track, and get a dated brief with their full mention history before you walk in | [`calendar-agent/`](./calendar-agent) | skill |
+| **Get a news pulse on the people and companies you track** — filtered against your own tracked entities, not a generic feed, with a dated digest naming what was found or plainly saying nothing was | [`news-monitor/`](./news-monitor) | skill |
 
 More skills land here regularly. **[Star or watch this repo](https://github.com/skills-agents-co/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
@@ -87,6 +88,7 @@ Available skills and their slugs:
 - `ads-copilot` (chat with your ad and analytics data for ranked optimization moves)
 - `meeting-scribe` (turn a meeting transcript into structured meeting memory, inspired by USV)
 - `calendar-agent` (prep briefs for upcoming meetings against your tracked people/companies, inspired by USV)
+- `news-monitor` (news digests on your tracked people/companies filtered against your own entity files, inspired by USV)
 
 The full catalog, with per-skill pages and pinned install commands, lives at [skillsandagents.co](https://skillsandagents.co/). Skills surface on skills.sh automatically through install telemetry, so there is no registration step on our end.
 

@@ -15,7 +15,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { readdirSync, statSync } from 'node:fs';
+import { readdirSync, lstatSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,14 +56,29 @@ for (const c of cases) {
 
 // Count assertion against disk, not a hardcoded number: whatever the checker's
 // own walk finds against the real repo must equal the actual SKILL.md count.
+//
+// This walk MIRRORS the checker's own walk in check-skill-files.mjs and has to
+// keep mirroring it, including the dot-guard. A dot-dir the checker skips and
+// this one descends into is a count mismatch at best. At worst it is a crash:
+// `.claude/commands/` holds 12 tracked symlinks into the gitignored `.eng-dev/`
+// harness payload, so on a fresh clone (every CI run) they dangle, and a walk
+// that follows them dies with ENOENT before any assertion runs. That broke lint
+// on main at 2766154 and stayed broken, because a local checkout has the harness
+// materialized and the symlinks resolve.
+//
+// Two guards, and they cover different things. The dot-guard keeps this walk
+// honest against the checker. lstat keeps it alive against a dangling symlink
+// anywhere else in the tree, including inside a skill folder, where the dot-guard
+// would not help.
 function countSkillMdOnDisk(dir) {
   const ignore = new Set(['.git', 'node_modules', 'examples', 'scripts', 'evals', '.github', '.claude-plugin']);
   let count = 0;
   function walk(d, depth) {
     for (const name of readdirSync(d)) {
+      if (name.startsWith('.')) continue; // mirrors check-skill-files.mjs
       if (depth === 0 && ignore.has(name)) continue;
       const full = join(d, name);
-      if (statSync(full).isDirectory()) walk(full, depth + 1);
+      if (lstatSync(full).isDirectory()) walk(full, depth + 1);
       else if (name === 'SKILL.md') count++;
     }
   }

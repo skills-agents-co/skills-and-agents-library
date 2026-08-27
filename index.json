@@ -139,6 +139,20 @@
     "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/discovery-call-prep",
     "path": "discovery-call-prep/SKILL.md"
   },
+  "discovery-to-prd": {
+    "slug": "discovery-to-prd",
+    "kind": "skill",
+    "name": "discovery-to-prd",
+    "description": "Reads a set of discovery call transcripts and writes a PRD draft where every problem statement names the call it came from and quotes the line behind it. Tags findings with one of four product risks from Transformed (value, usability, feasibility, business viability), marks a template section unsupported rather than inventing a plausible sentence when no transcript covers it, and never states a product or market figure the transcripts don't contain. Use whenever the user says \"turn these calls into a PRD\", \"write a PRD from these transcripts\", \"synthesize these discovery calls\", \"/discovery-to-prd\", or pastes a set of discovery call transcripts and asks for a PRD draft.",
+    "category": "",
+    "tags": [],
+    "version": "1.0.0",
+    "evalContractVersion": "1.0.0",
+    "author": "Skills and Agents Co",
+    "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/discovery-to-prd/SKILL.md",
+    "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/discovery-to-prd",
+    "path": "discovery-to-prd/SKILL.md"
+  },
   "drip-api": {
     "slug": "drip-api",
     "kind": "skill",

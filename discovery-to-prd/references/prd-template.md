@@ -41,7 +41,7 @@ the section from what someone said, per the out-of-reach rule.
 
 ## Goals
 <what a fix accomplishes, tied back to the problem statements above. No new
-figures beyond what the transcripts state.>
+product or market figures beyond what the transcripts state.>
 
 ## Non-goals
 <what this PRD explicitly does not attempt, or "Unsupported by the calls."

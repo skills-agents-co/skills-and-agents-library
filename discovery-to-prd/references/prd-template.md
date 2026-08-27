@@ -8,15 +8,19 @@ the not-found rule in `SKILL.md`.
 # PRD: <working title>
 
 ## Sources
-<one line per transcript: call name, date if known, who was on it>
+<one line per transcript: call name, date if known, account or company,
+not the individual's name unless the person running the skill asked for it>
 
 ## Problem statements
 Grouped under the four risk headings. A problem statement not backed by a
-quote does not belong in this document.
+quote does not belong in this document. When more than one call supports
+the same statement, name every call and state the count.
 
 ### Value
 - <problem statement>. Source: [<call name>] "<quoted line>"
   Tag: value (carried from the transcript | assigned)
+...or, when more than one call agrees: Source: [<call name>, <call name>]
+  "<strongest quoted line>" (2 of 2 calls)
 ...or: "Unsupported by the calls. No transcript covers value."
 
 ### Usability

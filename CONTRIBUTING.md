@@ -40,8 +40,8 @@ author: "Skills and Agents Co"
 publishedAt: 2026-01-01
 updatedAt: 2026-01-01
 status: published
-githubUrl: "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/v1.0.0/<skill-name>"
-skillFileUrl: "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.0.0/<skill-name>/SKILL.md"
+githubUrl: "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.0.0/<skill-name>"
+skillFileUrl: "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.0.0/<skill-name>/SKILL.md"
 ---
 ```
 

@@ -1,4 +1,4 @@
-# Anlo-Ventures/skills-and-agents-library
+# Skills and Agents Library
 
 **Skills that make [Claude Code](https://claude.ai/code) more capable. Install one with a single command.**
 

@@ -2,7 +2,7 @@
   "name": "skills-and-agents",
   "owner": {
     "name": "Skills and Agents Co",
-    "url": "https://github.com/Anlo-Ventures"
+    "url": "https://github.com/skills-agents-co"
   },
   "metadata": {
     "description": "Skills and Agents Co's catalog of Claude Code plugins — AI-driven personal and business finance tools.",
@@ -16,7 +16,7 @@
       "version": "1.0.0",
       "author": {
         "name": "Skills and Agents Co",
-        "url": "https://github.com/Anlo-Ventures"
+        "url": "https://github.com/skills-agents-co"
       },
       "homepage": "https://skillsandagents.co",
       "license": "MIT",
@@ -35,7 +35,7 @@
       "version": "1.0.0",
       "author": {
         "name": "Skills and Agents Co",
-        "url": "https://github.com/Anlo-Ventures"
+        "url": "https://github.com/skills-agents-co"
       },
       "homepage": "https://skillsandagents.co",
       "license": "MIT",

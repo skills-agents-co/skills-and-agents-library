@@ -15,7 +15,7 @@ This repo is the source of truth for every skill we publish. Each is MIT-license
 Add the marketplace once, then install any plugin from it:
 
 ```bash
-/plugin marketplace add Anlo-Ventures/skills-and-agents-library
+/plugin marketplace add skills-agents-co/skills-and-agents-library
 ```
 
 ```bash
@@ -46,7 +46,7 @@ Swap `financial-pulse` for any plugin listed in [`.claude-plugin/marketplace.jso
 | **Turn a meeting transcript into structured meeting memory** — a dated meeting note, one mention line per person/company you track, and a recap email drafted (never sent) | [`meeting-scribe/`](./meeting-scribe) | skill |
 | **Prep for an upcoming meeting** — read your calendar export, match attendees and companies against the people/companies you track, and get a dated brief with their full mention history before you walk in | [`calendar-agent/`](./calendar-agent) | skill |
 
-More skills land here regularly. **[Star or watch this repo](https://github.com/Anlo-Ventures/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
+More skills land here regularly. **[Star or watch this repo](https://github.com/skills-agents-co/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 
 ## Install in 30 seconds
 
@@ -55,7 +55,7 @@ Every skill installs the same way — one `curl` into `~/.claude/skills/`, then 
 ```bash
 mkdir -p ~/.claude/skills/<skill-name>
 curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
-  https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/v1.23.0/<skill-name>/SKILL.md
+  https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.23.0/<skill-name>/SKILL.md
 ```
 
 The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
@@ -67,13 +67,13 @@ The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — eve
 These skills are also installable through [skills.sh](https://skills.sh), the open skills registry. Install the whole catalog at once:
 
 ```bash
-npx skills add Anlo-Ventures/skills-and-agents-library
+npx skills add skills-agents-co/skills-and-agents-library
 ```
 
 Or pull a single skill by its slug:
 
 ```bash
-npx skills add Anlo-Ventures/skills-and-agents-library --skill <slug>
+npx skills add skills-agents-co/skills-and-agents-library --skill <slug>
 ```
 
 Available skills and their slugs:
@@ -116,4 +116,4 @@ MIT — see [LICENSE](./LICENSE). Individual skill folders may carry their own l
 
 ---
 
-**Questions, bug reports, or skill ideas?** Open an [issue](https://github.com/Anlo-Ventures/skills-and-agents-library/issues) or PR. We read every one.
+**Questions, bug reports, or skill ideas?** Open an [issue](https://github.com/skills-agents-co/skills-and-agents-library/issues) or PR. We read every one.

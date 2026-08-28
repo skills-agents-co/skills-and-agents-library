@@ -4,10 +4,10 @@
   "description": "Skills for building and shipping a product — code review, PR summaries, research, competitor intel, and document drafting.",
   "author": {
     "name": "Skills and Agents Co",
-    "url": "https://github.com/Anlo-Ventures"
+    "url": "https://github.com/skills-agents-co"
   },
   "homepage": "https://skillsandagents.co",
-  "repository": "https://github.com/Anlo-Ventures/skills-and-agents-library",
+  "repository": "https://github.com/skills-agents-co/skills-and-agents-library",
   "license": "MIT",
   "keywords": [
     "product",

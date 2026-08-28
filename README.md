@@ -78,7 +78,6 @@ npx skills add Anlo-Ventures/skills-and-agents-library --skill <slug>
 
 Available skills and their slugs:
 
-- `unemployment-guide` (file for unemployment, all 50 states + DC)
 - `learn-quiz` (make Claude teach you the work until you actually understand it)
 - `ghost-seo-agent` (diagnose and fix Ghost Google indexing)
 - `office-tells` (strip the AI tells from .pptx/.docx/.xlsx)

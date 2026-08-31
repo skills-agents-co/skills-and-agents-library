@@ -90,18 +90,30 @@ concrete, checkable terms.
 
 ### Step 2: Write the press release
 
-Write the press release as if the product shipped today. Dateline, a
-headline naming the customer benefit, a one-paragraph summary, a quote
+**Before writing anything, confirm the benefit number.** Ask the PM: what
+specific, falsifiable customer benefit does this deliver, a claim a reader
+could check and find true or false once the product exists (for example,
+"cuts reconciliation time from four hours to twenty minutes," not "makes
+reconciliation easier")? Do not draft the press release until you have an
+answer to this question. A press release that can't be proven wrong hasn't
+said anything.
+
+The PM answers this one of two ways:
+
+- **A number or a concrete before/after.** Use it verbatim, in the
+  headline or the summary paragraph.
+- **"I don't know" or "not yet, needs research."** This is a valid answer.
+  Write the headline and summary with a clearly marked placeholder instead
+  of a real number, for example: "cuts reconciliation time from **[X hours
+  to Y minutes, PM to confirm with real data]**." Do not invent a number to
+  fill the gap, and do not soften it into a vague claim like "makes it
+  faster" to avoid the placeholder looking unfinished. A flagged placeholder
+  is honest; an invented number or a vague claim is not.
+
+Once the benefit is confirmed or explicitly placeholdered, write the rest
+of the press release: dateline, the headline and summary above, a quote
 from a fictional but plausible customer, a quote from a company
 spokesperson, and a line on how to get it.
-
-The headline and the summary paragraph must state one specific, falsifiable
-customer benefit: a claim a reader could check and find true or false once
-the product exists (for example, "cuts reconciliation time from four hours
-to twenty minutes," not "makes reconciliation easier"). If the PM hasn't
-given you a number or a concrete before/after, ask for one rather than
-writing a vague benefit. A press release that can't be proven wrong hasn't
-said anything.
 
 **Output artifact: Press release**, roughly 300 to 500 words, in the shape
 above.
@@ -179,8 +191,9 @@ into the final PRFAQ document in that shape.
 ## Pitfalls
 
 - **Don't write a press release benefit a reader can't check.** "Better,"
-  "easier," and "faster" alone are not falsifiable. Get a number or a
-  concrete before/after.
+  "easier," and "faster" alone are not falsifiable. Get a number, a
+  concrete before/after, or an honest, clearly flagged placeholder if the
+  PM genuinely doesn't have one yet.
 - **Don't let the internal FAQ echo the press release.** If an internal FAQ
   answer reads like marketing copy, it's not naming a real tradeoff yet.
 - **Don't invent a mockup for a product with no UI.** Say there's no
@@ -220,16 +233,21 @@ didn't actually supply is marked unsupported rather than invented.
 
 Score each dimension 0 or 1, total out of 7. Run the hard-fail gate first.
 
-**Hard-fail gate (check before scoring):** A press release with no stated,
-falsifiable customer benefit (a claim like "easier" or "better" with no
-number and no concrete before/after) is an automatic fail, regardless of
-total score. A press release nobody can check is not a Working Backwards
-document.
+**Hard-fail gate (check before scoring):** A press release with a vague
+benefit claim ("easier," "better," or similar, with no number, no concrete
+before/after, and no marked placeholder) is an automatic fail, regardless
+of total score. A press release nobody can check is not a Working Backwards
+document. **A clearly marked placeholder is not a fail.** Per Step 2, when
+the PM doesn't have a number yet, the correct output states that honestly
+with a flagged placeholder rather than inventing a figure or hiding behind
+a vague claim; that placeholder run passes the gate, and the missing number
+belongs in the internal FAQ or the iteration log as an open item, not as a
+reason to hard-fail an otherwise honest document.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
 | 1 | Customer and problem is concrete | Names a specific customer and a problem stated as a cost (time, money, frustration), not a feature | Customer is generic ("everyone") or the problem statement is really a solution | 1 |
-| 2 | Falsifiable benefit (also covered by the gate) | Press release headline or summary states a checkable claim tied to the PM's own numbers | Benefit is vague, or uses a number the PM never supplied | 1 |
+| 2 | Falsifiable benefit (also covered by the gate) | Press release states a checkable claim tied to the PM's own numbers, or a clearly marked placeholder if the PM didn't have one | Benefit is vague with no marked placeholder, or uses a number the PM never supplied | 1 |
 | 3 | External FAQ traces to the PM | Every external FAQ answer traces to something the PM said, or is marked "not yet defined" | An answer states a price, date, or capability the PM never gave | 1 |
 | 4 | Internal FAQ names real tradeoffs | Internal FAQ answers name a specific feasibility, cost, or risk tradeoff | An internal FAQ answer restates the press release's benefit instead of naming a tradeoff | 1 |
 | 5 | Visuals note matches the product | UI product gets a walkthrough of the key screen; non-UI product gets a direct statement that no UI applies | A UI product gets no walkthrough, or a non-UI product gets an invented screen | 1 |
@@ -271,10 +289,13 @@ that would own this is currently two engineers already at capacity; the PM
 is not confident this beats just hiring one more support rep. No specific
 benefit number was given beyond "faster replies."
 
-- The output MUST hard-fail the Rubric's gate, or, if the skill instead
-  asks the PM for a concrete benefit number before finishing the press
-  release, that request MUST appear in the run rather than the skill
-  inventing a number to avoid the gate.
+- Per Step 2, the skill MUST ask the PM for a concrete benefit number
+  before drafting the press release, since "faster replies" alone isn't a
+  falsifiable claim. The request MUST appear in the run.
+- If the PM has no number to give, the output MUST mark the benefit with a
+  clearly flagged placeholder (not a vague phrase like "faster replies,"
+  and not an invented number) and MUST pass the Rubric's hard-fail gate on
+  that placeholder, per the gate's placeholder carve-out.
 - The internal FAQ MUST name the missing NLP infrastructure, the multi-month
   estimate, and the two-engineer capacity constraint as real risks, not
   restate "faster replies" as the answer to a feasibility question.

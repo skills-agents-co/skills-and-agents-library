@@ -25,11 +25,14 @@ feature advantages, customer support benefits, integration capabilities,
 and ROI potential.
 
 Every pain point and feature advantage in the output has to trace back to a
-feature you actually supplied. If a feature list is thin or a segment is
-missing, this skill says so and asks for what it needs, instead of
-inventing a feature that sounds plausible. The ROI section always says what
-an estimate is based on (time, cost, error rate, or something similar), it
-never states a bare number with nothing behind it.
+feature you actually supplied, and the report covers every feature you
+give it unless the list is genuinely long and generic, in which case it
+works the relevant ones and says which it set aside. If the segment is
+missing, this skill says so and asks for it, instead of guessing. The ROI
+section always says what an estimate is based on (time, cost, error rate,
+or something similar); it never states a bare number with nothing behind
+it, and it never states a number at all unless you actually gave it one,
+or a word like "dramatically" standing in for a size you didn't state.
 
 ## When to use it
 
@@ -66,14 +69,22 @@ customer's name, contact detail, or account identifier from the input
 into the output; describe the outcome the feature enables, not who it
 happened to.
 
-**Cover every feature the user supplied.** Don't cap the list or drop
-features to keep the report short. The one exception: if the list is
-genuinely weak, unusually long (rough guide: more than about fifteen
-items) or mostly generic, interchangeable line items with no
-distinguishing capability, work the segment-relevant features first
-instead and say which ones you set aside, rather than forcing every item
-into a report that would bury the ones that actually matter. That
-fallback is the exception, not the default; most feature lists get
+**Feature-list coverage rule (the single source of truth every later step
+follows, not restated elsewhere).** By default, cover every feature the
+user supplied across the report; don't cap the list or drop features to
+keep it short. Fall back to covering only the relevant subset when, and
+only when, **both** of these are true: the list has more than about
+fifteen items, **and** most of those items are generic or interchangeable
+with no distinguishing capability (boilerplate phrases like "robust,"
+"powerful," "easy to use" with nothing concrete attached). Length alone
+never triggers the fallback; a long list of sharply distinct capabilities
+still gets covered in full. When the fallback does apply, "relevant"
+means the same thing it means in Step 3: a feature that addresses a pain
+point from the segment's reference-table row, a pain point the user
+stated directly, or a pain point the feature itself directly implies.
+Everything not in that relevant subset is set aside and named as such in
+Feature advantages, per the Output format below, never silently dropped.
+This fallback is the exception, not the default; most feature lists get
 covered in full.
 
 ## Steps
@@ -99,14 +110,12 @@ covered in full.
    anyway and mark it
    "No supplied feature addresses this," per the Output format below, so
    the gap is visible rather than hidden.
-4. **Feature advantages.** For each feature the user supplied, state what
-   it lets the customer do that they couldn't do as well before, in plain
-   terms a buyer would understand. Cover every supplied feature, per the
-   Inputs section above, unless the weak-list fallback applies, in which
-   case cover only the segment-relevant subset it names and list the rest
-   as set aside. Every advantage listed here must name the feature it
-   comes from. Do not add a feature that wasn't supplied, even if it would
-   make the story cleaner.
+4. **Feature advantages.** For each feature in scope, per the coverage rule
+   in Inputs above, state what it lets the customer do that they couldn't
+   do as well before, in plain terms a buyer would understand. Every
+   advantage listed here must name the feature it comes from. Do not add
+   a feature that wasn't supplied, even if it would make the story
+   cleaner.
 5. **Customer support benefits.** Only describe a support benefit a
    supplied feature actually states, the same explicit-statement standard
    Step 6 uses for integrations: the feature's own supplied description
@@ -161,8 +170,8 @@ covered in full.
 
 ## Feature advantages
 - <feature>: <what it lets the customer do now>.
-<only when the weak-list fallback applied: "Set aside as less relevant to
-<segment>: <feature>, <feature>, ...">.
+...plus, only when the coverage-rule fallback applied: "Set aside as less
+relevant to <segment>: <feature>, <feature>, ..."
 
 ## Customer support benefits
 - <benefit>, from <feature>.
@@ -209,7 +218,11 @@ covered in full.
 A correct run takes a company's stated features and a target market
 segment and produces one analysis with five sections, in this order: pain
 points solved, feature advantages, customer support benefits, integration
-capabilities, ROI potential. Every feature advantage in the output names a
+capabilities, ROI potential. Every supplied feature appears in feature
+advantages, unless the coverage rule's weak-list fallback applies (the
+list is both unusually long and mostly generic), in which case only the
+segment-relevant subset appears and the rest is named as set aside.
+Every feature advantage in the output names a
 feature the user actually supplied. A pain point either names a supplied
 feature or, when none addresses it, says so explicitly rather than being
 dropped. Nothing in the output names a feature that wasn't given. Every
@@ -251,8 +264,8 @@ and it breaks trust the moment it's checked.
 **Exactly one of two paths applies to every run, and it decides which
 dimensions are scored.** If features or segment was missing at the start,
 the correct output is a blocked run (dimension 5 only, everything else
-N/A: a blocked run has no analysis for dimensions 1-4 and 6 to judge).
-Otherwise, the correct output is a full analysis (dimensions 1-4 and 6
+N/A: a blocked run has no analysis for dimensions 1-4, 6, and 7 to judge).
+Otherwise, the correct output is a full analysis (dimensions 1-4, 6, and 7
 scored; dimension 5 is N/A, since nothing was missing to ask about).
 
 | # | Dimension | Pass | Fail | Weight |
@@ -263,11 +276,12 @@ scored; dimension 5 is N/A, since nothing was missing to ask about).
 | 4 | ROI basis and figures both real | Every ROI line states its basis, any number stated came from the user, and no magnitude word substitutes for a size the user didn't state (also covered by the gate) | Any ROI line states a number with no basis, a number the user never gave, or a magnitude word standing in for an unstated size (also covered by the gate) | 1 |
 | 5 | Missing-input handling | When features or segment are missing, the skill asks for them before producing output | The skill produces an analysis despite a missing input | 1 |
 | 6 | Empty-section honesty | A section with nothing to support it says so directly | A section is filled with a plausible-sounding but unsupported claim | 1 |
+| 7 | Feature coverage complete | Every supplied feature appears in feature advantages, or, when the coverage rule's fallback genuinely applies, the relevant subset appears and the rest is explicitly named as set aside | A supplied feature is silently missing from both feature advantages and a set-aside note, or the fallback is used on a list that isn't both long and generic | 1 |
 
 **Score to action:** score out of the applicable dimensions: 1 (dimension
-5 alone) on a blocked run, 5 (dimensions 1-4 and 6) on a full analysis.
-Full score ship. One dimension short (on the 5-dimension path), acceptable,
-note the gap. Two or more short (on the 5-dimension path), flag for human
+5 alone) on a blocked run, 6 (dimensions 1-4, 6, and 7) on a full analysis.
+Full score ship. One dimension short (on the 6-dimension path), acceptable,
+note the gap. Two or more short (on the 6-dimension path), flag for human
 review. **On the 1-dimension blocked-run path, there is no "one short":
 dimension 5 either passes (ship) or fails (bad, root-cause).** A run that
 should have asked for a missing input but produced an analysis instead is
@@ -294,6 +308,10 @@ dashboards." Segment: mid-market.
 - The output MUST NOT name any feature in the pain points or feature
   advantages sections other than automated invoice matching and real-time
   spend dashboards.
+- **Both** supplied features (automated invoice matching, real-time spend
+  dashboards) MUST appear in feature advantages. This is a short list, so
+  the coverage rule's fallback doesn't apply; every supplied feature MUST
+  be covered, not a silently partial subset.
 - The feature advantages section MUST NOT use a magnitude word
   ("dramatically," "significantly," "most," or an equivalent) to describe
   either feature's impact, since the user gave no size to attach one to.
@@ -331,6 +349,32 @@ Only a segment is supplied: "enterprise." No features are given.
 - Once features are supplied in a follow-up, the same tracing rules from
   Scenario A apply: no feature appears in the output that wasn't in the
   follow-up list.
+
+**Scenario C, the weak-list fallback test.**
+
+Segment: "SMB." Eighteen supplied features: fifteen generic, interchangeable
+line items with no distinguishing capability ("Cloud-based," "Scalable,"
+"Secure," "User-friendly dashboard," "Fast performance," "Reliable
+uptime," "Modern interface," "Flexible configuration," "Powerful reporting,"
+"Easy onboarding," "Responsive support," "Mobile-friendly," "Customizable
+workflows," "Enterprise-grade," "Built for teams"), plus three concrete
+ones: "Automated invoice matching," "Single sign-on via SAML," and
+"Real-time Slack alert on a failed payment."
+
+- The output MUST invoke the coverage rule's fallback: the list is both
+  over fifteen items and mostly generic, satisfying both conditions, not
+  just one.
+- Feature advantages MUST cover the three concrete features (they're the
+  ones a pain point from the SMB reference row, the user's own words, or
+  a feature-implied pain point can actually attach to, per Step 3's
+  sanctioned sources) and MUST NOT silently omit any of the fifteen
+  generic ones: they MUST appear in a "Set aside as less relevant to SMB"
+  note, per Output format, not just disappear.
+- The output MUST NOT invoke the fallback on length alone; this scenario
+  only works because the list is also mostly generic. (Scenario A's
+  two-item list and this scenario's eighteen-item list are the two ends
+  of the coverage rule's range; a run that fires the fallback on a long
+  but sharply distinct list, or skips it here, fails dimension 7.)
 
 ### Version
 

@@ -88,15 +88,26 @@ a room.
    inventing a benefit.
 6. **Integration capabilities.** State what the features say about how the
    product fits into the segment's existing tools and workflows. Only
-   describe integrations the supplied features actually mention or clearly
-   imply. If integration isn't addressed by anything supplied, say the
-   input doesn't cover it rather than assuming compatibility.
+   describe an integration the supplied features actually name (a stated
+   connector, API, or named third-party tool). Do not describe an
+   integration you're inferring the product "probably" supports because a
+   feature sounds compatible; a feature that implies capability isn't the
+   same as a feature that states one. If integration isn't addressed by
+   anything supplied, say the input doesn't cover it rather than assuming
+   compatibility.
 7. **ROI potential.** For each concrete benefit above, translate it into a
    basis for return: time saved, cost avoided, error rate reduced, or
    something similar. State the basis every time. Never state a bare
-   percentage or dollar figure with no stated basis. If you don't have
-   enough information to estimate a basis, say that plainly instead of
-   making one up.
+   percentage or dollar figure with no stated basis, **and never state a
+   number at all unless the user actually gave you one to work from.** A
+   number with a basis attached is still fabricated if the number itself
+   didn't come from the user; "saves roughly 12 hours a week, based on
+   time saved reconciling invoices" is not acceptable if the user never
+   said 12 hours. When you don't have a number, state the basis
+   qualitatively instead: "saves time on manual reconciliation, exact
+   amount depends on current volume." If you don't have enough information
+   to name even a qualitative basis, say that plainly instead of making
+   one up.
 8. Write the output using the format below.
 
 ## Output format
@@ -133,6 +144,13 @@ a room.
   exist loses the deal and the skill's trust.
 - **Don't state an ROI number with no basis.** "Saves 30%" means nothing
   without "of what, based on what." Always name the basis.
+- **Don't state an ROI number the user didn't give you, even with a real
+  basis attached.** A plausible-sounding "12 hours a week" is still made
+  up if nobody told you 12. State the basis without a number when you
+  don't have one.
+- **Don't describe an integration the features only "clearly imply."** If
+  the features don't name a connector, an API, or a specific tool, say
+  integration isn't addressed rather than inferring compatibility.
 - **Don't fill customer support or integration from guesswork.** If the
   features don't say anything about either, say so instead of assuming.
 - **Don't treat the segment reference table as exhaustive.** It's a
@@ -163,24 +181,37 @@ the section.
 
 Score each dimension 0 or 1, total out of 6. Run the hard-fail gate first.
 
-**Hard-fail gate (check before scoring):** Any ROI figure with no stated
-basis, or any feature named in the output that the user did not supply, is
-an automatic fail, regardless of total score. A number with no basis or a
-feature that doesn't exist is the kind of detail a sales rep repeats to a
-prospect, and it breaks trust the moment it's checked.
+**Hard-fail gate (check before scoring):** Any of the following is an
+automatic fail, regardless of total score:
+
+- An ROI figure with no stated basis, or a number (even with a basis
+  stated) that the user never actually supplied.
+- A feature named in the output that the user did not supply.
+- An integration or a support-burden claim the supplied features don't
+  actually state, dressed up as something the features "clearly imply."
+
+A number with no basis, an invented feature, or a compatibility claim
+that isn't real is the kind of detail a sales rep repeats to a prospect,
+and it breaks trust the moment it's checked.
+
+Dimensions 1, 4, and 6 below presume the skill produced a five-section
+analysis. When the skill correctly stops on a missing input instead (see
+dimension 5), those three are not applicable and don't count against the
+total; score the run on dimension 5 alone in that case.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
-| 1 | Five sections present, in order | All five sections appear, in the order pain points, feature advantages, support, integration, ROI | A section is missing, renamed, or out of order | 1 |
+| 1 | Five sections present, in order (N/A if the skill correctly blocked on a missing input, see dimension 5) | All five sections appear, in the order pain points, feature advantages, support, integration, ROI | A section is missing, renamed, or out of order | 1 |
 | 2 | Pain points sourced correctly | Every pain point comes from the reference table, the user's own words, or a feature-implied pain point, and any unaddressed one is explicitly marked "no supplied feature addresses this" rather than dropped | A pain point is dropped silently, or one appears that traces to none of the three sanctioned sources | 1 |
 | 3 | Feature advantages trace to supplied features | Every feature advantage names a feature the user supplied | A feature advantage names a feature not in the input | 1 |
-| 4 | ROI basis stated | Every ROI line states its basis (time, cost, error rate, or similar) | Any ROI line states a number with no basis (also covered by the gate) | 1 |
+| 4 | ROI basis and figures both real (N/A if the skill correctly blocked on a missing input) | Every ROI line states its basis, and any number stated came from the user, not just the basis wrapped around an invented one (also covered by the gate) | Any ROI line states a number with no basis, or a number the user never gave (also covered by the gate) | 1 |
 | 5 | Missing-input handling | When features or segment are missing, the skill asks for them before producing output | The skill produces an analysis despite a missing input | 1 |
-| 6 | Empty-section honesty | A section with nothing to support it says so directly | A section is filled with a plausible-sounding but unsupported claim | 1 |
+| 6 | Empty-section honesty (N/A if the skill correctly blocked on a missing input) | A section with nothing to support it says so directly | A section is filled with a plausible-sounding but unsupported claim | 1 |
 
-**Score to action:** 6/6 ship. 4 to 5 acceptable, note the gap. 2 to 3
-borderline, flag for human review. 0 to 1 bad, root-cause. Any hard-fail
-gate trip is fail regardless of total.
+**Score to action:** score out of the applicable dimensions (1 when the
+skill correctly blocked on missing input, 6 otherwise). Full score ship.
+One dimension short, acceptable, note the gap. Two or more short, flag for
+human review. Any hard-fail gate trip is fail regardless of total.
 
 ### Self-Test
 
@@ -196,17 +227,24 @@ dashboards." Segment: mid-market.
   spend dashboards.
 - Every ROI line MUST state a basis (for example time saved reconciling
   invoices, or fewer manual errors). The output MUST NOT state a bare
-  percentage or dollar figure with no stated basis.
-- If the supplied features say nothing about customer support or
-  integration, the output MUST say so directly in those sections rather
-  than inventing a benefit or an integration.
+  percentage or dollar figure with no stated basis, and MUST NOT state any
+  specific number at all (a percentage, an hour count, a dollar figure),
+  since the PM supplied none; the ROI section stays qualitative here.
+- If the supplied features say nothing about customer support, the output
+  MUST say so directly rather than inventing a benefit.
+- Neither feature names an integration, API, or connector, so the output
+  MUST say integration isn't addressed by the input, and MUST NOT infer
+  one from "real-time spend dashboards clearly implying a data feed" or
+  similar reasoning.
 
 **Scenario B, the missing-input test.**
 
 Only a segment is supplied: "enterprise." No features are given.
 
 - The output MUST NOT produce a five-section analysis. It MUST ask for the
-  company's features before proceeding.
+  company's features before proceeding. This is the case where Rubric
+  dimensions 1, 4, and 6 are N/A and the run is scored on dimension 5
+  alone.
 - The output MUST NOT invent a plausible-sounding feature list to fill the
   gap.
 - Once features are supplied in a follow-up, the same tracing rules from

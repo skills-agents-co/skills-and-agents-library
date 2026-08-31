@@ -1,6 +1,6 @@
 ---
 name: sales-email-template-generator
-description: Writes one personalized sales outreach email, under 200 words, from a stated prospect type, their current solution, and your product or features. Names a plausible pain point, a specific feature that addresses it, a clear value proposition, and closes with a soft demo invitation instead of a hard close. Use whenever the user says "write a sales email", "draft an outreach email", "sales email for [prospect type]", "cold email template", "/sales-email-template-generator", or names a type of prospect and what they currently use and asks for an email to send them.
+description: Writes one personalized sales outreach email, 200 words or fewer, from a stated prospect type, their current solution, and your product or features. Names a plausible pain point, a specific feature that addresses it, a clear value proposition, and closes with a soft demo invitation instead of a hard close. Use whenever the user says "write a sales email", "draft an outreach email", "sales email for [prospect type]", "cold email template", "/sales-email-template-generator", or names a type of prospect and what they currently use and asks for an email to send them.
 author: "Skills and Agents Co"
 version: "1.0.0"
 installType: simple
@@ -24,7 +24,7 @@ product or its features (a labeled stand-in is fine if you don't have
 this yet). The email names a pain point that prospect likely has, a
 specific feature that solves it, a clear reason to switch, and ends with a
 low-pressure invitation to look at a demo, not a hard push to book one.
-The whole thing stays under 200 words and reads like one person wrote it
+The whole thing stays at 200 words or fewer and reads like one person wrote it
 to another, not like a marketing blast.
 
 ## When to use it
@@ -143,11 +143,12 @@ prospect nothing and no date or clock time is named.
 Return the finished email as plain text, ready to paste into an email
 client: a subject line, then the body, then a sign-off placeholder like
 "[Your name]". Don't wrap it in commentary before or inside the email.
-The one thing that comes after it: on its own line, the final word count,
-so the count is verifiable from the output alone. That count line is the
-one exception to "no extra commentary," not a violation of it, and
-"a single email" throughout this skill means the email plus that one
-line, not the email alone.
+After it, on their own lines, in this order: the final word count, always;
+then, only if it applies, one line noting a defaulted stand-in feature
+(Step 1) or that the draft is still over the limit after three trim
+passes (Step 7). These are the only lines permitted after the email.
+"A single email" throughout this skill means the email plus whichever of
+these lines actually apply, not the email alone.
 
 ## Sources
 
@@ -198,9 +199,17 @@ run regardless of total score:
 | 6 | No fabricated facts (fully covered by gate condition 3) | Every fact in the email traces to something the user supplied | A fact goes beyond what was supplied | 0 |
 | 7 | Missing-input handling | N/A if prospect type and current solution were both supplied. Otherwise: pass if the skill asked instead of inventing one | Skill invented a prospect type or current solution not supplied | 1 |
 
-**Score to action:** score out of the applicable scored dimensions (2, 3,
-4, and 7 when applicable; 3 dimensions when 7 is N/A, 4 otherwise). Full
-score ship. One dimension short, acceptable, note the gap. Two or more
+**Exactly one of two paths applies to every run.** If prospect type or
+current solution was missing, the correct output is an ask-and-stop, not
+an email: dimensions 2, 3, and 4 have nothing to check and are N/A, and
+the run is scored on dimension 7 alone. Otherwise, an email was correctly
+produced: dimensions 2, 3, and 4 are scored, and dimension 7 is N/A, since
+nothing was missing to ask about.
+
+**Score to action:** score out of the applicable scored dimensions: 1
+(dimension 7 alone) on an ask-and-stop run, 3 (dimensions 2, 3, 4) on a
+completed email. Full score ship. One dimension short, acceptable, note
+the gap. Two or more
 short, flag for human review. Any hard-fail gate trip is fail regardless
 of total.
 
@@ -267,7 +276,8 @@ warehouses." Product/feature: not supplied at all in the first message.
 Prospect type: "marketing director." Current solution: not stated.
 
 - The output MUST NOT write an email. It MUST ask for the missing current
-  solution before drafting anything.
+  solution before drafting anything. This is the ask-and-stop case: only
+  dimension 7 is scored.
 - The output MUST NOT invent a plausible-sounding current solution to fill
   the gap.
 

@@ -27,7 +27,8 @@ and ROI potential.
 Every pain point and feature advantage in the output has to trace back to a
 feature you actually supplied, and the report covers every feature you
 give it unless the list is genuinely long and generic, in which case it
-works the relevant ones and says which it set aside. If the segment is
+works the specific ones and says which generic ones it set aside. If the
+segment is
 missing, this skill says so and asks for it, instead of guessing. The ROI
 section always says what an estimate is based on (time, cost, error rate,
 or something similar); it never states a bare number with nothing behind
@@ -74,28 +75,34 @@ Steps below reference it rather than defining their own version, and the
 Eval Contract summarizes it where an eval contract needs to).** By
 default, cover every feature the user supplied across the report; don't
 cap the list or drop features to keep it short. Fall back to covering
-only the concrete subset in Feature advantages when, and only when,
+only the specific subset in Feature advantages when, and only when,
 **both** of these are true: the list has more than about fifteen items,
-**and** most of those items are generic or interchangeable with no
-distinguishing capability (boilerplate phrases like "robust," "powerful,"
-"easy to use," "responsive," "flexible," with nothing specific attached).
-Length alone never triggers the fallback; a long list of sharply distinct
-capabilities still gets covered in full.
+**and** most of those items are generic, meaning the trigger test below.
 
-When the fallback applies, the filter is the same test as the trigger,
-just applied per feature instead of to the list as a whole: a feature
-that states a specific, concrete capability is covered in Feature
-advantages; a feature that's just a boilerplate quality adjective with
-nothing concrete attached (the same shape of item that made the list trip
-the trigger in the first place) is set aside there instead, per the
-Output format below, never silently dropped. This is deliberately not the
-same test as which pain points a feature can support in Step 3, or which
+**The one test, stated once, used for both the trigger and the per-feature
+filter: a feature is specific if it names a distinct mechanism, protocol,
+integration, artifact, or event a buyer could point to and check ("SAML,"
+"Slack alert on a failed payment," "auto-matches invoices"). A feature is
+generic if it names none of those, no matter how many quality adjectives
+it piles on ("robust," "powerful," "easy to use," "responsive,"
+"flexible," "modern," "enterprise-grade," "user-friendly [noun]"). A
+noun attached to an adjective doesn't make the adjective specific unless
+the noun itself names a distinct mechanism or artifact ("user-friendly
+dashboard" names no particular thing the dashboard does; "real-time spend
+dashboard" does, because "spend" names what it dashboards and "real-time"
+names when).** Length alone never triggers the fallback; a long list where
+most items pass this specific test still gets covered in full.
+
+When the fallback applies: a specific feature is covered in Feature
+advantages; a generic one is set aside there instead, per the Output
+format below, never silently dropped. This is deliberately not the same
+test as which pain points a feature can support in Step 3, or which
 support/integration/ROI claims it can back in Steps 5-7: a feature set
 aside from Feature advantages is still a fully supplied feature for every
-other step, including one that's generic enough to skip Feature
-advantages but still literally says "support" and so still backs a
-support-benefit claim in Step 5. This fallback is the exception, not the
-default; most feature lists get covered in full.
+other step, including one that's generic enough to be set aside there but
+still literally says "support" and so still backs a support-benefit claim
+in Step 5. This fallback is the exception, not the default; most feature
+lists get covered in full.
 
 ## Steps
 
@@ -180,8 +187,8 @@ default; most feature lists get covered in full.
 
 ## Feature advantages
 - <feature>: <what it lets the customer do now>.
-...plus, only when the coverage-rule fallback applied: "Set aside as less
-relevant to <segment>: <feature>, <feature>, ..."
+...plus, only when the coverage-rule fallback applied: "Set aside as too
+generic to state a specific advantage: <feature>, <feature>, ..."
 
 ## Customer support benefits
 - <benefit>, from <feature>.
@@ -230,7 +237,7 @@ segment and produces one analysis with five sections, in this order: pain
 points solved, feature advantages, customer support benefits, integration
 capabilities, ROI potential. Every supplied feature appears in feature
 advantages, unless the coverage rule's fallback applies (the list is both
-unusually long and mostly generic), in which case only the concrete
+unusually long and mostly generic), in which case only the specific
 subset appears there and the rest is named as set aside. Every feature
 advantage in the output names a
 feature the user actually supplied. A pain point either names a supplied
@@ -286,7 +293,7 @@ scored; dimension 5 is N/A, since nothing was missing to ask about).
 | 4 | ROI basis and figures both real | Every ROI line states its basis, any number stated came from the user, and no magnitude word substitutes for a size the user didn't state (also covered by the gate) | Any ROI line states a number with no basis, a number the user never gave, or a magnitude word standing in for an unstated size (also covered by the gate) | 1 |
 | 5 | Missing-input handling | When features or segment are missing, the skill asks for them before producing output | The skill produces an analysis despite a missing input | 1 |
 | 6 | Empty-section honesty | A section with nothing to support it says so directly | A section is filled with a plausible-sounding but unsupported claim | 1 |
-| 7 | Feature coverage complete | Every supplied feature appears in feature advantages, or, when the list is both over fifteen items and mostly generic, the concrete subset appears there and the rest is explicitly named as set aside | A supplied feature is silently missing from both feature advantages and a set-aside note; the fallback fires on a list that isn't both long and generic; or the fallback is genuinely warranted but the run covers everything anyway instead of setting the generic ones aside | 1 |
+| 7 | Feature coverage complete | Every supplied feature appears in feature advantages, or, when the list is both over fifteen items and mostly generic, the specific subset appears there and the rest is explicitly named as set aside | A supplied feature is silently missing from both feature advantages and a set-aside note; the fallback fires on a list that isn't both long and generic; the fallback is genuinely warranted but the run covers everything anyway; or a feature that names no distinct mechanism, protocol, integration, artifact, or event is covered instead of set aside | 1 |
 
 **Score to action:** score out of the applicable dimensions: 1 (dimension
 5 alone) on a blocked run, 6 (dimensions 1-4, 6, and 7) on a full analysis.
@@ -367,22 +374,27 @@ line items with no distinguishing capability ("Cloud-based," "Scalable,"
 "Secure," "User-friendly dashboard," "Fast performance," "Reliable
 uptime," "Modern interface," "Flexible configuration," "Powerful reporting,"
 "Easy onboarding," "Responsive support," "Mobile-friendly," "Customizable
-workflows," "Enterprise-grade," "Built for teams"), plus three concrete
+workflows," "Enterprise-grade," "Built for teams"), plus three specific
 ones: "Automated invoice matching," "Single sign-on via SAML," and
 "Real-time Slack alert on a failed payment."
 
 - The output MUST invoke the coverage rule's fallback: the list is both
   over fifteen items and mostly generic, satisfying both conditions, not
   just one.
-- Feature advantages MUST cover the three concrete features (each states a
-  specific, checkable capability, not a boilerplate quality adjective)
-  and MUST NOT silently omit any of the fifteen generic ones: they MUST
-  appear in a "Set aside as less relevant to SMB" note, per Output
-  format, not just disappear. The filter here is concreteness, the same
-  test that tripped the trigger, not which pain point a feature happens
-  to imply; a generic feature like "Easy onboarding" is set aside even
-  though onboarding speed is a real SMB pain point, because the feature
-  itself states nothing concrete about how it addresses that pain point.
+- Feature advantages MUST cover the three specific features (each names a
+  distinct mechanism, protocol, integration, or event: SAML, an automated
+  invoice-matching process, a Slack alert tied to a specific trigger) and
+  MUST NOT silently omit any of the fifteen generic ones: they MUST
+  appear in a "Set aside as too generic to state a specific advantage"
+  note, per Output format, not just disappear. None of the fifteen names
+  a distinct mechanism, protocol, integration, artifact, or event; each is
+  a quality adjective (or an adjective plus a bare noun like "dashboard"
+  or "workflows" that names no particular thing the feature actually
+  does), which is exactly what the coverage rule's test excludes. This is
+  not about which pain point a feature happens to imply; a generic
+  feature like "Easy onboarding" is set aside even though onboarding
+  speed is a real SMB pain point, because the feature itself names no
+  specific onboarding mechanism.
 - The output MUST NOT invoke the fallback on length alone; this scenario
   only works because the list is also mostly generic. (Scenario A's
   two-item list and this scenario's eighteen-item list are the two ends

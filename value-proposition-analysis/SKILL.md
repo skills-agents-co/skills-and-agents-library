@@ -76,22 +76,40 @@ Eval Contract summarizes it where an eval contract needs to).** By
 default, cover every feature the user supplied across the report; don't
 cap the list or drop features to keep it short. Fall back to covering
 only the specific subset in Feature advantages when, and only when,
-**both** of these are true: the list has more than about fifteen items,
+**both** of these are true: the list has more than fifteen items,
 **and** most of those items are generic, meaning the trigger test below.
 
 **The one test, stated once, used for both the trigger and the per-feature
-filter: a feature is specific if it names a distinct mechanism, protocol,
-integration, artifact, or event a buyer could point to and check ("SAML,"
-"Slack alert on a failed payment," "auto-matches invoices"). A feature is
-generic if it names none of those, no matter how many quality adjectives
-it piles on ("robust," "powerful," "easy to use," "responsive,"
-"flexible," "modern," "enterprise-grade," "user-friendly [noun]"). A
-noun attached to an adjective doesn't make the adjective specific unless
-the noun itself names a distinct mechanism or artifact ("user-friendly
-dashboard" names no particular thing the dashboard does; "real-time spend
-dashboard" does, because "spend" names what it dashboards and "real-time"
-names when).** Length alone never triggers the fallback; a long list where
-most items pass this specific test still gets covered in full.
+filter: a feature is specific only if it names at least one of three
+things, each independently verifiable by a buyer without trusting the
+vendor's word for it:**
+1. **a named external standard, protocol, or integration** ("SAML,"
+   "Slack," "QuickBooks," "Zapier"),
+2. **a specific trigger tied to a specific response** ("alert on a failed
+   payment," "auto-matches invoices to payments"), or
+3. **a measurable, checkable quantity** ("syncs every five minutes,"
+   "50 GB of storage," "99.9% uptime SLA").
+
+**A feature is generic if it names none of the three, even when it names
+an action, an artifact, or an audience.** Naming a general capability
+without a named target, trigger, or number attached doesn't clear the
+bar: "reporting," "onboarding," "support," and "a dashboard" are all real
+things a product can have, but without a named target or trigger they're
+still generic ("powerful reporting," "easy onboarding," "responsive
+support," "a user-friendly dashboard"). Naming a deployment model or a
+platform without a named specific capability on it is generic too
+("cloud-based," "mobile-friendly"), since neither names a checkable
+integration, trigger, or number on its own. Compare "a user-friendly
+dashboard" (generic: no named target) against "a real-time spend
+dashboard" (specific: names condition 3's kind of claim, since "real-time"
+is a checkable timing property and "spend" is a named target the
+dashboard tracks) to see the line. Quality adjectives ("robust,"
+"powerful," "easy to use," "responsive," "flexible," "modern,"
+"enterprise-grade") never clear the bar on their own, with or without a
+noun attached, because an adjective describes a property, not a named
+integration, trigger, or number. Length alone never triggers the
+fallback; a long list where most items clear this bar still gets covered
+in full.
 
 When the fallback applies: a specific feature is covered in Feature
 advantages; a generic one is set aside there instead, per the Output
@@ -155,7 +173,7 @@ lists get covered in full.
    same as a feature that states one. If integration isn't addressed by
    anything supplied, say the input doesn't cover it rather than assuming
    compatibility.
-7. **ROI potential.** For each concrete benefit above, translate it into a
+7. **ROI potential.** For each benefit above, translate it into a
    basis for return: time saved, cost avoided, error rate reduced, or
    something similar. State the basis every time. Never state a bare
    percentage or dollar figure with no stated basis, **and never state a
@@ -293,7 +311,7 @@ scored; dimension 5 is N/A, since nothing was missing to ask about).
 | 4 | ROI basis and figures both real | Every ROI line states its basis, any number stated came from the user, and no magnitude word substitutes for a size the user didn't state (also covered by the gate) | Any ROI line states a number with no basis, a number the user never gave, or a magnitude word standing in for an unstated size (also covered by the gate) | 1 |
 | 5 | Missing-input handling | When features or segment are missing, the skill asks for them before producing output | The skill produces an analysis despite a missing input | 1 |
 | 6 | Empty-section honesty | A section with nothing to support it says so directly | A section is filled with a plausible-sounding but unsupported claim | 1 |
-| 7 | Feature coverage complete | Every supplied feature appears in feature advantages, or, when the list is both over fifteen items and mostly generic, the specific subset appears there and the rest is explicitly named as set aside | A supplied feature is silently missing from both feature advantages and a set-aside note; the fallback fires on a list that isn't both long and generic; the fallback is genuinely warranted but the run covers everything anyway; or a feature that names no distinct mechanism, protocol, integration, artifact, or event is covered instead of set aside | 1 |
+| 7 | Feature coverage complete | Every supplied feature appears in feature advantages, or, when the list is both over fifteen items and mostly generic, the specific subset appears there (per the coverage rule's three-part test) and the rest is explicitly named as set aside | A supplied feature is silently missing from both feature advantages and a set-aside note; the fallback fires on a list that isn't both long and generic; the fallback is genuinely warranted but the run covers everything anyway; a feature that clears none of the three-part test is covered instead of set aside; or a feature that clears the test is set aside instead of covered | 1 |
 
 **Score to action:** score out of the applicable dimensions: 1 (dimension
 5 alone) on a blocked run, 6 (dimensions 1-4, 6, and 7) on a full analysis.
@@ -381,20 +399,28 @@ ones: "Automated invoice matching," "Single sign-on via SAML," and
 - The output MUST invoke the coverage rule's fallback: the list is both
   over fifteen items and mostly generic, satisfying both conditions, not
   just one.
-- Feature advantages MUST cover the three specific features (each names a
-  distinct mechanism, protocol, integration, or event: SAML, an automated
-  invoice-matching process, a Slack alert tied to a specific trigger) and
-  MUST NOT silently omit any of the fifteen generic ones: they MUST
-  appear in a "Set aside as too generic to state a specific advantage"
-  note, per Output format, not just disappear. None of the fifteen names
-  a distinct mechanism, protocol, integration, artifact, or event; each is
-  a quality adjective (or an adjective plus a bare noun like "dashboard"
-  or "workflows" that names no particular thing the feature actually
-  does), which is exactly what the coverage rule's test excludes. This is
-  not about which pain point a feature happens to imply; a generic
-  feature like "Easy onboarding" is set aside even though onboarding
-  speed is a real SMB pain point, because the feature itself names no
-  specific onboarding mechanism.
+- Feature advantages MUST cover the three specific features: "Single
+  sign-on via SAML" clears the named-protocol leg, "Automated invoice
+  matching" clears the specific-trigger-and-response leg (matches
+  invoices to payments), and "Real-time Slack alert on a failed payment"
+  clears both the named-integration leg (Slack) and the specific-trigger
+  leg (a failed payment).
+- The output MUST NOT silently omit any of the fifteen generic ones: they
+  MUST appear in a "Set aside as too generic to state a specific
+  advantage" note, per Output format. None of the fifteen clears any of
+  the coverage rule's three legs: "Cloud-based" and "Mobile-friendly"
+  name a deployment model and a platform, not a checkable integration,
+  trigger, or number; "User-friendly dashboard," "Powerful reporting,"
+  and "Customizable workflows" name a real capability with no target,
+  trigger, or number attached to it (compare "Powerful reporting" against
+  a specific one like "exports a P&L to QuickBooks nightly," which would
+  clear the bar); "Easy onboarding" and "Responsive support" are the same
+  shape, an action with nothing named attached; the rest are quality
+  adjectives, which never clear the bar on their own. This is not about
+  which pain point a feature happens to imply; a generic feature like
+  "Easy onboarding" is set aside even though onboarding speed is a real
+  SMB pain point, because the feature itself names no specific mechanism
+  for addressing it.
 - The output MUST NOT invoke the fallback on length alone; this scenario
   only works because the list is also mostly generic. (Scenario A's
   two-item list and this scenario's eighteen-item list are the two ends

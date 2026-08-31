@@ -65,10 +65,16 @@ a room.
    points as a starting list. If the segment isn't a close match to
    anything in the file, don't guess: ask the user directly what that
    segment's biggest challenges are, and use their answer instead.
-3. **Pain points solved.** For each pain point (from the reference table or
-   from what the user told you directly), name the specific feature that
-   addresses it. Only include a pain point if a supplied feature actually
-   solves it. Drop any pain point with no matching feature.
+3. **Pain points solved.** Build the pain point list from three sanctioned
+   sources only: the reference table's pain points for this segment, what
+   the user told you directly, or a pain point directly implied by a
+   feature the user actually supplied (for example, a feature that
+   "auto-matches invoices" directly implies the pain point "manual invoice
+   matching"). For each pain point, name the specific feature that
+   addresses it. If a reference-table or user-stated pain point has no
+   matching feature, don't drop it silently: list it anyway and mark it
+   "No supplied feature addresses this," per the Output format below, so
+   the gap is visible rather than hidden.
 4. **Feature advantages.** For each feature the user supplied, state what
    it lets the customer do that they couldn't do as well before, in plain
    terms a buyer would understand. Every advantage listed here must name
@@ -166,7 +172,7 @@ prospect, and it breaks trust the moment it's checked.
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|
 | 1 | Five sections present, in order | All five sections appear, in the order pain points, feature advantages, support, integration, ROI | A section is missing, renamed, or out of order | 1 |
-| 2 | Pain points trace to supplied features | Every pain point names a feature the user supplied | A pain point appears with no matching supplied feature | 1 |
+| 2 | Pain points sourced correctly | Every pain point comes from the reference table, the user's own words, or a feature-implied pain point, and any unaddressed one is explicitly marked "no supplied feature addresses this" rather than dropped | A pain point is dropped silently, or one appears that traces to none of the three sanctioned sources | 1 |
 | 3 | Feature advantages trace to supplied features | Every feature advantage names a feature the user supplied | A feature advantage names a feature not in the input | 1 |
 | 4 | ROI basis stated | Every ROI line states its basis (time, cost, error rate, or similar) | Any ROI line states a number with no basis (also covered by the gate) | 1 |
 | 5 | Missing-input handling | When features or segment are missing, the skill asks for them before producing output | The skill produces an analysis despite a missing input | 1 |

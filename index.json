@@ -149,8 +149,8 @@
     "version": "1.0.0",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/discovery-to-prd/SKILL.md",
-    "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/discovery-to-prd",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/discovery-to-prd/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/discovery-to-prd",
     "path": "discovery-to-prd/SKILL.md"
   },
   "drip-api": {
@@ -429,8 +429,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/news-monitor/SKILL.md",
-    "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/news-monitor",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/news-monitor/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/news-monitor",
     "path": "news-monitor/SKILL.md"
   },
   "office-tells": {

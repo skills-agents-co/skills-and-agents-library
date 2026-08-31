@@ -46,6 +46,17 @@ any connected tool, and it doesn't go looking for a file on its own.
 If the file isn't attached yet, ask for it before doing anything else. If
 no data type is stated, ask, per step 1 below, rather than guessing.
 
+**One rule governs every stop-and-ask or stop-and-wait instruction in this
+skill: skip a question you already have the answer to.** If the user's own
+message, including their opening message, already answers what a step
+would otherwise ask, use that answer and don't ask again. This applies to
+all of them: Step 1's data-type confirmation, Step 2's metric-list
+fallback, and the sensitive-column check in Step 3 and "Sensitive data and
+PII" below (including its identifying-combination flag). State once here,
+not re-derived per step, so a question this rule should have skipped
+doesn't get missed just because a given step's own text forgot to repeat
+it.
+
 ## Inputs
 
 1. **One attached data file.** A CSV, spreadsheet, or similar tabular
@@ -80,12 +91,10 @@ to whoever reads the report next.
    ask the user to confirm it, then **stop and wait for their answer.** Do
    not start step 2 in the same turn; stating the inference and moving on
    anyway is not the same as confirming it. If it isn't obvious, ask
-   directly instead of guessing, and stop the same way.
-
-   **Skip the ask if the user already answered it.** If the user's own
-   message, including their opening message, already states the data type
-   plainly, that counts as stated, not inferred; don't ask them to confirm
-   something they already told you.
+   directly instead of guessing, and stop the same way. (Per the skip-a-
+   question-you-already-have-the-answer-to rule above, if the user's own
+   message already states the data type plainly, that counts as stated,
+   not inferred, and there's nothing here to ask.)
 
    **Scan the column headers for sensitive-looking names now**, while
    they're already in front of you for the type match: `name`, `email`,
@@ -101,27 +110,25 @@ to whoever reads the report next.
    wait for their answer** before continuing to step 3. If the type isn't
    in the table, follow that file's fallback: ask the user what metrics
    matter most to them for this data set, **then stop and wait**, and use
-   their answer in place of a table row once given. **If step 1 already has
-   an open question, or step 1's header scan flagged a sensitive-looking
-   column name, and this step turns up its own question** (for example, an
-   unreadable reference file discovered while confirming an inferred
-   type), ask all of them in the same message, including the sensitive-
-   column question that step 3 would otherwise ask on its own, rather than
-   making the user answer one, wait, then answer another. Skip step 3's
-   separate PII stop when this happens; its question was already asked
-   here.
+   their answer in place of a table row once given. **Both stops are
+   governed by the skip-a-question-you-already-have-the-answer-to rule
+   above**: if the user's opening message already said what metrics
+   matter to them, there's nothing here to ask. **If this step does have a
+   real open question, and step 1 also has one, or step 1's header scan
+   flagged a sensitive-looking column name**, ask all of them in the same
+   message, including the sensitive-column question Step 3 would
+   otherwise ask on its own, rather than making the user answer one, wait,
+   then answer another. Skip step 3's separate PII stop when this happens;
+   its question was already asked here.
 3. **Read the actual file.** Work only from what's in the attached data:
    the columns present, the rows present, any totals or figures that can be
    computed directly from them. Don't bring in outside benchmarks, industry
    averages, or prior knowledge about the data type as if they were in the
    file. **Before going further, check for sensitive columns**, unless
-   step 1 or step 2 already asked this question as part of a batched
-   message, per those steps. See the "Sensitive data and PII" rule below,
-   and stop to flag and ask before step 4 if you find any. **Skip the ask
-   if the user already answered it**: if the user's own message,
-   including their opening message, already named which columns to
-   redact or said it's fine to proceed with raw values, use that answer
-   instead of asking again.
+   step 2 already asked this question as part of a batched message, per
+   step 2 above, or the skip-a-question-you-already-have-the-answer-to
+   rule already covers it. See the "Sensitive data and PII" rule below,
+   and stop to flag and ask before step 4 if you find any.
 
    **Validate before computing anything.** Check for ragged rows, mixed
    types in a column that should be numeric, duplicate rows, duplicate or
@@ -195,17 +202,24 @@ per the rule above, and don't reproduce it verbatim into the report.
 
 **Also check for identifying combinations, not just identifying columns.**
 A birth date, a ZIP code, a gender, and a salary together can single out
-one person even when no individual column does. If a small set of columns
-together look like they'd narrow down to one or a few individuals, treat
-that combination the same as a single identifying column: flag it and ask.
-**This check applies to an opaque reference key too, not just to
-quasi-identifying attributes like the ones above.** The opaque-reference-
-key carve-out below says an ID is fine to use alone, for naming one row.
-It doesn't exempt that ID from this combination check: if the report would
-also display other columns alongside that ID for the same row, and that
-pairing would let an outside reader narrow down to one identifiable
-person, flag the combination, even though the ID column by itself would
-otherwise be fine to use.
+one person even when no individual column does: several columns that are
+each rare-valued or demographic in nature, none of them a name or an ID,
+narrowing down to one or a few individuals when read together. If a small
+set of columns fits that shape, treat the combination the same as a
+single identifying column: flag it and ask (subject to the skip-a-
+question-you-already-have-the-answer-to rule above, same as any other
+flag in this section).
+
+**This check applies to an opaque reference key too, but only when it's
+paired with that same kind of rare-valued or demographic column, not with
+ordinary operational fields.** The opaque-reference-key carve-out below
+says an ID is fine to use alone, for naming one row, and displaying that
+ID next to routine record fields, a date, a status, a category, a count,
+is exactly that ordinary use, not a combination to flag. The combination
+check only pulls the ID back in when it's shown alongside columns that
+are themselves quasi-identifying on their own terms, like a birth date or
+a ZIP code, the kind of column the paragraph above already treats as
+narrowing.
 
 **This section assumes whoever is running the skill is authorized to
 share what's in the file.** It has no way to check that, and doesn't try
@@ -228,15 +242,13 @@ When you're genuinely unsure which side of that line a column falls on,
 treat it as identifying and flag it.
 
 **If you find any identifying column, stop and flag it to the user before
-continuing, unless they already answered this.** If the user's own
-message, including their opening message, already named which columns to
-redact or said it's fine to proceed with raw values, use that answer and
-skip the ask. Otherwise, name which column(s) look like they carry
-personal or sensitive identifiers, and ask: is it okay to proceed, and if
-so, should raw values appear in the report, or should they stay described
-only by column name and shape (for example, "email column, 4,200 unique
-values," not a list of addresses)? Wait for their answer before writing
-the summary or any later section.
+continuing** (subject to the skip-a-question-you-already-have-the-answer-
+to rule above). Name which column(s) look like they carry personal or
+sensitive identifiers, and ask: is it okay to proceed, and if so, should
+raw values appear in the report, or should they stay described only by
+column name and shape (for example, "email column, 4,200 unique values,"
+not a list of addresses)? Wait for their answer before writing the
+summary or any later section.
 
 **Until the user says otherwise, describe by name and shape only, and this
 holds whether or not you actually caught the column at the check above.**
@@ -379,7 +391,7 @@ automatic fail regardless of total score.
 | 5 | Data type established before analysis | The type is stated by the user, confirmed after a stated inference, asked for outright before the metric list is chosen, or asked for after an unreadable `references/type-specific-metrics.md` forces the same fallback | The skill picks a type and proceeds without asking or confirming | 1 |
 | 6 | Missing-metric handling | A metric called for by the type's row but absent from the file's columns is named as not available | A missing metric is filled in with an estimate | 1 |
 | 7 | No outside data brought in | Every figure comes from the attached file | The report cites an industry benchmark, prior period, or outside figure not in the file | 1 |
-| 8 | Sensitive columns checked and handled | Any identifying column or combination gets flagged and asked about before analysis proceeds, and the resulting report follows the answer (name/shape-only by default) | An identifying column is never flagged, or a flagged column's raw values still appear in the report | 1 |
+| 8 | Sensitive columns checked and handled | Any identifying column or combination gets flagged and asked about before analysis proceeds, unless the user's own message already answered it (per the skip-a-question rule), and the resulting report follows the answer (name/shape-only by default) | An identifying column is never flagged and never pre-answered, or its raw values still appear in the report regardless of how the question was resolved | 1 |
 
 **Score to action:** 8/8 ship. 6 to 7 acceptable, note the gap. 4 to 5
 borderline, flag for human review. 0 to 3 bad, root-cause. Any hard-fail

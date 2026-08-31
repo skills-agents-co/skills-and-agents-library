@@ -149,8 +149,8 @@
     "version": "1.0.0",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/Anlo-Ventures/skills-and-agents-library/main/discovery-to-prd/SKILL.md",
-    "githubUrl": "https://github.com/Anlo-Ventures/skills-and-agents-library/tree/main/discovery-to-prd",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/discovery-to-prd/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/discovery-to-prd",
     "path": "discovery-to-prd/SKILL.md"
   },
   "drip-api": {
@@ -572,5 +572,19 @@
     "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/vendor-contract-extraction/SKILL.md",
     "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/vendor-contract-extraction",
     "path": "vendor-contract-extraction/SKILL.md"
+  },
+  "working-backwards": {
+    "slug": "working-backwards",
+    "kind": "skill",
+    "name": "working-backwards",
+    "description": "Walks a product manager through Amazon's Working Backwards process as six separate, sequential steps, one per output, ending in a complete PRFAQ. Names the customer and their problem first, then writes the press release, the external FAQ, the internal FAQ, a visuals note, and a go or no-go iteration judgment, marking anything the PM didn't actually tell it as unsupported instead of inventing it. Use whenever the user says \"run this through Working Backwards\", \"write a PRFAQ\", \"help me PR/FAQ this idea\", \"/working-backwards\", or describes a product idea and asks to work backwards from the customer.",
+    "category": "",
+    "tags": [],
+    "version": "1.0.0",
+    "evalContractVersion": "1.0.0",
+    "author": "Skills and Agents Co",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/working-backwards/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/working-backwards",
+    "path": "working-backwards/SKILL.md"
   }
 }

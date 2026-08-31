@@ -189,8 +189,10 @@ to whoever reads the report next.
 
 ## Sensitive data and PII
 
-Before writing anything past step 3, look at the column names and a sample
-of values for anything that identifies a specific person: full names,
+Before writing anything past step 3, look at the column names and, per
+Step 3's sampling rule above (every row of any free-text or open-text
+column, even on a file large enough to sample everywhere else), the
+values for anything that identifies a specific person: full names,
 email addresses, phone numbers, account or card numbers, SSNs or other
 government IDs, login credentials or API keys/tokens, or home addresses.
 This includes free-text or open-text columns (survey comments, notes

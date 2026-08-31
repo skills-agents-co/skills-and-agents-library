@@ -125,6 +125,20 @@
     "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/contract-review",
     "path": "contract-review/SKILL.md"
   },
+  "data-set-analysis": {
+    "slug": "data-set-analysis",
+    "kind": "skill",
+    "name": "data-set-analysis",
+    "description": "Reads an attached data file and a stated data type, then writes a four-part report, summary of key content, patterns and trends, insights grouped by priority, and recommendations, with the metrics it focuses on shifting to match the data type. Every insight names why it's high, medium, or low priority, and every recommendation names the insight it follows from. Use whenever the user attaches a data file and asks for analysis, insights, or a summary, or says \"analyze this data\", \"analyze the attached file\", \"what patterns are in this\", \"give me insights on this data set\", or \"/data-set-analysis\".",
+    "category": "",
+    "tags": [],
+    "version": "1.0.0",
+    "evalContractVersion": "1.0.0",
+    "author": "Skills and Agents Co",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/data-set-analysis/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/data-set-analysis",
+    "path": "data-set-analysis/SKILL.md"
+  },
   "discovery-call-prep": {
     "slug": "discovery-call-prep",
     "kind": "skill",
@@ -530,6 +544,20 @@
     "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/resume-tailor/SKILL.md",
     "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/resume-tailor",
     "path": "resume-tailor/SKILL.md"
+  },
+  "sales-email-template-generator": {
+    "slug": "sales-email-template-generator",
+    "kind": "skill",
+    "name": "sales-email-template-generator",
+    "description": "Writes one personalized sales outreach email, 200 words or fewer, from a stated prospect type, their current solution, and your product or features. Names a plausible pain point, a specific feature that addresses it, a clear value proposition, and closes with a soft demo invitation instead of a hard close. Use whenever the user says \"write a sales email\", \"draft an outreach email\", \"sales email for [prospect type]\", \"cold email template\", \"/sales-email-template-generator\", or names a type of prospect and what they currently use and asks for an email to send them.",
+    "category": "",
+    "tags": [],
+    "version": "1.0.0",
+    "evalContractVersion": "1.0.0",
+    "author": "Skills and Agents Co",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/main/sales-email-template-generator/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/main/sales-email-template-generator",
+    "path": "sales-email-template-generator/SKILL.md"
   },
   "statement-reconciliation": {
     "slug": "statement-reconciliation",

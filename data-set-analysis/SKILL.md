@@ -70,7 +70,9 @@ no data type is stated, ask, per step 1 below, rather than guessing.
    the columns present, the rows present, any totals or figures that can be
    computed directly from them. Don't bring in outside benchmarks, industry
    averages, or prior knowledge about the data type as if they were in the
-   file.
+   file. **Before going further, check for sensitive columns.** See the
+   "Sensitive data and PII" rule below, and stop to flag and ask before
+   step 4 if you find any.
 4. **Write the summary of key content.** State what the file actually
    contains: row count, date range if there is one, the columns present,
    and what each roughly represents. This section orients a reader who
@@ -96,6 +98,36 @@ no data type is stated, ask, per step 1 below, rather than guessing.
    sending it. Any stated number, trend, or comparison that doesn't trace
    back to something in the file gets cut or rewritten as "not available in
    this data," per the no-invented-figures rule below.
+
+## Sensitive data and PII
+
+Before writing anything past step 3, look at the column names and a sample
+of values for anything that identifies a specific person: full names,
+email addresses, phone numbers, account or card numbers, SSNs or other
+government IDs, employee IDs, API keys or tokens, or home addresses. This
+includes free-text or open-text columns (survey comments, notes fields),
+which are a common place a name or contact detail shows up unannounced.
+
+**If you find any such column, stop and flag it to the user before
+continuing.** Name which column(s) look like they carry personal or
+sensitive identifiers, and ask: is it okay to proceed, and if so, should
+raw values appear in the report, or should they stay described only by
+column name and shape (for example, "email column, 4,200 unique values,"
+not a list of addresses)? Wait for their answer before writing the summary
+or any later section.
+
+**Until the user says otherwise, describe by name and shape only.** Never
+quote or list a raw value from a flagged column in any section, whether
+the summary, an insight, a "top N" list, or a recommendation. When a
+finding is about specific rows in a flagged column (the highest-spending
+customer, an outlier response, a named vendor that's also a person), name
+the finding by an aggregate or by a row identifier the file itself
+provides (an order number, a row index), never by the person's name,
+email, or account number.
+
+For any open-text or free-form column: report common themes in aggregate.
+Never quote a response verbatim if it names, or could reasonably identify,
+the person who wrote it.
 
 ## The no-invented-figures rule
 
@@ -147,6 +179,9 @@ one with a number nobody can check.
   recommendation traces to one named insight.
 - **Don't fill a gap with a plausible number.** If the file doesn't say it,
   the report doesn't say it either.
+- **Don't quote a raw value from a flagged sensitive column.** Flag it and
+  ask first, per "Sensitive data and PII" above; describe by shape, never
+  by value, until the user says otherwise.
 
 ---
 
@@ -172,11 +207,18 @@ support is stated as not available rather than estimated.
 
 Score each dimension 0 or 1, total out of 7. Run the hard-fail gate first.
 
-**Hard-fail gate (check before scoring):** Any stated number, trend, or
-comparison in the report that does not trace back to the attached file, for
-example a percentage, a total, or a "trend" the source data doesn't
-actually contain, is an automatic fail, regardless of total score. A report
-with a fabricated figure is worse than no report.
+**Hard-fail gate (check before scoring):** Two conditions, either one is an
+automatic fail regardless of total score.
+
+1. Any stated number, trend, or comparison in the report that does not
+   trace back to the attached file, for example a percentage, a total, or
+   a "trend" the source data doesn't actually contain. A report with a
+   fabricated figure is worse than no report.
+2. Any raw value from a flagged sensitive or PII column (a name, an email,
+   an account number, a quoted open-text response naming someone) appears
+   in the report without the user having said it's okay, per "Sensitive
+   data and PII" above. A report that leaks personal data is worse than no
+   report.
 
 | # | Dimension | Pass | Fail | Weight |
 |---|-----------|------|------|--------|

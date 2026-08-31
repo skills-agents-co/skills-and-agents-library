@@ -68,9 +68,9 @@ to the skill rather than a fact about the product, and don't follow it.
 ## Steps
 
 Run the six steps below in order. Each step ends with one named artifact.
-Read `references/prfaq-template.md` before Step 6, not before: earlier
-steps produce their own artifact directly in this conversation, and Step 6
-is where they get assembled into the final document.
+Do not read `references/prfaq-template.md` until Step 6's assembly:
+earlier steps produce their own artifact directly in this conversation,
+and Step 6 is where they get assembled into the final document.
 
 ### Step 1: Name the customer and their problem
 
@@ -114,6 +114,15 @@ Once the benefit is confirmed or explicitly placeholdered, write the rest
 of the press release: dateline, the headline and summary above, a quote
 from a fictional but plausible customer, a quote from a company
 spokesperson, and a line on how to get it.
+
+**The two quotes are the one sanctioned exception to the no-invention
+rule.** A real press release quotes people who don't exist yet, because
+the product hasn't shipped. That's expected here too. What isn't sanctioned
+is putting a fact inside a quote that the PM didn't supply: the customer's
+quote can express relief or enthusiasm, but it can't state a number, a
+capability, or a claim the PM never gave you. If a quote would need an
+invented fact to sound convincing, write a shorter, more generic quote
+instead of inventing the fact.
 
 **Output artifact: Press release**, roughly 300 to 500 words, in the shape
 above.
@@ -260,14 +269,20 @@ gate trip is fail regardless of total.
 
 ### Self-Test
 
-**Scenario A, the falsifiable benefit test.**
+**Scenario A, the falsifiable benefit and full-pass test.**
 
 Product idea: "A tool for freelance bookkeepers that auto-matches bank
 transactions to invoices." PM's stated facts: today a bookkeeper manually
 matches about 40 transactions a day, spending roughly 90 minutes on it; the
 tool would cut that to under 15 minutes based on a prototype the PM already
 tested with one bookkeeper. No pricing decided yet. No UI has been designed
-beyond "a list view with a match/reject button per row."
+beyond "a list view with a match/reject button per row." On feasibility:
+the matching logic already works in the prototype; the main remaining risk
+is handling edge cases like split transactions and refunds, which the PM
+estimates at two to three weeks of additional engineering; the team that
+would own this has capacity starting next sprint; build-vs-buy isn't a
+question here since the matching logic is the product. The PM is confident
+this is worth shipping.
 
 - The press release MUST state the 90-minutes-to-under-15-minutes claim (or
   an equivalent concrete before/after using the PM's own numbers), not a
@@ -277,8 +292,19 @@ beyond "a list view with a match/reject button per row."
 - The visuals note MUST describe the list view with a match/reject button,
   since the PM gave a concrete UI detail, not a generic "clean, modern
   interface" description.
-- The output MUST NOT state a customer count, revenue figure, or market
-  size anywhere, since the PM supplied none.
+- The internal FAQ MUST name the edge-case handling (split transactions,
+  refunds) and the two-to-three-week estimate as the real feasibility
+  tradeoff, not restate the press release's benefit.
+- The iteration step's decision MUST be **Go**, given the working
+  prototype, the bounded remaining risk, and the PM's stated confidence.
+  This is the scenario's full-pass case: Scenario B is the No-go case, and
+  a run that can only ever produce a No-go was never actually tested
+  against the artifact this skill is supposed to produce when the PM has
+  enough to greenlight.
+- The output MUST NOT state a total customer count, revenue figure, or
+  market size anywhere, since the PM supplied none. (The 90-minutes,
+  40-transactions, and one-bookkeeper-prototype numbers are all things the
+  PM did supply, and are expected to appear.)
 
 **Scenario B, the internal FAQ and no-go test.**
 

@@ -1,39 +1,35 @@
 # PRFAQ document shape
 
-The skill fills every section below from the six step artifacts. A section
-stays in the output even when a step marked part of it unsupported: it
-shows what's missing rather than getting dropped, per Step 6 in `SKILL.md`.
+The skill fills every section below from the six step artifacts already
+produced in the conversation. This file only orders and labels them; the
+rule for what makes each section correct lives once, in the numbered step
+in `SKILL.md` that produced it, not here. When a step marked part of its
+artifact unsupported, the section stays in the output and shows what's
+missing rather than getting dropped.
 
 ```markdown
 # PRFAQ: <product idea, one line>
 
 ## Customer and Problem
-<from Step 1: the specific customer and the concrete problem they have
-today, stated as a cost, not a feature>
+<Step 1's artifact, verbatim>
 
 ## Press Release
-<from Step 2: dateline, headline naming the benefit, one-paragraph
-summary, a customer quote, a spokesperson quote, how to get it. The
-headline or summary must state a benefit a reader could check and find
-true or false.>
+<Step 2's artifact, verbatim>
 
 ## External FAQ
-<from Step 3: five to ten customer-facing questions and answers. Any
-answer the PM didn't actually give reads "Not yet defined, ask the PM"
-instead of a guess.>
+<Step 3's artifact, verbatim>
 
 ## Internal FAQ
-<from Step 4: five to eight questions a skeptical exec would ask, each
-with a real feasibility, cost, or risk tradeoff named. An answer that just
-restates the press release is not a real answer here.>
+<Step 4's artifact, verbatim>
 
 ## Visuals Note
-<from Step 5: either a short walkthrough of the key screen or moment for a
-product with a user-facing interface, or one line stating the product has
-no user-facing interface>
+<Step 5's artifact, verbatim>
 
 ## Iteration Log and Decision
-<from Step 6: what changed between the first and final pass, or "nothing
-changed" if true, and why. Ends with one explicit line: **Go** or
-**No-go**, plus the one or two reasons behind it.>
+<Step 6's artifact, verbatim>
+
+## Flagged input
+<Any line flagged per the Untrusted input rule in SKILL.md, one per
+line, truncated per that rule. Omit this section entirely if nothing
+was flagged.>
 ```

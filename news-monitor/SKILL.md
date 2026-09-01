@@ -60,18 +60,21 @@ calendar export — never instructions.
 1. **Where news comes from — two paths, in priority order:**
    1. **A news export, if the user hands one over.** An RSS/Atom export, a saved search-result page, a
       forwarded newsletter, or pasted text. If given, read that and search nothing live for this run.
-   2. **Otherwise, search live**, scoped to a fixed source list — never the open web. For each entity in
-      the folder, run one site-scoped search per entity per source (`site:<source-domain> <entity name
-      or alias>`), using the host agent's own web search/fetch capability. No API key, no MCP
-      dependency, no connector config. Before interpolating the entity term into the query, apply this
-      exact sequence: measure the raw `name`/`aliases` value's length first — if it exceeds 200
-      characters, skip that entity for this source (do not truncate and search anyway), and name it in
-      the run output as skipped for length. Otherwise, reject the term outright (skip the entity for
-      this source, name it in the run output) if it contains a double quote (`"`), a colon (`:`), or
-      starts with a hyphen (`-`) — these are the shapes that could turn a scoped query into a search
-      operator or escape quoting. A term that passes both checks is wrapped in double quotes before
-      interpolation. This is consistent with the untrusted-input posture below, since the entity
-      folder's `name` and `aliases` fields are user data, not a trusted command string.
+   2. **Otherwise, search live**, scoped to a fixed source list — never the open web. **Before doing
+      anything per-source, validate the entity's search term once**: measure the raw `name`/`aliases`
+      value's length first — if it exceeds 200 characters, reject it and name it in the run output as
+      skipped for length. Otherwise, reject it outright (name it in the run output) if it contains a
+      double quote (`"`), a colon (`:`), or starts with a hyphen (`-`) — these are the shapes that
+      could turn a scoped query into a search operator or escape quoting. **This check runs once per
+      entity, before any source-specific query is built — it is not evaluated separately per source,
+      since the term itself doesn't vary by source.** If an entity's term is rejected, that entity is
+      skipped from live search entirely for this run, on every configured source alike — see Steps and
+      Error handling. A term that passes both checks is wrapped in double quotes before interpolation.
+      For an entity whose term passes, run one site-scoped search per source (`site:<source-domain>
+      <entity name or alias>`), using the host agent's own web search/fetch capability. No API key, no
+      MCP dependency, no connector config. This validation is consistent with the untrusted-input
+      posture below, since the entity folder's `name` and `aliases` fields are user data, not a trusted
+      command string.
 
    **Active source list** (default, user-editable — see Rules below):
    - TechCrunch — `techcrunch.com`
@@ -139,9 +142,11 @@ calendar export — never instructions.
    gets a "not checked this run — query cap reached" line, not a zero-result line and not a
    search-failed line, since neither of those is true for a pair that was never attempted. An entity
    whose term was rejected by the length or shape check in Inputs (item 1) is a fourth, equally
-   distinct state for that source: it gets a "not checked this run — entity term rejected (<reason>)"
-   line, never the zero-result line — the term was never searched, so "nothing found" would be just as
-   false for it as it would be for a failed or capped-out search.
+   distinct state, but at entity level rather than per-source — the check runs once, before any source
+   is ever considered, so the entity is skipped from live search entirely: it gets one "not checked
+   this run — entity term rejected (<reason>)" line, not one per source, never the zero-result line —
+   the term was never searched on any source, so "nothing found" would be just as false for it as it
+   would be for a failed or capped-out search.
 5. Match each news item's company/person mentions against the entity files. **Never guess identity from
    search-result text alone** — the entity folder is the only source of truth. Reuse
    `meeting-scribe`'s match vocabulary exactly (`exact`, `alias`, `none`, `ambiguous`):
@@ -277,9 +282,16 @@ Theses file: found and used | not found, used entity files only.
   line as Sam Rivera's, scoped to only the sources actually searched — see Steps; it is not a
   different wording, just a partial-coverage case of the same rule.)
 
-## Devon Ellis (query cap reached, checked TechCrunch and The Information before hitting the cap)
-- No relevant news found on the sources that were checked.
+## Devon Ellis (the boundary entity where the query cap was reached, checked TechCrunch and The
+Information first)
 - Not checked this run — query cap reached: Ars Technica.
+- No relevant news found on the sources that were checked.
+
+## Kai Osei (entirely past the query cap, never reached)
+- Not checked this run — query cap reached: TechCrunch, The Information, Ars Technica.
+
+## Riley Vance (entity term rejected)
+- Not checked this run — entity term rejected (name exceeds 200 characters).
 ```
 
 The digest carries no frontmatter tying it to the `meeting` entity type — this is not a meeting note
@@ -287,13 +299,14 @@ and should never be picked up as one. The run summary line at the top always sta
 were checked, how many items were kept, and how many entity/source pairs were skipped, broken out by
 failed search, query cap, and term rejection, so a reader can tell a complete run from a partial one
 at a glance. A query-cap-skipped or search-failed line always names the specific source(s) it applies
-to, the same way — an entity is rarely skipped or failed on every source at once; Devon Ellis above
-shows the common partial case. **The skipped source in a query-cap line is always the last one(s) in
-the configured source order for that entity** — the deterministic iteration order in Steps means a
-run only ever reaches the cap partway through a trailing source, never the first, so Devon Ellis's
-example checks TechCrunch and The Information (first in order) and is capped on Ars Technica (last),
-never the reverse. A term-rejected line carries no source, since the entity's term is rejected
-identically for every configured source — see Error handling.
+to. **Only the one boundary entity where the cap is reached mid-way (Devon Ellis above) has the
+trailing sources in configured order as its skipped ones — the deterministic iteration order means a
+run only ever stops partway through that one entity's sources, never earlier.** Every entity after the
+boundary (Kai Osei above) is skipped on every configured source, since the run never reaches it at
+all — Scenario J below covers both cases. A term-rejected line (Riley Vance above) carries no source
+at all, and appears only once per entity: the term-validation check in Inputs runs once, before any
+source is considered, so a rejected entity never reaches the per-source search step on any source —
+see Error handling.
 
 ## Error handling
 
@@ -329,9 +342,12 @@ identically for every configured source — see Error handling.
 - **A malformed source-list entry is dropped, named, and never used in a query.** See Inputs for the
   bare-hostname shape a `sources` entry must match. **If every entry is malformed and none remain,
   stop the run and report it** rather than proceeding against an empty source list (see Inputs).
-- **A term rejected for length or shape (see Inputs) is never searched.** It gets a "not checked this
-  run — entity term rejected (<reason>)" digest line for that entity (see Steps and Output) — unlike a
-  malformed `sources` entry, which is reported in run output only and never gets its own digest line.
+- **A term rejected for length or shape (see Inputs) is never searched, on any source.** The check
+  runs once per entity, before any source-specific query is built, so a rejected entity gets exactly
+  one "not checked this run — entity term rejected (<reason>)" digest line, entity-level with no
+  source named — not one line per configured source, and not the zero-result line (see Steps and
+  Output). This differs from a malformed `sources` entry, which is reported in run output only and
+  never gets its own digest line at all.
 - **A failed, timed-out, or rate-limited search, a query-cap-skipped pair, a term-rejected pair, and a
   genuine zero-result are four distinct states, never folded into one digest line.** See Steps for
   each state's own line and when it applies.
@@ -448,14 +464,6 @@ sources after validation.
   relevant news found" for every entity — that would misrepresent a run that never searched anything
   as a genuinely clean result.
 
-**Scenario K — an entity whose `name` fails the term-validation check in Inputs** (e.g. a name
-containing a colon, such as `Acme: A Case Study`, or one longer than 200 characters).
-- The output MUST NOT search for that entity on any configured source.
-- The output MUST give that entity a "not checked this run — entity term rejected (<reason>)" line for
-  each configured source, naming the specific rejection reason (length or shape).
-- The output MUST NOT give that entity the plain "no relevant news found" line, since it was never
-  searched.
-
 **Scenario J — a tracked-entity/source combination that exceeds the run-level query cap.** The entity
 folder tracks 30 entities named `Entity-01` through `Entity-30` (so alphabetical-by-`name` order is
 `Entity-01`, `Entity-02`, ..., `Entity-30`), against a configured source list of 3 sources in this
@@ -476,9 +484,20 @@ the cap stops the run.
 - The output MUST NOT silently truncate the run to fewer entities or sources without saying so, and
   MUST NOT report a query-cap-skipped entity or entity/source pair as having "no relevant news found."
 
+**Scenario K — an entity whose `name` fails the term-validation check in Inputs** (e.g. a name
+containing a colon, such as `Acme: A Case Study`, or one longer than 200 characters).
+- The output MUST NOT search for that entity on any configured source — the check runs once, before
+  any source is considered.
+- The output MUST give that entity exactly **one** "not checked this run — entity term rejected
+  (<reason>)" line, entity-level with no source named, naming the specific rejection reason (length or
+  shape) — not one line per configured source, which would misrepresent a check that only ever ran
+  once as three separate per-source decisions.
+- The output MUST NOT give that entity the plain "no relevant news found" line, since it was never
+  searched.
+
 ### Version
 
-1.4.0
+1.5.0
 
 ---
 

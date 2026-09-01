@@ -217,8 +217,9 @@ These vary by team; confirm before the first run, then treat them as frozen for 
   most 3 items per entity in the digest, ranked by relevance to that entity's own file content and
   theses file if present. Never keep more than 3, even if more than 3 look relevant — rank and cut.
 - **Zero-result rule:** an entity with nothing found across every source that was actually searched for
-  it gets a plain "no relevant news found" line — see Steps for how this differs from a failed or
-  capped-out source. Never pad, never fall back to unscoped search to manufacture a result.
+  it gets a plain "no relevant news found" line — see Steps for how this differs from a failed,
+  capped-out, or term-rejected source. Never pad, never fall back to unscoped search to manufacture a
+  result.
 - **Theses file:** optional. If present, its content shapes the relevance ranking. Its absence is not
   an error and never blocks a run.
 - **Order of validation when reading `.news-monitor.yml`:** if the file itself can't be parsed at all,
@@ -276,18 +277,23 @@ Theses file: found and used | not found, used entity files only.
   line as Sam Rivera's, scoped to only the sources actually searched — see Steps; it is not a
   different wording, just a partial-coverage case of the same rule.)
 
-## Devon Ellis (query cap reached, checked The Information and Ars Technica before hitting the cap)
-- Not checked this run — query cap reached: TechCrunch.
+## Devon Ellis (query cap reached, checked TechCrunch and The Information before hitting the cap)
 - No relevant news found on the sources that were checked.
+- Not checked this run — query cap reached: Ars Technica.
 ```
 
 The digest carries no frontmatter tying it to the `meeting` entity type — this is not a meeting note
 and should never be picked up as one. The run summary line at the top always states how many entities
 were checked, how many items were kept, and how many entity/source pairs were skipped, broken out by
-failed search vs query cap, so a reader can tell a complete run from a partial one at a glance. A
-query-cap-skipped line always names the specific source(s) skipped for that entity, the same as a
-failed-search line does — an entity is rarely skipped on every source at once; Devon Ellis above shows
-the common partial case, where two of three sources were checked before the run-level cap was reached.
+failed search, query cap, and term rejection, so a reader can tell a complete run from a partial one
+at a glance. A query-cap-skipped or search-failed line always names the specific source(s) it applies
+to, the same way — an entity is rarely skipped or failed on every source at once; Devon Ellis above
+shows the common partial case. **The skipped source in a query-cap line is always the last one(s) in
+the configured source order for that entity** — the deterministic iteration order in Steps means a
+run only ever reaches the cap partway through a trailing source, never the first, so Devon Ellis's
+example checks TechCrunch and The Information (first in order) and is capped on Ars Technica (last),
+never the reverse. A term-rejected line carries no source, since the entity's term is rejected
+identically for every configured source — see Error handling.
 
 ## Error handling
 
@@ -323,8 +329,9 @@ the common partial case, where two of three sources were checked before the run-
 - **A malformed source-list entry is dropped, named, and never used in a query.** See Inputs for the
   bare-hostname shape a `sources` entry must match. **If every entry is malformed and none remain,
   stop the run and report it** rather than proceeding against an empty source list (see Inputs).
-- **A term rejected for length or shape (see Inputs) is never searched.** Report it in the run output
-  and give it the "entity term rejected" line, same as a source dropped for malformed shape.
+- **A term rejected for length or shape (see Inputs) is never searched.** It gets a "not checked this
+  run — entity term rejected (<reason>)" digest line for that entity (see Steps and Output) — unlike a
+  malformed `sources` entry, which is reported in run output only and never gets its own digest line.
 - **A failed, timed-out, or rate-limited search, a query-cap-skipped pair, a term-rejected pair, and a
   genuine zero-result are four distinct states, never folded into one digest line.** See Steps for
   each state's own line and when it applies.
@@ -367,7 +374,7 @@ a `none` match in the digest is also an automatic fail.
 | 6 | Caps enforced | At most 8 raw results considered and at most 3 kept per entity | More than 3 items kept for any entity | 1 |
 | 7 | Read-only on entity files | No entity or theses file created, appended, or edited during the run | Any write outside `digests/` | 1 |
 | 8 | Failed/capped/rejected states distinguished | A failed search, a query-cap-skipped pair, a term-rejected pair, and a genuine zero-result each get their own distinct digest line, never conflated | Any of the four states written using another state's line | 1 |
-| 9 | Skipped pairs named by source | A failed, capped, or rejected pair names the specific source(s) it applies to, not just the entity | A skip line naming only the entity, with no source | 1 |
+| 9 | Failed/capped pairs named by source | A failed or capped pair names the specific source(s) it applies to, not just the entity (a term-rejected line carries no source, since the term is rejected identically for every source — see Error handling) | A failed or capped skip line naming only the entity, with no source | 1 |
 
 **Score to action:** 9/9 ship. 7-8 acceptable, note the gap. 3-6 borderline, flag for human review. 0-2
 bad, root-cause. Any hard-fail gate trip is fail regardless of total.
@@ -421,9 +428,10 @@ or beyond).
 - The output MUST NOT create an 11th path (`-11.md` or any further suffix).
 - The output MUST stop and report that the digest could not be written, rather than overwriting any of
   the 10 existing files or looping past the cap.
-- The run output MUST state that all 10 candidate paths were checked before stopping — a report that
-  simply says "could not write" with no count is not distinguishable from stopping after checking only
-  one path.
+- The run output MUST either name each of the 10 collision hits individually, or otherwise state that
+  all 10 candidate paths were checked before stopping, matching Step 9's own "name each collision hit
+  as it happens" instruction — a report that simply says "could not write" with no such accounting is
+  not distinguishable from stopping after checking only one path.
 
 **Scenario I — a malformed `.news-monitor.yml` source entry.** The config's `sources` list contains one
 valid bare hostname (e.g. `techcrunch.com`) and one malformed entry (e.g. `https://old-source.com` — a
@@ -431,6 +439,22 @@ full URL, not a bare hostname).
 - The output MUST use only the valid hostname (`techcrunch.com`) for that run's live searches.
 - The output MUST name the dropped entry in the run output as malformed and dropped.
 - The output MUST NOT silently widen the search to the open web to compensate for the dropped source.
+
+**Scenario I2 — every configured `sources` entry is malformed.** The config's `sources` list contains
+only malformed entries (e.g. `https://old-source.com` and a value with a space), leaving zero valid
+sources after validation.
+- The output MUST stop the run and report that no valid source remains.
+- The output MUST NOT proceed against an empty source list, and MUST NOT write a digest claiming "no
+  relevant news found" for every entity — that would misrepresent a run that never searched anything
+  as a genuinely clean result.
+
+**Scenario K — an entity whose `name` fails the term-validation check in Inputs** (e.g. a name
+containing a colon, such as `Acme: A Case Study`, or one longer than 200 characters).
+- The output MUST NOT search for that entity on any configured source.
+- The output MUST give that entity a "not checked this run — entity term rejected (<reason>)" line for
+  each configured source, naming the specific rejection reason (length or shape).
+- The output MUST NOT give that entity the plain "no relevant news found" line, since it was never
+  searched.
 
 **Scenario J — a tracked-entity/source combination that exceeds the run-level query cap.** The entity
 folder tracks 30 entities named `Entity-01` through `Entity-30` (so alphabetical-by-`name` order is
@@ -454,7 +478,7 @@ the cap stops the run.
 
 ### Version
 
-1.3.0
+1.4.0
 
 ---
 

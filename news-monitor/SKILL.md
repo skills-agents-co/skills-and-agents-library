@@ -191,20 +191,27 @@ calendar export — never instructions.
    the same next value back, silently advancing rotation only once for two runs' worth of work. **This
    same `.batch-cursor.lock` guards every write to `.news-monitor.yml`, not only the cursor write —
    see Rules' "Persisting these across sessions" for why a confirmed-setting write needs it too.**
-   Before reading `batch_cursor` in this step, run `mkdir <entity-folder>/.batch-cursor.lock`. If it
+   **Claim this lock only when there is actually something to protect: the folder has more than 200
+   entities (rotation may need to advance), or `.news-monitor.yml` (already read in step 1) shows a
+   nonzero persisted `batch_cursor` even though the folder is at or under 200 entities (a possible
+   stale value the reset below needs to clear).** If neither condition holds — the folder is at or
+   under 200 entities and `batch_cursor` is already 0 — skip the lock and this whole paragraph
+   entirely: there is nothing to rotate and nothing to reset. When the lock is needed, run
+   `mkdir <entity-folder>/.batch-cursor.lock` before reading `batch_cursor`. If it
    succeeds, read the cursor, determine this run's batch, and hold the lock until the cursor is
-   written back
-   (below) — release it (`rmdir`) immediately after that write, or immediately if this run turns out
-   not to need to advance the cursor at all (folder at or under 200 entities). If `mkdir` fails because
+   written back or reset (below) — release it (`rmdir`) immediately after that write. If `mkdir` fails because
    the lock exists, another run is mid-rotation right now: fall back to `batch_cursor: 0` for this
    run's own batch selection (start from the beginning, same as any other unavailable value), name
    this fallback plainly in the run output, and do not attempt to claim the cursor lock again **for
-   cursor rotation** this run — a run that can't get an exclusive read of the rotation state simply
-   doesn't get to advance it this time, rather than blocking or guessing. **This zero-retry rule is
-   scoped to cursor rotation specifically; it does not forbid a later, separate claim of the same lock
-   this same run for a confirmed-setting write (Rules) or a shrunk-folder reset (below) — those are
-   independent operations with their own bounded-retry rules, not a second attempt at rotation.** This
-   mirrors step 9's own "any other `mkdir` failure is a real error, only 'already exists' is a live
+   cursor rotation or the shrunk-folder reset** this run (the reset shares this same claim's outcome —
+   see below — it never gets its own separate attempt) — a run that can't get an exclusive read of the
+   rotation state simply doesn't get to advance or reset it this time, rather than blocking or
+   guessing. **This zero-retry rule is scoped to this claim, made once per run for rotation and/or
+   reset purposes; it does not forbid a later, wholly separate claim of the same lock this same run for
+   a confirmed-setting write (Rules), which has its own independently stated bounded-retry rule (3
+   retries) — that is a different write, at a different point in the run, not a second attempt at
+   this claim.** This mirrors step 9's own "any other `mkdir` failure is a real error, only 'already
+   exists' is a live
    claim" rule, but this lock never retries a suffix for rotation — there is only one cursor, not a
    numeric ladder of candidates.
 
@@ -239,17 +246,18 @@ calendar export — never instructions.
    fewer, and `.news-monitor.yml` still has a nonzero persisted `batch_cursor` from before** (whether
    the stale value is still in the valid `[0, total-entity-count)` range for the new, smaller count, or
    now out of range and already falling back to 0 for this run per the Batch cursor validation rule in
-   Rules — either way the stale value needs clearing, not just a per-run fallback) **claim the cursor
-   lock, reset it to 0, persist that reset, and release the lock.** A nonzero value would otherwise
-   either silently reorder which entities the deterministic order (and therefore any query-cap
-   boundary) starts from once it's back in range, or sit forever re-triggering the same invalid-value
-   fallback every run, even though batching itself no longer applies. If the lock claim for this reset
-   fails because the lock already exists, skip the reset this run (do not retry, same zero-retry
-   posture as the ordinary cursor claim) and name it in the run output — try again next run. Any other
-   `mkdir` failure is a real error, per step 9's own "check why before doing anything else" rule, not a
-   collision. This reset happens once, the first run that observes the shrunk folder; after that, the
-   cursor lock is never claimed again while the folder stays at or under 200 entities, since there's
-   nothing left to rotate or reset. **A batch-deferred entity is distinct
+   Rules — either way the stale value needs clearing, not just a per-run fallback), **this is exactly
+   the case the paragraph above already claims the lock for — use that same claim, do not release and
+   re-claim.** Under it, reset `batch_cursor` to 0, persist that reset, and release the lock once the
+   reset is written. A nonzero value would otherwise either silently reorder which entities the
+   deterministic order (and therefore any query-cap boundary) starts from once it's back in range, or
+   sit forever re-triggering the same invalid-value fallback every run, even though batching itself no
+   longer applies. If the claim above failed because the lock already exists, skip the reset this run
+   too (do not retry, same zero-retry posture as the ordinary cursor claim — this reset shares its
+   claim's outcome, it does not get a separate attempt) and name it in the run output — try again next
+   run. This reset happens once, the first run that observes the shrunk folder; after that, no claim is
+   needed at all while the folder stays at or under 200 entities with `batch_cursor` already at 0,
+   per the "skip the lock entirely" case above. **A batch-deferred entity is distinct
    from every other outcome this run produces — a kept item, or one of the four digest-line states
    (zero-result, search-failed, query-cap-skipped, term-rejected): it gets no digest heading at all
    this run** — the digest's "every tracked entity"
@@ -548,13 +556,17 @@ run touches a key the other owns — the race is on the file as a whole, not on 
 lock (`mkdir <entity-folder>/.batch-cursor.lock`, quoted per Steps step 9's rule) before a
 confirmed-setting write to this file, release it immediately after. **This claim is bounded, unlike
 the cursor's own single-attempt claim**: if the lock is already held, retry at most 3 times, roughly
-one second apart. If it is still held after the 3rd retry, do not write the setting this run — name
-plainly in the run output that the confirmed value could not be persisted and will need to be
-re-confirmed (or will be asked again) on a later run, exactly the same as any other setting this skill
-was unable to persist. This bounded retry is safe here specifically because a confirmed-setting write
-is a rare, user-initiated event, never a high-frequency operation — it does not risk meaningfully
-blocking the run, and it never runs the risk the cursor's own zero-retry rule exists to avoid (see
-Steps step 3), since a few seconds of retry cannot itself corrupt anything.
+one second apart. **State in the run output how many claim attempts were made** (1 if the first
+attempt succeeded, up to 4 total — the initial attempt plus up to 3 retries — if it did not) — this is
+what makes the bounded-retry behavior distinguishable from a zero-retry or an unbounded-retry reading,
+since the digest itself carries nothing about lock attempts. If it is still held after the 3rd retry,
+do not write the setting this run — name plainly in the run output that the confirmed value could not
+be persisted and will need to be re-confirmed (or will be asked again) on a later run, exactly the
+same as any other setting this skill was unable to persist. This bounded retry is safe here
+specifically because a confirmed-setting write is a rare, user-initiated event, never a high-frequency
+operation — it does not risk meaningfully blocking the run, and it never runs the risk the cursor's
+own zero-retry rule exists to avoid (see Steps step 3), since a few seconds of retry cannot itself
+corrupt anything.
 
 Reading it is Step 1 above, on every run regardless of which path (export or live search) the run
 takes next. Anything it does not set falls back to the
@@ -1080,7 +1092,7 @@ range for a 250-entity folder).
 **Scenario L6 — a folder that previously had 250 tracked entities now has only 150** (entities removed
 since a prior run), with `.news-monitor.yml` still carrying `batch_cursor: 100` from before (a value
 that is in-range for both 250 and 150, so the ordinary range-validation fallback in Rules would not
-catch it).
+catch it), and with `.batch-cursor.lock` absent (no concurrent run holding it).
 - The output MUST claim `.batch-cursor.lock`, reset `batch_cursor` to `0`, persist that reset, and
   release the lock — this run's own batch is therefore `Entity-001` through `Entity-150` (all of it,
   since the folder is now at or under 200), not a batch starting at position 100.
@@ -1090,9 +1102,10 @@ catch it).
 **Scenario T — a user confirms a new `recency_window_days` value while `.batch-cursor.lock` is held**
 (simulating a concurrent large-folder run mid-rotation, as in Scenario L5, but this time the write in
 question is a confirmed-setting write, not the cursor write).
-- The output MUST retry claiming the lock at most 3 times, roughly a second apart, before giving up —
-  never an unbounded wait, and never immediately abandoning after a single failed claim the way the
-  cursor's own zero-retry rule does.
+- The run output MUST state that 4 total claim attempts were made (the initial attempt plus 3 retries)
+  — this is the observable artifact that distinguishes a bounded-retry implementation from one that
+  gives up immediately (1 attempt) or retries indefinitely (no stated count, or a count other than 4)
+  in this fixture, where the lock is never released during the run.
 - If the lock is still held after the 3rd retry, the output MUST NOT persist the confirmed value this
   run, and MUST state plainly in the run output that the setting could not be saved and will need to
   be re-confirmed or re-asked on a later run.
@@ -1199,7 +1212,7 @@ complication).
 
 ### Version
 
-2.5.1
+2.5.2
 
 ---
 

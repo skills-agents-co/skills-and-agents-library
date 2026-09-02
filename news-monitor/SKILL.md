@@ -1163,28 +1163,47 @@ stray `batch_cursor: 40`** (e.g. hand-edited, or left over from config copied be
 - This run's own batch is `Entity-001` through `Entity-150` (all of it), same as any other
   at-or-under-200-entity run.
 
-**Scenario L8 — a 250-entity folder, `.batch-cursor.lock` absent, `.news-monitor.yml` is fully
-parsable and readable (so its `batch_cursor: 0` is read normally and the lock is claimed), but the
-file itself is read-only** (simulate with a read-only `.news-monitor.yml`, the same "simulate with a
-read-only/permission-denied path" pattern Scenario N3 uses for `digests/`) **so the `batch_cursor`
-write, attempted after a successful digest write, fails on a permissions error.**
+**Scenario L8 — a 250-entity folder, `.batch-cursor.lock` absent, `.news-monitor.yml` shows
+`batch_cursor: 200` (as in Scenario L2) and is fully parsable and readable (so that value is read
+normally and the lock is claimed), but the file itself is read-only** (simulate with a read-only
+`.news-monitor.yml`, the same "simulate with a read-only/permission-denied path" pattern Scenario N3
+uses for `digests/`) **so the `batch_cursor` write, attempted after a successful digest write, fails on
+a permissions error.**
 - The output MUST NOT leave `.batch-cursor.lock` present after the run — the lock is released even
   though the cursor write failed, never held open.
-- The output MUST leave `batch_cursor` at its old persisted value (`0`, unchanged) — the digest for
-  this run's batch was already written successfully, only the rotation bookkeeping failed.
+- The output MUST leave `batch_cursor` at its old persisted value (`200`, unchanged — never `0` and
+  never the value the failed write would have set) — the digest for this run's batch was already
+  written successfully, only the rotation bookkeeping failed.
 - The run output MUST report that rotation did not advance this run because the cursor write itself
   failed (a permissions error), distinct from Scenario L5's "the lock was already held" wording — these
   are two different reasons rotation didn't advance, and the report must not conflate them.
 
 **Scenario L9 — the same stray nonzero `batch_cursor` fixture as Scenario L7 (a 150-entity folder,
 `batch_cursor: 40`, config otherwise fully parsable and readable so the value is read normally and the
-lock is claimed for the reset), but `.news-monitor.yml` is read-only, the same permissions-failure
-pattern L8 uses** — so the reset's `batch_cursor: 0` write itself fails.
+lock is claimed for the reset), the digest write (step 9) succeeds, but `.news-monitor.yml` is
+read-only, the same permissions-failure pattern L8 uses** — so the reset's `batch_cursor: 0` write
+itself fails.
 - The output MUST NOT leave `.batch-cursor.lock` present after the run.
 - The output MUST leave the stale `batch_cursor: 40` value unchanged — the reset did not take effect.
 - The run output MUST report that the stale cursor could not be cleared and the reset will be retried
   next run — never Scenario L8's "rotation did not advance" wording, since a folder this small was
   never rotating in the first place.
+
+**Scenario L10 — a 250-entity folder whose `.news-monitor.yml` is unparsable from the start** (not a
+write failure partway through — the file was already broken before this run began).
+- The output MUST fall back to every default per the whole-file-parse-failure rule (Error handling):
+  the default source list, 7-day recency window, 50-query cap, `batch_cursor: 0`, and theses not
+  confirmed in use — this run's batch is therefore `Entity-001` through `Entity-200`, the same as any
+  other run starting from cursor 0.
+- The output MUST still claim `.batch-cursor.lock` (the folder exceeds 200 entities, which alone
+  triggers the claim gate, independent of whether the config parsed), process the batch, and write the
+  digest normally; then, when the `batch_cursor` write itself is attempted, it MUST fail (the file
+  cannot accept a new value while unparsable), and the lock MUST be released anyway, per the
+  cursor-write-failure rule above — never left held.
+- The output MUST state, distinctly from the ordinary "every default was used" note, that rotation
+  cannot advance for this folder until a person repairs `.news-monitor.yml` — this skill can neither
+  read a real persisted cursor back nor write a new one into a file it cannot parse, so every run
+  against this folder processes the same `Entity-001`-`Entity-200` batch until the file is fixed.
 
 **Scenario T — a user confirms a new `recency_window_days` value while `.batch-cursor.lock` is held**
 (simulating a concurrent large-folder run mid-rotation, as in Scenario L5, but this time the write in
@@ -1290,11 +1309,13 @@ those 8 are expected in the digest, ranked by relevance.
   line for that entity, not a kept item grounded in the undated result.
 
 **Scenario Q3 — a search result for a tracked entity is dated one year in the future**, alongside
-another raw hit for the same entity dated within the recency window.
+another raw hit for the same entity dated within the recency window. Both raw hits name this entity by
+its `name` field and are individually kept-worthy, the same as Scenario Q's fixture.
 - The output MUST discard the future-dated item — never keep or ground it, and never treat a
   future date as satisfying the recency window just because it isn't older than the cutoff.
 - The run output MUST state the raw-considered count for this entity as 1, not 2 — mirroring Scenario
-  Q's own artifact requirement, this is what makes "does not count toward the cap" checkable at all.
+  Q's own artifact requirement, this is what makes the 8-raw-considered cap rule in Rules checkable
+  here.
 - The output MUST still keep the in-window item normally, exactly as Scenario Q's in-window items are
   kept.
 
@@ -1314,7 +1335,7 @@ complication).
 
 ### Version
 
-2.6.2
+2.6.3
 
 ---
 

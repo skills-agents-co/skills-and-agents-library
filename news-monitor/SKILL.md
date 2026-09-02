@@ -207,7 +207,8 @@ calendar export — never instructions.
    order configured in `.news-monitor.yml` (or the default order above if unset) — this fixed order is
    what makes "which entities/sources were skipped" in the cap rule reproducible across runs, not a
    matter of which order the agent happened to visit them in. Compute the cap against the source list *after*
-   dropping malformed entries and deduplicating (both in Inputs), not the raw configured list. A
+   dropping malformed entries, deduplicating, and applying the 20-source cap (all three in Inputs), not
+   the raw configured list. A
    search that fails outright, times out, or comes back rate-limited is not the same as a search that
    succeeds with zero results: report it as its own "Could not check `<source>` this run: search failed
    (`<reason>`)" line, **written into the digest itself** (see Output's Priya Shah example) as well as
@@ -349,8 +350,10 @@ These vary by team; confirm before the first run, then treat them as frozen for 
   more per entity/source pair. This also bounds the whole run: total queries equal (tracked-entity-count
   minus any entity whose term was rejected — see Inputs and Steps, a rejected entity contributes zero
   queries and is excluded from this count entirely) times configured-source-count (counting only
-  sources that passed the hostname-shape validation **and survived deduplication**, both in Inputs — a
-  hostname listed twice in `sources` counts once, not twice, toward this multiplication). **Ordering:
+  sources that passed the hostname-shape validation, survived deduplication, and remained within the
+  20-source cap, all three in Inputs — a hostname listed twice in `sources` counts once, not twice,
+  toward this multiplication, and any source dropped for exceeding the 20-source cap contributes zero
+  toward it, the same as a malformed or duplicate entry). **Ordering:
   this count is computed
   after Step 3's batching (so "tracked-entity-count" here means the batch this run is processing, never
   the whole folder if it was over 200 entities) and after term validation has run for every entity in
@@ -436,8 +439,7 @@ One digest per run, at `digests/YYYY-MM-DD.md` inside the entity folder:
 Checked N tracked entities across <source list>. Kept M items total.
 Skipped S entity/source pairs (F failed search, C query cap reached) and R entities on term rejection.
 Theses file: found and used | not found | found, not confirmed in use (not read this run).
-(Only present when D is greater than zero:) D entities deferred to a later run (folder exceeds the
-200-entity batch limit).
+D entities deferred to a later run (folder exceeds the 200-entity batch limit).
 
 ## Jordan Lee (exact match)
 - **"<headline>"** — TechCrunch, YYYY-MM-DD. <one-line relevance note>. "<grounding quote>"
@@ -477,11 +479,12 @@ reader can tell a complete run from a partial one at a glance without the two co
 **`S` in the template below is exactly `F` plus `C` — failed-search pairs plus cap-skipped pairs, and
 nothing else.** `S` never includes `R` (term-rejected entities), since those are a different unit
 (entities, not entity/source pairs) counted separately; and `S`/`F`/`C` never include entities deferred
-by the 200-entity batching rule in Steps step 3. **`D` is the deferred-entity count and is always
-present in the summary line — write `D entities deferred to a later run...` only when `D` is greater
-than zero; omit that sentence entirely when the folder is at or under 200 entities and nothing was
-deferred.** Deferred entities themselves get no digest heading of any kind (see Steps step 3); only
-their count is durable, in the digest — their individual names, if named at all, go in the run's
+by the 200-entity batching rule in Steps step 3. **`D` is the deferred-entity count. Its sentence in
+the template above (`D entities deferred to a later run...`) is written only when `D` is greater than
+zero — omit that entire sentence when the folder is at or under 200 entities and nothing was
+deferred**; the template above shows the sentence present as a placeholder, not as something to copy
+unconditionally. Deferred entities themselves get no digest heading of any kind (see Steps step 3);
+only their count is durable, in the digest — their individual names, if named at all, go in the run's
 narration output only.
 **`N` (tracked entities checked) counts every entity in the batch this run actually processed** —
 every entity that reached step 4 or step 8, regardless of which state it ended in (kept item,
@@ -907,7 +910,7 @@ with one kept item found on it.
 
 ### Version
 
-2.2.1
+2.2.2
 
 ---
 

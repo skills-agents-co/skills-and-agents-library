@@ -649,7 +649,10 @@ built), exactly one entity-level term-rejected line with no source named — nev
 these conflated into a single line for the same entity/source, and never a term-rejected entity's one
 line combined with, or confused for, a per-source line. Every kept item was matched against the
 entity folder first (never guessed from search-result text alone); a `none` match is dropped from the
-digest entirely; an ambiguous match is kept and flagged under every matching candidate; no run appends
+digest entirely; an ambiguous match is kept and flagged under every matching candidate **that is in
+this run's batch — a candidate deferred to a later batch (see Steps step 3) never gets a heading, so an
+ambiguity spanning a batch entity and a deferred entity is kept under the in-batch candidate alone,
+with the cross-batch ambiguity named in the run output (see Steps step 5)**; no run appends
 a mention, creates an entity, or creates a theses file; the digest's run summary states how many
 entities were checked, how many items were kept, how many entity/source pairs were skipped for a
 failed search or the query cap, how many entities were skipped whole on term rejection (a separate
@@ -670,7 +673,7 @@ a `none` match in the digest is also an automatic fail.
 |---|-----------|------|------|--------|
 | 1 | Matching is file-first | Every kept item matched against entity files/aliases before being reported | An item reported from search text alone with no file match | 1 |
 | 2 | `none` dropped, not reported | An item touching no tracked entity does not appear anywhere in the digest | A `none` item appears, even flagged as unmatched | 1 |
-| 3 | Ambiguous → flag both, not guess | Ambiguous item appears under both candidate entities, naming both | Ambiguous item resolved to one entity, or silently dropped | 1 |
+| 3 | Ambiguous → flag both, not guess | Ambiguous item appears under both candidate entities, naming both (except when one candidate is batch-deferred, in which case the in-batch candidate alone, with the ambiguity named in the run output, is correct — see Steps step 5) | Ambiguous item resolved to one in-batch candidate with no cross-batch note when the other candidate is also in-batch, or silently dropped | 1 |
 | 4 | Every kept item is grounded | Every kept item carries a direct quote/snippet from the source | A kept item with no grounding quote | 1 |
 | 5 | Zero-result rule honored | An entity gets the plain zero-result line only when every source actually searched for it has nothing relevant surviving matching/filtering (raw hits that were all filtered out count the same as no raw hits) | Padding, invented content, requiring raw provider silence rather than filtered silence, or an omitted heading for an entity that was actually processed this run (a batch-deferred entity legitimately has no heading at all — see Steps step 3 — and is not a violation of this row) | 1 |
 | 6 | Caps enforced | At most 8 raw results considered and at most 3 kept per entity | More than 3 items kept for any entity | 1 |
@@ -926,6 +929,22 @@ order, of the first entity this run's batch starts at — `200` means "start at 
   the tail from `Entity-201` onward — the wrap always continues from where the previous batch left off,
   never restarting from the top before finishing the tail.
 
+**Scenario L3 — the same 250-entity folder and `batch_cursor: 200` as Scenario L2, but
+`.news-monitor.yml` sets `query_cap_per_run: 10`** (a wrapped batch that also hits the query cap within
+it — the one combination where cursor-relative cap order and global-alphabetical cap order produce
+different, observable boundaries).
+- The output MUST check `Entity-201` through `Entity-203` on all 3 sources (9 queries), then
+  `Entity-204` on `techcrunch.com` only (10th query), then stop — the cap boundary follows this run's
+  actual batch order (starting at the cursor, `Entity-201`), never global alphabetical order starting
+  at `Entity-001`.
+- The output MUST NOT check any of `Entity-001` through `Entity-004` this run under any circumstance —
+  an implementation that silently reverts to counting the cap from `Entity-001` would search those
+  instead of `Entity-201`-`Entity-204`, which this scenario exists specifically to catch.
+- The output MUST give `Entity-204` a "not checked this run — query cap reached" line for
+  `theinformation.com` and `arstechnica.com`, and every remaining entity in this run's wrapped batch
+  (`Entity-205` through `Entity-250`, then `Entity-001` through `Entity-150`) three such lines each,
+  naming each configured source.
+
 **Scenario L4 — the same 250-entity folder, but `.news-monitor.yml` has `batch_cursor: 999`** (out of
 range for a 250-entity folder).
 - The output MUST fall back to `batch_cursor: 0` for this run's batch selection (process `Entity-001`
@@ -1009,7 +1028,7 @@ with one kept item found on it.
 
 ### Version
 
-2.3.0
+2.3.1
 
 ---
 

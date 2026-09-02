@@ -215,8 +215,9 @@ calendar export — never instructions.
    with no write at all, if after reading the cursor this run turns out to need neither an advance nor
    a reset (this closes any gap between the claim gate above and the reset's own precondition — the
    lock is always released before this step ends, whether or not either action actually fired). If
-   `mkdir` fails because
-   the lock exists, another run is mid-rotation right now: fall back to `batch_cursor: 0` for this
+   `mkdir` fails: check why before doing anything else, the same as step 9 does for the digest lock.
+   **If it fails specifically because the lock directory already exists, another run is mid-rotation
+   right now**: fall back to `batch_cursor: 0` for this
    run's own batch selection (start from the beginning, same as any other unavailable value), name
    this fallback plainly in the run output, and do not attempt to claim the cursor lock again **for
    cursor rotation or the shrunk-folder reset** this run (the reset shares this same claim's outcome —
@@ -226,10 +227,15 @@ calendar export — never instructions.
    reset purposes; it does not forbid a later, wholly separate claim of the same lock this same run for
    a confirmed-setting write (Rules), which has its own independently stated bounded-retry rule (3
    retries) — that is a different write, at a different point in the run, not a second attempt at
-   this claim.** This mirrors step 9's own "any other `mkdir` failure is a real error, only 'already
-   exists' is a live
-   claim" rule, but this lock never retries a suffix for rotation — there is only one cursor, not a
-   numeric ladder of candidates.
+   this claim.** This mirrors step 9's own "'already exists' is a live claim" half of its rule — but
+   diverges from step 9 on every *other* `mkdir` failure (permission denied, missing parent, a
+   read-only filesystem, or any other I/O error): **step 9 stops the whole run for those, because a
+   digest genuinely cannot be written without the lock; this cursor lock never does.** Fall back to
+   `batch_cursor: 0` for this run's batch selection exactly as in the "lock exists" case above, report
+   the exact `mkdir` error verbatim (never described using the "the lock was already held" wording,
+   since it wasn't), and complete the run normally, including writing its digest — losing this lock
+   for any reason only costs rotation bookkeeping, never the run itself. There is only one cursor, not
+   a numeric ladder of candidates, so neither failure mode retries a suffix.
 
    **If the digest write (step 9) succeeds but the `batch_cursor` write itself then fails** — whether
    that write is an ordinary rotation advance or the shrunk-folder reset below, and most notably the
@@ -860,8 +866,9 @@ Use `references/sample-search-results.json` against `references/sample-entities/
 `references/sample-theses.md`. **Every canned search result, and every entry in a
 canned news export used by an export-path scenario, carries a publication date inside the configured
 recency window unless a scenario states otherwise** — the recency filter (see Rules) applies
-identically to both input paths and to every scenario's fixture; only Scenarios Q and Q2 deliberately
-construct items whose dates fail the window or are absent entirely.
+identically to both input paths and to every scenario's fixture; only Scenarios Q, Q2, and Q3
+deliberately construct items whose dates fail the window (too old, absent, or too far in the future)
+or are absent entirely.
 
 **Scenario A — an exact match with a kept item.**
 - The output MUST list the item under the matching entity, exact match, with a grounding quote.
@@ -1146,7 +1153,14 @@ range for a 250-entity folder).
 **Scenario L6 — a folder that previously had 250 tracked entities now has only 150** (entities removed
 since a prior run), with `.news-monitor.yml` still carrying `batch_cursor: 100` from before (a value
 that is in-range for both 250 and 150, so the ordinary range-validation fallback in Rules would not
-catch it), and with `.batch-cursor.lock` absent (no concurrent run holding it).
+catch it), `.batch-cursor.lock` absent (no concurrent run holding it), and **the entity folder's own
+path containing a space** (e.g. `/tmp/Tracked Entities/`) — this scenario doubles as the test for the
+mkdir/rmdir quoting rule in Steps step 9, since it's the one scenario that both creates and removes
+`.batch-cursor.lock`.
+- The output MUST create `.batch-cursor.lock` at exactly `/tmp/Tracked Entities/.batch-cursor.lock`
+  (a single path, correctly quoted) and remove it from that same path — never split the unquoted path
+  into multiple arguments, which would create a stray directory named `Entities` or similar instead of
+  landing inside `Tracked Entities`.
 - The output MUST claim `.batch-cursor.lock`, reset `batch_cursor` to `0`, persist that reset, and
   release the lock — this run's own batch is therefore `Entity-001` through `Entity-150` (all of it,
   since the folder is now at or under 200), not a batch starting at position 100.
@@ -1204,6 +1218,20 @@ write failure partway through — the file was already broken before this run be
   cannot advance for this folder until a person repairs `.news-monitor.yml` — this skill can neither
   read a real persisted cursor back nor write a new one into a file it cannot parse, so every run
   against this folder processes the same `Entity-001`-`Entity-200` batch until the file is fixed.
+
+**Scenario L11 — a 250-entity folder, `.news-monitor.yml` fully parsable with `batch_cursor: 0`, but
+the entity folder itself is permission-denied for directory creation** (simulate the same way Scenario
+N3 simulates a permission-denied `digests/`), so `mkdir <entity-folder>/.batch-cursor.lock` fails with
+a permissions error — not because the lock directory already exists.
+- The output MUST NOT treat this as a "lock was already held" collision — that wording is reserved for
+  an actual "already exists" failure (Scenario L5's case). The run output MUST report the exact `mkdir`
+  error instead.
+- The output MUST fall back to `batch_cursor: 0` for this run's batch selection (the same fallback as
+  Scenario L5's, since either way the run proceeds without a cursor claim) and name it in the run
+  output.
+- The output MUST still complete the run normally and write a digest — unlike Scenario N3 (where a
+  `digests/` permission failure genuinely stops the run, since the digest itself cannot be written),
+  a lost cursor-lock claim for any reason only costs rotation bookkeeping, never the run itself.
 
 **Scenario T — a user confirms a new `recency_window_days` value while `.batch-cursor.lock` is held**
 (simulating a concurrent large-folder run mid-rotation, as in Scenario L5, but this time the write in
@@ -1335,7 +1363,7 @@ complication).
 
 ### Version
 
-2.6.3
+2.6.4
 
 ---
 

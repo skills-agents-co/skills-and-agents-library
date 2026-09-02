@@ -48,6 +48,26 @@
       ]
     },
     {
+      "name": "finance-team",
+      "source": "./plugins/finance-team",
+      "description": "Skills for running a finance function end to end — month-end close, QuickBooks reconciliation, board reporting, spend control, and contract review.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "finance",
+        "accounting",
+        "quickbooks",
+        "close",
+        "reporting",
+        "contracts"
+      ]
+    },
+    {
       "name": "eta-searcher",
       "source": "./plugins/eta-searcher",
       "description": "Skills for running a search-fund or self-funded acquisition end to end — sourcing, screening, diligence, and investor updates through the LOI.",

@@ -1,0 +1,19 @@
+{
+  "name": "finance-team",
+  "version": "1.0.0",
+  "description": "Skills for running a finance function end to end — month-end close, QuickBooks reconciliation, board reporting, spend control, and contract review.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "finance",
+    "accounting",
+    "quickbooks",
+    "close",
+    "reporting",
+    "contracts"
+  ]
+}

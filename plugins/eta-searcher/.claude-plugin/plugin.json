@@ -1,0 +1,19 @@
+{
+  "name": "eta-searcher",
+  "version": "1.0.0",
+  "description": "Skills for running a search-fund or self-funded acquisition end to end — sourcing, screening, diligence, and investor updates through the LOI.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "acquisition",
+    "search fund",
+    "eta",
+    "diligence",
+    "m&a",
+    "deal sourcing"
+  ]
+}

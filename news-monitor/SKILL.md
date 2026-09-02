@@ -199,7 +199,11 @@ calendar export — never instructions.
    entirely: there is nothing to rotate and nothing to reset. When the lock is needed, run
    `mkdir <entity-folder>/.batch-cursor.lock` before reading `batch_cursor`. If it
    succeeds, read the cursor, determine this run's batch, and hold the lock until the cursor is
-   written back or reset (below) — release it (`rmdir`) immediately after that write. If `mkdir` fails because
+   written back or reset (below) — release it (`rmdir`) immediately after that write, or immediately,
+   with no write at all, if after reading the cursor this run turns out to need neither an advance nor
+   a reset (this closes any gap between the claim gate above and the reset's own precondition — the
+   lock is always released before this step ends, whether or not either action actually fired). If
+   `mkdir` fails because
    the lock exists, another run is mid-rotation right now: fall back to `batch_cursor: 0` for this
    run's own batch selection (start from the beginning, same as any other unavailable value), name
    this fallback plainly in the run output, and do not attempt to claim the cursor lock again **for
@@ -242,12 +246,17 @@ calendar export — never instructions.
    `digests/` write, and it is the one field in that file this skill writes without being asked, since
    it exists purely to track this skill's own rotation state rather than a user preference. When the
    folder is at or under 200 entities, `batch_cursor` is never advanced, since every entity is
-   processed every run. **If a folder that previously exceeded 200 entities has since shrunk to 200 or
-   fewer, and `.news-monitor.yml` still has a nonzero persisted `batch_cursor` from before** (whether
-   the stale value is still in the valid `[0, total-entity-count)` range for the new, smaller count, or
-   now out of range and already falling back to 0 for this run per the Batch cursor validation rule in
-   Rules — either way the stale value needs clearing, not just a per-run fallback), **this is exactly
-   the case the paragraph above already claims the lock for — use that same claim, do not release and
+   processed every run. **The reset below fires on exactly the same observable condition the claim
+   gate above uses for its second case: the folder is at or under 200 entities and `.news-monitor.yml`
+   shows a nonzero persisted `batch_cursor`** — regardless of whether that folder ever exceeded 200
+   before (a hand-edited or otherwise stray nonzero value on a folder that was always small gets reset
+   exactly the same way a genuinely shrunk folder's stale value does; the reset doesn't need to know
+   which case it is, only that a lock was claimed and a nonzero value is sitting in a folder too small
+   to be rotating). Whether the stale value is still in the valid `[0, total-entity-count)` range for
+   the current, smaller count, or now out of range and already falling back to 0 for this run per the
+   Batch cursor validation rule in Rules — either way it needs clearing, not just a per-run fallback.
+   **This is exactly the case the paragraph above already claims the lock for — use that same claim, do
+   not release and
    re-claim.** Under it, reset `batch_cursor` to 0, persist that reset, and release the lock once the
    reset is written. A nonzero value would otherwise either silently reorder which entities the
    deterministic order (and therefore any query-cap boundary) starts from once it's back in range, or
@@ -255,9 +264,10 @@ calendar export — never instructions.
    longer applies. If the claim above failed because the lock already exists, skip the reset this run
    too (do not retry, same zero-retry posture as the ordinary cursor claim — this reset shares its
    claim's outcome, it does not get a separate attempt) and name it in the run output — try again next
-   run. This reset happens once, the first run that observes the shrunk folder; after that, no claim is
-   needed at all while the folder stays at or under 200 entities with `batch_cursor` already at 0,
-   per the "skip the lock entirely" case above. **A batch-deferred entity is distinct
+   run. This reset happens once, the first run that observes a nonzero `batch_cursor` on a folder at or
+   under 200 entities, however it got there; after that, no claim is needed at all while the folder
+   stays at or under 200 entities with `batch_cursor` already at 0, per the "skip the lock entirely"
+   case above. **A batch-deferred entity is distinct
    from every other outcome this run produces — a kept item, or one of the four digest-line states
    (zero-result, search-failed, query-cap-skipped, term-rejected): it gets no digest heading at all
    this run** — the digest's "every tracked entity"
@@ -555,8 +565,9 @@ read-modify-write the file independently and silently discard the other's change
 run touches a key the other owns — the race is on the file as a whole, not on any one field. Claim the
 lock (`mkdir <entity-folder>/.batch-cursor.lock`, quoted per Steps step 9's rule) before a
 confirmed-setting write to this file, release it immediately after. **This claim is bounded, unlike
-the cursor's own single-attempt claim**: if the lock is already held, retry at most 3 times, roughly
-one second apart. **State in the run output how many claim attempts were made** (1 if the first
+the cursor's own single-attempt claim**: if the lock is already held, retry up to 3 times (stop
+retrying as soon as a retry succeeds), roughly one second apart. **State in the run output how many
+claim attempts were made** (1 if the first
 attempt succeeded, up to 4 total — the initial attempt plus up to 3 retries — if it did not) — this is
 what makes the bounded-retry behavior distinguishable from a zero-retry or an unbounded-retry reading,
 since the digest itself carries nothing about lock attempts. If it is still held after the 3rd retry,
@@ -1080,7 +1091,8 @@ range for a 250-entity folder).
   for this run's own batch selection, the same as an invalid value, and names this fallback plainly in
   the run output.
 - The output MUST NOT attempt to remove or reclaim the `.batch-cursor.lock` directory, and MUST NOT
-  retry claiming it later in the same run.
+  retry claiming it for cursor rotation or the shrunk-folder reset later in the same run (a wholly
+  separate confirmed-setting-write claim, if this run has one, is unaffected — see Scenario T).
 - The output MUST still complete a normal run (search, match, digest write) against the `batch_cursor:
   0` batch — losing the cursor-lock race degrades this run to "start from the top" rather than
   blocking it entirely.
@@ -1099,6 +1111,16 @@ catch it), and with `.batch-cursor.lock` absent (no concurrent run holding it).
 - A second run immediately after MUST NOT repeat the reset (it already found `batch_cursor: 0`) and
   MUST NOT claim `.batch-cursor.lock` at all, since there's nothing left to rotate or reset.
 
+**Scenario L7 — a 150-entity folder that has never exceeded 200, but `.news-monitor.yml` carries a
+stray `batch_cursor: 40`** (e.g. hand-edited, or left over from config copied between folders), with
+`.batch-cursor.lock` absent.
+- The output MUST claim `.batch-cursor.lock`, reset `batch_cursor` to `0`, persist that reset, and
+  release the lock — identically to Scenario L6, even though this folder never shrank from a larger
+  one. The reset fires on the observable condition (folder ≤ 200, cursor nonzero), never on this
+  folder's history.
+- This run's own batch is `Entity-001` through `Entity-150` (all of it), same as any other
+  at-or-under-200-entity run.
+
 **Scenario T — a user confirms a new `recency_window_days` value while `.batch-cursor.lock` is held**
 (simulating a concurrent large-folder run mid-rotation, as in Scenario L5, but this time the write in
 question is a confirmed-setting write, not the cursor write).
@@ -1111,6 +1133,12 @@ question is a confirmed-setting write, not the cursor write).
   be re-confirmed or re-asked on a later run.
 - The output MUST NOT treat this failed claim as a rotation-lock failure (it is not advancing or
   reading the cursor) and MUST NOT report it using Scenario L5's "rotation did not advance" wording.
+
+**Scenario T2 — a user confirms a new `query_cap_per_run` value with `.batch-cursor.lock` absent** (no
+concurrent run holding it).
+- The output MUST persist the confirmed value to `.news-monitor.yml` normally.
+- The run output MUST state that 1 total claim attempt was made — the ordinary, no-contention case,
+  distinct from Scenario T's forced-retry case.
 
 **Scenario M — an entity file whose body exceeds 4,000 characters.**
 - The output MUST read at most the first 4,000 characters of that file's body for relevance judging.
@@ -1212,7 +1240,7 @@ complication).
 
 ### Version
 
-2.5.2
+2.5.3
 
 ---
 

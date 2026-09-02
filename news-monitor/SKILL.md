@@ -209,9 +209,13 @@ calendar export — never instructions.
    run is still working" from "a run crashed," and guessing wrong risks a corrupted cursor write. But
    because the consequence here is total, not one skipped digest path, **name this condition loudly
    every time it's hit**: state plainly in the run output, on every run that finds `.batch-cursor.lock`
-   already present, that rotation is stalled and the lock directory needs a person to delete it by hand
-   to resume — do not let this degrade into a quiet, routine-looking fallback line indistinguishable
-   from an ordinary single-run race.
+   already present, that rotation did not advance this run because the cursor lock was held — phrase
+   the manual-recovery guidance conditionally, never as a flat instruction to delete the lock, since the
+   lock may belong to a genuinely concurrent run: "if no other run of this skill is active against this
+   folder right now, this lock is abandoned and a person should delete it by hand to resume rotation."
+   Do not let this degrade into a quiet, routine-looking fallback line indistinguishable from an
+   ordinary single-run race, and never tell the operator to delete a lock as if its abandonment were
+   certain.
 
    **Only after this run's digest write (step 9) has succeeded and been confirmed**, and while still
    holding the cursor lock claimed above, write the next run's starting point —
@@ -740,7 +744,10 @@ a `none` match in the digest is also an automatic fail.
 ### Self-Test
 
 Use `references/sample-search-results.json` against `references/sample-entities/` and
-`references/sample-theses.md`.
+`references/sample-theses.md`. **Every canned result carries a publication date inside the configured
+recency window unless a scenario states otherwise** — the recency filter (see Rules) is real and
+applies to every scenario's fixture; only Scenario Q and Q2 deliberately construct dates that fail
+it.
 
 **Scenario A — an exact match with a kept item.**
 - The output MUST list the item under the matching entity, exact match, with a grounding quote.
@@ -1013,6 +1020,10 @@ range for a 250-entity folder).
 - The output MUST still complete a normal run (search, match, digest write) against the `batch_cursor:
   0` batch — losing the cursor-lock race degrades this run to "start from the top" rather than
   blocking it entirely.
+- The run output MUST state that rotation did not advance this run because the cursor lock was held,
+  and MUST phrase any manual-recovery guidance conditionally (e.g. "if no other run is active, delete
+  the lock by hand") — never as a flat instruction implying the lock is certainly abandoned, since this
+  fixture is a live, concurrent hold, not a crash.
 
 **Scenario M — an entity file whose body exceeds 4,000 characters.**
 - The output MUST read at most the first 4,000 characters of that file's body for relevance judging.
@@ -1078,13 +1089,17 @@ with one kept item found on it.
   present: the output MUST produce the same "found, not confirmed in use" summary line, per the
   whole-file-parse-failure fallback (see Error handling).
 
-**Scenario Q — a search result exists for a tracked entity, but its publication date is older than
-`recency_window_days`** (e.g. a 30-day-old item with the default 7-day window), alongside another item
-for the same entity that is within the window.
+**Scenario Q — one tracked entity has 8 raw results within the recency window and 1 more raw result
+older than `recency_window_days`** (e.g. a 30-day-old item with the default 7-day window; 9 raw hits
+total for this entity).
 - The output MUST NOT keep or ground the out-of-window item — it is discarded before matching, not
-  merely ranked lower.
-- The output MUST still keep the in-window item normally.
-- The output MUST NOT count the discarded item toward the 8-raw-results-considered cap.
+  merely ranked lower, and never appears anywhere in the digest.
+- The output MUST still consider and rank all 8 in-window items normally (subject to the separate
+  3-kept cap in Rules) — none of them may be dropped to make room for the discarded 9th, since the
+  discarded item was never a candidate for the 8-raw-considered cap at all.
+- The run output MUST state the raw-considered count for this entity as 8, not 9 — this is the
+  artifact that makes the "does not count toward the cap" requirement checkable, since the digest
+  itself carries no raw-count field.
 
 **Scenario Q2 — a search result for a tracked entity has no determinable publication date.**
 - The output MUST discard this item — an undetermined date is treated as failing the recency window,
@@ -1108,7 +1123,7 @@ complication).
 
 ### Version
 
-2.4.0
+2.4.1
 
 ---
 

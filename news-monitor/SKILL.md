@@ -604,9 +604,12 @@ sources.**
   performed the check this scenario tests, even if the file happens to be correct.
 - The output MUST NOT alter the content of the first run's digest — read it back after the second run
   and confirm it is byte-identical to what the first run wrote.
-- The second run's `mkdir` against the unsuffixed path MUST fail (the first run's digest write already
-  succeeded, so no lock directory remains, but the digest file itself is present), which is what forces
-  the retry onto the suffixed path — the run output MUST reflect this as the reason the suffix was used.
+- The second run's `mkdir` against the unsuffixed path MUST succeed (the first run's digest write
+  already succeeded and removed its lock, so no lock directory remains) — the retry onto the suffixed
+  path MUST instead be forced by the digest-file-exists check inside the success branch (Steps step 9),
+  which finds the first run's digest already there, removes the lock the second run just acquired, and
+  moves to the next candidate. The run output MUST reflect this as the actual reason the suffix was
+  used, not a `mkdir` failure.
 
 **Scenario H2 — exactly 10 same-day digest paths already exist for this entity folder** (the
 unsuffixed `digests/YYYY-MM-DD.md` plus suffixes `-2.md` through `-10.md`, all 10 present, no `-11.md`
@@ -741,7 +744,7 @@ by pre-creating `digests/YYYY-MM-DD.md.lock` with no corresponding digest file p
 
 ### Version
 
-2.1.0
+2.1.1
 
 ---
 

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.json",
+  "name": "co.skillsandagents/catalog-mcp",
+  "title": "Skills and Agents Catalog",
+  "description": "Search and fetch skills from your org's Skills and Agents catalog and the public catalog. Requires a bearer token from your org's Marketplace token settings page.",
+  "version": "0.1.0",
+  "websiteUrl": "https://skillsandagents.co",
+  "repository": {
+    "url": "https://github.com/skills-agents-co/skills-and-agents-library",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://app.skillsandagents.co/catalog/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer token minted from your org's Marketplace token settings page in the Skills and Agents app. Format: 'Bearer sam_...'. Required on every request; there is no anonymous access.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "co.skillsandagents/catalog-mcp": {
+      "tools": [
+        {
+          "name": "search_skills",
+          "description": "Search your org's private skills plus the public catalog by keyword, and get back a ranked list of matches with slug, title, description, category, and how to install each one."
+        },
+        {
+          "name": "get_skill",
+          "description": "Look up one skill by its slug and get its full details plus an install command. The command has a placeholder for your token; the skill body itself is never returned."
+        }
+      ]
+    }
+  }
+}

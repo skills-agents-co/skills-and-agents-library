@@ -52,17 +52,44 @@ More skills land here regularly. **[Star or watch this repo](https://github.com/
 
 ## Install in 30 seconds
 
-Every skill installs the same way — one `curl` into `~/.claude/skills/`, then restart Claude Code:
+Every skill installs the same way: download one pinned tarball, extract the skill's whole folder into `~/.claude/skills/`, then restart Claude Code. Extracting the folder, not just `SKILL.md`, is what brings along the `scripts/` and `references/` files a skill's own instructions actually run.
 
 ```bash
-mkdir -p ~/.claude/skills/<skill-name>
-curl -fsSL -o ~/.claude/skills/<skill-name>/SKILL.md \
-  https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.23.0/<skill-name>/SKILL.md
+(
+  set -e
+  skill="resume-tailor"   # <-- change me to the skill's folder (see note below)
+  ref="v1.28.0"            # pinned release; matches index.json's skillFileUrl
+
+  dest="$HOME/.claude/skills/$skill"
+  mkdir -p "$dest"
+
+  tarball="$(mktemp -t "${skill}.XXXXXX").tgz"
+  curl -fsSL --connect-timeout 10 --max-time 120 -o "$tarball" \
+    "https://codeload.github.com/skills-agents-co/skills-and-agents-library/tar.gz/$ref"
+
+  topdir="$(tar -tzf "$tarball" | grep -m1 '/' | cut -d/ -f1)"
+  tar -xzf "$tarball" --strip-components=2 --no-same-owner --no-same-permissions \
+    -C "$dest" "$topdir/$skill"
+  rm -f "$tarball"
+
+  echo "Installed to $dest"
+)
 ```
 
-The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page generates the exact pinned install command for you, copy-paste ready.
+The block runs in a subshell (the parens) so `skill`, `ref`, and the other variables it sets do not leak into your shell, and `set -e` inside it means a failed download or a bad skill name stops the install instead of leaving a half-populated directory that looks successful.
 
-> Two skills nest their `SKILL.md` one level deeper: `ads-copilot` and `financial-pulse`. For those, the path is `<skill-name>/skills/<skill-name>/SKILL.md`. Every other skill in this repo is flat. The catalog generates the right path either way, so this only matters when you install by hand.
+**What to put in `skill`.** For almost every entry it is the folder name shown in the table above (`resume-tailor`, `ceo-todo`, and so on) — which is also the slug. It is **not** the slug for the four agents that ship inside another skill's folder: `ceo-todo-daily` installs as `skill="ceo-todo"`, and `financial-pulse-grasshopper`, `financial-pulse-mercury`, and `financial-pulse-ramp` all install as `skill="financial-pulse"`. Installing one of those pulls in the whole parent skill (including its other agents), which is expected — the agent file itself is the payload you actually run.
+
+The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page will generate this exact pinned command for you, copy-paste ready, once the catalog site adopts the manifest this repo now publishes. Until then it still generates the older single-file command, so the command above is the one to use by hand in the meantime.
+
+> Two skills nest their `SKILL.md` one level deeper: `ads-copilot` and `financial-pulse`. The command above still extracts their whole folder correctly, but `SKILL.md` lands at `$dest/skills/<skill-name>/SKILL.md` instead of at the top, where Claude Code looks for it. Run this once more, right after the block above, for those two:
+>
+> ```bash
+> skill="ads-copilot"   # or "financial-pulse"
+> mv "$HOME/.claude/skills/$skill/skills/$skill/SKILL.md" "$HOME/.claude/skills/$skill/SKILL.md"
+> ```
+>
+> `references/` and `scripts/` are already siblings of the moved `SKILL.md`, which is where its own text expects them. Every other skill in this repo is flat and needs no extra step.
 
 ## Install via skills.sh
 

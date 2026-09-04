@@ -16,9 +16,47 @@
 import { readFileSync, readdirSync, writeFileSync, statSync, existsSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
+
+// Cache of installFolder -> tracked files, so a folder shared by multiple
+// entries (e.g. ceo-todo's skill + its ceo-todo-daily agent, or
+// financial-pulse's skill + its three agents) only pays for one
+// `git ls-files` call.
+const trackedFilesCache = new Map();
+
+/**
+ * Every git-tracked file under `folder` (a repo-root-relative path), relative
+ * to `folder` itself, sorted. Sourced from `git ls-files -z`, never a
+ * filesystem walk: that means no untracked junk (.DS_Store, __pycache__),
+ * no accidentally-published secrets, and no symlink-cycle hazard, all by
+ * construction rather than by a deny-list.
+ *
+ * Fails loudly if git ls-files is unavailable or errors, rather than
+ * silently falling back to a filesystem walk.
+ */
+function trackedFilesUnder(folder) {
+  if (trackedFilesCache.has(folder)) return trackedFilesCache.get(folder);
+  let out;
+  try {
+    out = execFileSync('git', ['ls-files', '-z', '--', folder], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    });
+  } catch (err) {
+    console.error(`git ls-files failed for folder "${folder}": ${err.message}`);
+    process.exit(1);
+  }
+  const files = out
+    .split('\0')
+    .filter(Boolean)
+    .map((p) => relative(folder, p))
+    .sort();
+  trackedFilesCache.set(folder, files);
+  return files;
+}
 
 function parseArgs(argv) {
   const args = { tag: null };
@@ -205,6 +243,16 @@ function main() {
     const dirRel = relative(repoRoot, dirname(entry.file));
     const skillFileUrl = `https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/${tag}/${relPath}`;
     const githubUrl = `https://github.com/skills-agents-co/skills-and-agents-library/tree/${tag}/${dirRel}`;
+
+    // installFolder is the repo top-level folder this entry ships under, e.g.
+    // "ceo-todo" for the "ceo-todo-daily" agent slug. skillFilePath is relPath
+    // with that leading segment removed, e.g. "agents/ceo-todo-daily.md". Both
+    // are additive, new keys; installFolder replaces the README's old wrong
+    // assumption that slug equals folder.
+    const installFolder = relPath.split('/')[0];
+    const skillFilePath = relative(installFolder, relPath);
+    const files = trackedFilesUnder(join(repoRoot, installFolder));
+
     index[entry.slug] = {
       slug: entry.slug,
       kind: entry.kind,
@@ -218,6 +266,9 @@ function main() {
       skillFileUrl,
       githubUrl,
       path: relPath,
+      installFolder,
+      skillFilePath,
+      files,
     };
   }
 

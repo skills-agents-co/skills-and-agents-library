@@ -818,7 +818,7 @@
     "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.28.0/resume-tailor",
     "path": "resume-tailor/SKILL.md",
     "installFolder": "resume-tailor",
-    "skillFilePath": "SKILL.md",
+    "skillFilePath": "scripts/requirements.txt",
     "files": [
       "SKILL.md",
       "references/cover_letter_template.md",

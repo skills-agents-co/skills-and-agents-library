@@ -818,16 +818,7 @@
     "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.28.0/resume-tailor",
     "path": "resume-tailor/SKILL.md",
     "installFolder": "resume-tailor",
-    "skillFilePath": "SKILL.md",
-    "files": [
-      "SKILL.md",
-      "references/cover_letter_template.md",
-      "references/resume_template.md",
-      "scripts/ats_score.py",
-      "scripts/extract_jd_keywords.py",
-      "scripts/render_pdf.py",
-      "scripts/requirements.txt"
-    ]
+    "skillFilePath": "SKILL.md"
   },
   "sales-email-template-generator": {
     "slug": "sales-email-template-generator",

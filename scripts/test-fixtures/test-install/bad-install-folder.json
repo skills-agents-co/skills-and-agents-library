@@ -817,7 +817,7 @@
     "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.28.0/resume-tailor/SKILL.md",
     "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.28.0/resume-tailor",
     "path": "resume-tailor/SKILL.md",
-    "installFolder": "resume-tailor",
+    "installFolder": "this-folder-does-not-exist",
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md",

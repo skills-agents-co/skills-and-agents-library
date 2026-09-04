@@ -826,7 +826,8 @@
       "scripts/ats_score.py",
       "scripts/extract_jd_keywords.py",
       "scripts/render_pdf.py",
-      "scripts/requirements.txt"
+      "scripts/requirements.txt",
+      "scripts/does-not-exist.py"
     ]
   },
   "sales-email-template-generator": {

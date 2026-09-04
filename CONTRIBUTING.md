@@ -82,12 +82,16 @@ Before approving a skill that adds or changes a contract:
 1. Branch off `main`.
 2. Make the change in the relevant `<skill-name>/` folder.
 3. Bump `version` in frontmatter if behavior changed.
-4. Open a PR. CI runs the lint workflow. The install smoke test runs on tagged releases, not on PRs.
+4. Open a PR. CI runs the lint workflow, including the install smoke test, on every PR.
 5. After merge, a maintainer tags a new release and updates the catalog entry.
 
 ## Local checks
 
 ```bash
 node scripts/build-index.mjs --tag main   # regenerates index.json against main
-bash scripts/test-install.sh              # smokes every install URL
+bash scripts/test-install.sh              # installs every entry from its pinned tarball and checks the manifest arrived
+node scripts/test-install-negative.mjs    # proves the check above can fail, against fixtures in scripts/test-fixtures/test-install/
+node scripts/check-index-additive.mjs     # index.json stays additive at its own pinned ref; README's ref agrees with it
 ```
+
+`scripts/test-install.sh` also takes an optional first argument, an alternate `index.json` path, used by `test-install-negative.mjs` to point it at doctored fixture copies without touching the real index.

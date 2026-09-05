@@ -2,87 +2,185 @@
 /**
  * check-index-additive.mjs
  *
- * Two committed assertions that used to be hand-run at review time and left
- * no artifact behind (CTO check 7, "verification adequacy", found this twice):
+ * Four committed assertions about index.json, the one file this repo publishes
+ * as an interface to the catalog site. They used to be hand-run at review time
+ * and left no artifact behind (CTO check 7, "verification adequacy", found that
+ * twice):
  *
- *   1. Regenerating index.json at the ref it already pins produces the exact
- *      same file. If a future change to build-index.mjs reshapes an existing
- *      key (or the new files/installFolder/skillFilePath keys drift for a
- *      reason other than the repo's own tracked files changing), this fails
- *      instead of silently shipping a changed published interface.
- *   2. README.md's documented install ref (the `ref="..."` line in its fenced
- *      install block) equals the ref index.json's entries are pinned to. A
- *      Spec criterion with no assertion behind it is how the two drifted
- *      apart before (README pinned v1.23.0, index.json pinned v1.27.0).
+ *   1. Regenerating index.json **at the ref it already pins** produces the
+ *      exact same file. Note "at the ref", not "from the working tree": that
+ *      distinction is the whole point. index.json describes a release, and
+ *      scripts/test-install.sh verifies its `files` manifest against that
+ *      release's tarball, so both checks now look at the same snapshot. A PR
+ *      that adds a file inside a skill folder therefore does not need to
+ *      regenerate index.json, and could not have satisfied both checks if it
+ *      did. The cost is that a companion-file mistake is caught at the next
+ *      release rather than in the PR that makes it, which is acceptable while
+ *      releases are cut regularly.
+ *   2. Every key previously published at the pinned ref is still present, with
+ *      the same JSON type, in the committed index.json. This is the actual
+ *      additivity check: check 1 compares the file to a regeneration of
+ *      itself and so cannot see a key that was removed or reshaped in both.
+ *   3. Structural invariants on the new manifest keys: installFolder +
+ *      skillFilePath reconstructs path, files is non-empty, contains
+ *      skillFilePath, and holds no path escaping the install folder.
+ *   4. README.md's documented install ref (the `ref="..."` line in its fenced
+ *      codeload block) equals the ref index.json's entries are pinned to. A
+ *      Spec criterion with no assertion behind it is how the two drifted apart
+ *      before (README pinned v1.23.0, index.json pinned v1.27.0). When you cut
+ *      a release you must bump that line in the same commit as the regenerated
+ *      index.json; this check is what makes forgetting it a red build.
  *
- * Usage: node scripts/check-index-additive.mjs
+ * Nothing here writes to the tracked index.json: the regeneration goes to a
+ * temp file. A "check" that mutates the tree it is checking leaves a dirty
+ * working copy behind on every failure path.
+ *
+ * Usage: node scripts/check-index-additive.mjs [--index <path>] [--readme <path>]
+ * The two overrides exist for scripts/test-check-index-additive.mjs.
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { refFromIndex, refFromReadme, isSafeRef } from './lib/index-ref.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
-const indexPath = join(repoRoot, 'index.json');
-const readmePath = join(repoRoot, 'README.md');
+
+function parseArgs(argv) {
+  const args = { index: join(repoRoot, 'index.json'), readme: join(repoRoot, 'README.md') };
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--index' && argv[i + 1]) { args.index = argv[++i]; }
+    else if (argv[i] === '--readme' && argv[i + 1]) { args.readme = argv[++i]; }
+  }
+  return args;
+}
+
+const { index: indexPath, readme: readmePath } = parseArgs(process.argv.slice(2));
+const TRAVERSAL = /(^\/)|(^|\/)\.\.(\/|$)/;
 
 let failures = 0;
-
 function fail(msg) {
   console.error('FAIL: ' + msg);
   failures++;
 }
 
 const before = readFileSync(indexPath, 'utf8');
-const idx = JSON.parse(before);
-const firstEntry = Object.values(idx)[0];
-const urlMatch = firstEntry && String(firstEntry.skillFileUrl || '').match(
-  /^https:\/\/raw\.githubusercontent\.com\/skills-agents-co\/skills-and-agents-library\/([^/]+)\//
-);
-const indexRef = urlMatch ? urlMatch[1] : null;
+const indexRef = refFromIndex(before);
 
 if (!indexRef) {
-  fail('could not extract a ref from index.json\'s first entry skillFileUrl');
+  fail("could not extract a ref from index.json's first entry skillFileUrl");
+} else if (!isSafeRef(indexRef)) {
+  fail(`index.json pins a ref that is not git-ref-safe: '${indexRef}'`);
 } else {
   console.log(`index.json pins ref: ${indexRef}`);
 }
 
-// --- Check 2: README's documented ref matches index.json's ref -------------
+// --- Check 4: README's documented ref matches index.json's ref -------------
 
-const readme = readFileSync(readmePath, 'utf8');
-const readmeMatch = readme.match(/ref="([^"]+)"/);
-const readmeRef = readmeMatch ? readmeMatch[1] : null;
+const readmeRef = refFromReadme(readFileSync(readmePath, 'utf8'));
 
 if (!readmeRef) {
-  fail('could not find a ref="..." line in README.md\'s install block');
+  fail('could not find a ref="..." line in README.md\'s fenced codeload install block');
 } else {
   console.log(`README.md pins ref: ${readmeRef}`);
 }
 
 if (indexRef && readmeRef && indexRef !== readmeRef) {
-  fail(`README.md's install ref (${readmeRef}) does not match index.json's pinned ref (${indexRef})`);
+  fail(
+    `README.md's install ref (${readmeRef}) does not match index.json's pinned ref (${indexRef}). ` +
+      'Cutting a release means bumping both in the same commit.'
+  );
 } else if (indexRef && readmeRef) {
   console.log('OK: README.md and index.json agree on the pinned ref.');
 }
 
-// --- Check 1: regenerating at the same ref is byte-identical ---------------
+// --- Check 3: structural invariants on the manifest keys -------------------
 
-if (indexRef) {
-  execFileSync('node', [join(__dirname, 'build-index.mjs'), '--tag', indexRef], {
-    cwd: repoRoot,
-    stdio: 'inherit',
-  });
-  const after = readFileSync(indexPath, 'utf8');
-  if (after !== before) {
-    fail('regenerating index.json at its own pinned ref changed the file. A committed key reshaped, or the repo\'s tracked files under some skill folder changed since index.json was last generated. Run `node scripts/build-index.mjs --tag ' + indexRef + '` and commit the result if the change is intentional.');
-    // Leave the regenerated file in place so the diff is visible to whoever
-    // is debugging this locally; CI's checkout is discarded either way.
-  } else {
-    console.log('OK: index.json is byte-identical to a fresh regeneration at its own pinned ref.');
-    // No functional change, but avoid leaving a spurious mtime-only rewrite.
-    writeFileSync(indexPath, before);
+let parsed = null;
+try {
+  parsed = JSON.parse(before);
+} catch (err) {
+  fail(`index.json is not valid JSON: ${err.message}`);
+}
+
+if (parsed) {
+  let structural = 0;
+  for (const [slug, v] of Object.entries(parsed)) {
+    const bad = (msg) => { fail(`${slug}: ${msg}`); structural++; };
+    if (typeof v.installFolder !== 'string' || !v.installFolder) { bad('missing installFolder'); continue; }
+    if (typeof v.skillFilePath !== 'string' || !v.skillFilePath) { bad('missing skillFilePath'); continue; }
+    if (!Array.isArray(v.files) || v.files.length === 0) { bad('files is missing, not an array, or empty'); continue; }
+    if (`${v.installFolder}/${v.skillFilePath}` !== v.path) {
+      bad(`installFolder + skillFilePath ("${v.installFolder}/${v.skillFilePath}") does not reconstruct path ("${v.path}")`);
+      continue;
+    }
+    if (!v.files.includes(v.skillFilePath)) { bad(`files does not list its own skillFilePath (${v.skillFilePath})`); continue; }
+    const escaping = [v.installFolder, v.skillFilePath, ...v.files].find(
+      (p) => typeof p !== 'string' || TRAVERSAL.test(p)
+    );
+    if (escaping !== undefined) { bad(`manifest path escapes the install folder: ${escaping}`); continue; }
+  }
+  if (structural === 0) {
+    console.log(`OK: all ${Object.keys(parsed).length} entries satisfy the manifest invariants.`);
+  }
+}
+
+// --- Check 2: nothing previously published was removed or reshaped ---------
+
+if (indexRef && isSafeRef(indexRef) && parsed) {
+  let publishedRaw = null;
+  try {
+    publishedRaw = execFileSync('git', ['show', `${indexRef}:index.json`], {
+      cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+    });
+  } catch {
+    console.log(`Skipping the published-shape check: ${indexRef}:index.json is not available in this clone.`);
+  }
+  if (publishedRaw) {
+    const published = JSON.parse(publishedRaw);
+    let removed = 0;
+    for (const [slug, oldEntry] of Object.entries(published)) {
+      const nowEntry = parsed[slug];
+      if (!nowEntry) { fail(`entry "${slug}" was published at ${indexRef} and is gone from index.json`); removed++; continue; }
+      for (const key of Object.keys(oldEntry)) {
+        if (!(key in nowEntry)) {
+          fail(`entry "${slug}" lost the published key "${key}"`);
+          removed++;
+        } else if (Array.isArray(oldEntry[key]) !== Array.isArray(nowEntry[key]) || typeof oldEntry[key] !== typeof nowEntry[key]) {
+          fail(`entry "${slug}" key "${key}" changed JSON type since ${indexRef}`);
+          removed++;
+        }
+      }
+    }
+    if (removed === 0) {
+      console.log(`OK: every key published at ${indexRef} is still present with the same type.`);
+    }
+  }
+}
+
+// --- Check 1: regenerating at the pinned ref is byte-identical -------------
+
+if (indexRef && isSafeRef(indexRef)) {
+  const scratch = mkdtempSync(join(tmpdir(), 'check-index-'));
+  try {
+    const regenerated = join(scratch, 'index.json');
+    execFileSync('node', [join(__dirname, 'build-index.mjs'), '--tag', indexRef, '--out', regenerated], {
+      cwd: repoRoot,
+      stdio: 'inherit',
+    });
+    if (readFileSync(regenerated, 'utf8') !== before) {
+      fail(
+        `regenerating index.json at its pinned ref (${indexRef}) does not reproduce the committed file. ` +
+          `Run \`node scripts/build-index.mjs --tag ${indexRef}\` and commit the result if the change is intentional.`
+      );
+    } else {
+      console.log(`OK: index.json is byte-identical to a fresh regeneration at ${indexRef}.`);
+    }
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
   }
 }
 

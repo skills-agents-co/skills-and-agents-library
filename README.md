@@ -60,33 +60,54 @@ Every skill installs the same way: download one pinned tarball, extract the skil
   skill="resume-tailor"   # <-- change me to the skill's folder (see note below)
   ref="v1.28.0"            # pinned release; matches index.json's skillFileUrl
 
-  dest="$HOME/.claude/skills/$skill"
-  mkdir -p "$dest"
+  work="$(mktemp -d)"
+  trap 'rm -rf "$work"' EXIT
 
-  tarball="$(mktemp -t "${skill}.XXXXXX").tgz"
-  curl -fsSL --connect-timeout 10 --max-time 120 -o "$tarball" \
+  curl -fsSL --connect-timeout 10 --max-time 120 -o "$work/repo.tgz" \
     "https://codeload.github.com/skills-agents-co/skills-and-agents-library/tar.gz/$ref"
 
-  topdir="$(tar -tzf "$tarball" | grep -m1 '/' | cut -d/ -f1)"
-  tar -xzf "$tarball" --strip-components=2 --no-same-owner --no-same-permissions \
-    -C "$dest" "$topdir/$skill"
-  rm -f "$tarball"
+  mkdir -p "$work/staged"
+  topdir="$(tar -tzf "$work/repo.tgz" | grep -m1 '/' | cut -d/ -f1)"
+  tar -xzf "$work/repo.tgz" --strip-components=2 --no-same-owner --no-same-permissions \
+    -C "$work/staged" "$topdir/$skill"
+
+  dest="$HOME/.claude/skills/$skill"
+  rm -rf "$dest"
+  mkdir -p "$(dirname "$dest")"
+  cp -R "$work/staged" "$dest"
 
   echo "Installed to $dest"
 )
 ```
 
-The block runs in a subshell (the parens) so `skill`, `ref`, and the other variables it sets do not leak into your shell, and `set -e` inside it means a failed download or a bad skill name stops the install instead of leaving a half-populated directory that looks successful.
+The block runs in a subshell (the parens) so `skill`, `ref`, and the other variables it sets do not leak into your shell, and `set -e` inside it means a failed download or a bad skill name stops the install instead of leaving a half-populated directory that looks successful. It downloads and unpacks into a scratch directory first and only touches `~/.claude/skills/` once the extraction has succeeded, so a failed install leaves nothing behind: no empty skill folder for Claude Code to find, and no stray tarball. Re-running it replaces the install rather than merging into it, so a file dropped from a later release does not survive as a stale leftover.
 
 **What to put in `skill`.** For almost every entry it is the folder name shown in the table above (`resume-tailor`, `ceo-todo`, and so on) — which is also the slug. It is **not** the slug for the four agents that ship inside another skill's folder: `ceo-todo-daily` installs as `skill="ceo-todo"`, and `financial-pulse-grasshopper`, `financial-pulse-mercury`, and `financial-pulse-ramp` all install as `skill="financial-pulse"`. Installing one of those pulls in the whole parent skill (including its other agents), which is expected — the agent file itself is the payload you actually run.
+
+**Installing an agent takes one more step.** Claude Code loads subagents from `~/.claude/agents/`, not from inside a skill folder, so the four agent entries above need their markdown copied out after the install block runs. Otherwise the file is on disk and the agent still does not register:
+
+```bash
+(
+  set -e
+  agent="ceo-todo-daily"   # <-- or financial-pulse-grasshopper / -mercury / -ramp
+  skill="ceo-todo"         # <-- the folder it ships in, per the paragraph above
+
+  mkdir -p "$HOME/.claude/agents"
+  cp "$HOME/.claude/skills/$skill/agents/$agent.md" "$HOME/.claude/agents/$agent.md"
+  echo "Installed agent to $HOME/.claude/agents/$agent.md"
+)
+```
 
 The fastest path is **[skillsandagents.co](https://skillsandagents.co)** — every skill's catalog page will generate this exact pinned command for you, copy-paste ready, once the catalog site adopts the manifest this repo now publishes. Until then it still generates the older single-file command, so the command above is the one to use by hand in the meantime.
 
 > Two skills nest their `SKILL.md` one level deeper: `ads-copilot` and `financial-pulse`. The command above still extracts their whole folder correctly, but `SKILL.md` lands at `$dest/skills/<skill-name>/SKILL.md` instead of at the top, where Claude Code looks for it. Run this once more, right after the block above, for those two:
 >
 > ```bash
-> skill="ads-copilot"   # or "financial-pulse"
-> mv "$HOME/.claude/skills/$skill/skills/$skill/SKILL.md" "$HOME/.claude/skills/$skill/SKILL.md"
+> (
+>   set -e
+>   skill="ads-copilot"   # or "financial-pulse"
+>   mv "$HOME/.claude/skills/$skill/skills/$skill/SKILL.md" "$HOME/.claude/skills/$skill/SKILL.md"
+> )
 > ```
 >
 > `references/` and `scripts/` are already siblings of the moved `SKILL.md`, which is where its own text expects them. Every other skill in this repo is flat and needs no extra step.
@@ -139,7 +160,11 @@ Cutting a release:
 
 1. Bump `version` in frontmatter for any changed `SKILL.md`.
 2. Tag: `git tag v1.x.0 && git push origin v1.x.0`.
-3. Rebuild the index: `node scripts/build-index.mjs --tag v1.x.0` and commit.
+3. Rebuild the index: `node scripts/build-index.mjs --tag v1.x.0`.
+4. **In the same commit**, bump the `ref="v1.x.0"` line in the install block above to the new tag. `scripts/check-index-additive.mjs` fails the build if the README's ref and `index.json`'s ref disagree, so this is not optional and CI will say so.
+5. Commit the regenerated `index.json` and the README together.
+
+`index.json` describes the tagged release, not your checkout: `build-index.mjs --tag v1.x.0` reads the repo's contents at that tag when your clone has it, and `scripts/test-install.sh` verifies the published `files` manifest against that same tag's tarball. That is why a pull request adding a file inside a skill folder does not need to regenerate `index.json` — the new file joins the manifest at the next release, and until then both checks are looking at the same snapshot. Add `--worktree` if you deliberately want to generate against your working tree instead.
 
 ## License
 

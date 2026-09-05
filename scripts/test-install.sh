@@ -39,29 +39,20 @@ TOTAL=0
 
 # --- 1. Read and validate the ref out of index.json --------------------------
 #
-# Every entry's skillFileUrl is pinned to the same ref. Extract it from the
-# first entry rather than typing one, so this script and README.md can never
-# drift from what index.json actually pins (that agreement is asserted
-# separately, in CI, by comparing README.md's fenced block to this same
-# field). Reject anything that is not a git-ref-safe token, and explicitly
-# reject ".." so a doctored index.json cannot steer the codeload fetch
-# outside the intended ref.
-REF=$(node -e '
-  const idx = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
-  const first = Object.values(idx)[0];
-  if (!first || typeof first.skillFileUrl !== "string") {
-    console.error("index.json has no entries with a skillFileUrl");
-    process.exit(1);
-  }
-  const m = first.skillFileUrl.match(
-    /^https:\/\/raw\.githubusercontent\.com\/skills-agents-co\/skills-and-agents-library\/([^/]+)\//
-  );
-  if (!m) {
-    console.error("could not extract a ref from skillFileUrl: " + first.skillFileUrl);
-    process.exit(1);
-  }
-  process.stdout.write(m[1]);
-' "$INDEX")
+# Every entry's skillFileUrl is pinned to the same ref. Read it through
+# scripts/lib/index-ref.mjs rather than carrying a second copy of the URL
+# regex here, so this script and check-index-additive.mjs cannot disagree
+# about what index.json pins after an org or URL change.
+#
+# TEST_INSTALL_REF overrides it. CI sets it to the pushed tag on a tag build,
+# so the tag users are actually told to install gets exercised against itself
+# instead of against whatever ref the committed index.json still names.
+if [[ -n "${TEST_INSTALL_REF:-}" ]]; then
+  REF="$TEST_INSTALL_REF"
+  echo "Ref overridden by TEST_INSTALL_REF"
+else
+  REF=$(node "$REPO_ROOT/scripts/lib/index-ref.mjs" index "$INDEX")
+fi
 
 if [[ -z "$REF" ]] || [[ ! "$REF" =~ ^[A-Za-z0-9._/-]+$ ]] || [[ "$REF" == *".."* ]]; then
   echo "Refusing to use unsafe ref extracted from index.json: '$REF'" >&2
@@ -75,7 +66,13 @@ echo "Ref: $REF"
 TARBALL="$SCRATCH_DIR/repo.tgz"
 TARBALL_URL="https://codeload.github.com/skills-agents-co/skills-and-agents-library/tar.gz/$REF"
 
-if ! curl -fsSL --connect-timeout 10 --max-time 120 -o "$TARBALL" "$TARBALL_URL"; then
+# TEST_INSTALL_TARBALL reuses an already-downloaded tarball for this same ref.
+# test-install-negative.mjs sets it so driving this script once per fixture
+# costs one codeload fetch for the whole suite instead of one per case.
+if [[ -n "${TEST_INSTALL_TARBALL:-}" && -s "${TEST_INSTALL_TARBALL}" ]]; then
+  TARBALL="$TEST_INSTALL_TARBALL"
+  echo "Reusing tarball: $TARBALL"
+elif ! curl -fsSL --connect-timeout 10 --max-time 120 -o "$TARBALL" "$TARBALL_URL"; then
   echo "Failed to download tarball: $TARBALL_URL" >&2
   exit 1
 fi
@@ -105,9 +102,17 @@ MANIFEST=$(node -e '
     if (v.files.length === 0) { console.log(["BAD", slug, "files array is empty"].join("\t")); continue; }
     if (!v.installFolder || typeof v.installFolder !== "string") { console.log(["BAD", slug, "missing installFolder"].join("\t")); continue; }
     if (!v.skillFilePath || typeof v.skillFilePath !== "string") { console.log(["BAD", slug, "missing skillFilePath"].join("\t")); continue; }
-    const suspects = [v.installFolder, v.skillFilePath, ...v.files];
+    // slug is in this list because it is interpolated into the per-entry
+    // destination directory, which is then handed to rm -rf: a slug of
+    // "../.." would delete outside the scratch dir.
+    const suspects = [slug, v.installFolder, v.skillFilePath, ...v.files];
     const bad = suspects.find((p) => typeof p !== "string" || TRAVERSAL.test(p));
     if (bad !== undefined) { console.log(["BAD", slug, "path traversal in manifest: " + bad].join("\t")); continue; }
+    // The line protocol below is tab-separated, \x1f-joined, newline-terminated,
+    // and git preserves all three characters in a filename. Reject them rather
+    // than letting one entry split into two malformed records.
+    const delim = suspects.find((p) => /[\n\t\x1f]/.test(p));
+    if (delim !== undefined) { console.log(["BAD", slug, "manifest path contains a newline, tab, or \\x1f: " + JSON.stringify(delim)].join("\t")); continue; }
     console.log(["OK", slug, v.installFolder, v.skillFilePath, v.files.join(US)].join("\t"));
   }
 ' "$INDEX")
@@ -117,19 +122,24 @@ MANIFEST=$(node -e '
 extract_dir="$SCRATCH_DIR/out"
 mkdir -p "$extract_dir"
 
-while IFS=$'\t' read -r status slug a b c; do
+# field1/field2/field3 carry different things depending on $status: for a BAD
+# line field1 is the rejection reason and the rest are empty; for an OK line
+# they are installFolder, skillFilePath, and the \x1f-joined files list. They
+# are named positionally here and immediately given meaningful names below, so
+# no one variable silently means two things inside the loop body.
+while IFS=$'\t' read -r status slug field1 field2 field3; do
   [[ -z "$status" ]] && continue
   TOTAL=$((TOTAL + 1))
 
   if [[ "$status" == "BAD" ]]; then
-    echo "FAIL $slug: $a" >&2
+    echo "FAIL $slug: $field1" >&2
     FAIL=$((FAIL + 1))
     continue
   fi
 
-  installFolder="$a"
-  skillFilePath="$b"
-  IFS=$'\x1f' read -r -a files <<< "$c"
+  installFolder="$field1"
+  skillFilePath="$field2"
+  IFS=$'\x1f' read -r -a files <<< "$field3"
 
   dest="$extract_dir/$slug"
   rm -rf "$dest"
@@ -195,6 +205,10 @@ while IFS=$'\t' read -r status slug a b c; do
     echo "FAIL $slug: $reason" >&2
     FAIL=$((FAIL + 1))
   fi
+
+  # Free this entry's extraction before the next one. Otherwise all 45
+  # installed skill folders sit on disk until the EXIT trap fires.
+  rm -rf "$dest"
 done <<< "$MANIFEST"
 
 echo ""

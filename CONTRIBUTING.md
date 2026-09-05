@@ -88,10 +88,13 @@ Before approving a skill that adds or changes a contract:
 ## Local checks
 
 ```bash
-node scripts/build-index.mjs --tag main   # regenerates index.json against main
-bash scripts/test-install.sh              # installs every entry from its pinned tarball and checks the manifest arrived
-node scripts/test-install-negative.mjs    # proves the check above can fail, against fixtures in scripts/test-fixtures/test-install/
-node scripts/check-index-additive.mjs     # index.json stays additive at its own pinned ref; README's ref agrees with it
+bash scripts/test-install.sh                 # installs every entry from its pinned tarball and checks the manifest arrived
+node scripts/test-install-negative.mjs       # proves the check above can fail, against generated fixtures
+node scripts/check-index-additive.mjs        # index.json stays additive at its own pinned ref; README's ref agrees with it
+node scripts/test-check-index-additive.mjs   # proves that checker can fail, against generated fixtures
+bash scripts/test-readme-install.sh          # runs the README's documented install command as written
 ```
 
-`scripts/test-install.sh` also takes an optional first argument, an alternate `index.json` path, used by `test-install-negative.mjs` to point it at doctored fixture copies without touching the real index.
+**You do not normally regenerate `index.json`.** It describes the last tagged release, not your working tree: `scripts/build-index.mjs --tag v1.x.0` reads the repo's contents at that tag, and `scripts/test-install.sh` verifies the published manifest against that same tag's tarball. Adding a file inside a skill folder in a pull request therefore does not require an index change — the file joins the manifest when the next release is cut. Regenerating is a release step, documented in `README.md` under "Cutting a release", and `--worktree` is there if you deliberately want to generate against your checkout instead.
+
+`scripts/test-install.sh` also takes an optional first argument, an alternate `index.json` path, used by `test-install-negative.mjs` to point it at doctored fixtures without touching the real index. It reads two environment variables for the same reason: `TEST_INSTALL_REF` overrides the ref (CI sets it to the pushed tag on a tag build) and `TEST_INSTALL_TARBALL` reuses an already-downloaded tarball so the fixture suite costs one codeload fetch rather than one per case.

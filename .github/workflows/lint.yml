@@ -104,6 +104,12 @@ jobs:
       - name: Test the backlink checker against its fixtures
         run: node scripts/test-check-backlinks.mjs
 
+      - name: Test the shared index-ref library
+        run: node scripts/test-index-ref.mjs
+
+      - name: Test the index builder against its fixtures
+        run: node scripts/test-build-index.mjs
+
       - name: index.json stays additive, and README's ref matches it
         run: node scripts/check-index-additive.mjs
 
@@ -113,6 +119,12 @@ jobs:
       # On a tag push, verify the tag that was just pushed rather than
       # whatever ref the committed index.json still names. On a PR or a push
       # to main the ref comes from index.json as usual.
+      #
+      # These are the same value on a correctly-cut release: the documented
+      # release order commits the regenerated index.json FIRST and places the
+      # tag on that commit, so the tag build checks the tag's manifest against
+      # the tag's own tarball. The override is what catches a release cut in
+      # the wrong order, where they would differ.
       - name: Install smoke test
         run: bash scripts/test-install.sh
         env:

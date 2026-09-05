@@ -75,7 +75,11 @@ function fixture(name, mutate) {
 
 const tarball = join(scratch, 'repo.tgz');
 const url = `https://codeload.github.com/skills-agents-co/skills-and-agents-library/tar.gz/${ref}`;
-const dl = spawnSync('curl', ['-fsSL', '--connect-timeout', '10', '--max-time', '120', '-o', tarball, url], {
+const dl = spawnSync('curl', [
+  '-fsSL', '--connect-timeout', '10', '--max-time', '120',
+  '--retry', '3', '--retry-delay', '2', '--retry-connrefused',
+  '-o', tarball, url,
+], {
   encoding: 'utf8', timeout: 180_000,
 });
 if (dl.status !== 0) {
@@ -83,11 +87,17 @@ if (dl.status !== 0) {
   process.exit(1);
 }
 
-function run(fixturePath) {
+function run(fixturePath, { shareTarball = true } = {}) {
+  // shareTarball: false makes the run do its own codeload fetch, which is the
+  // only way to exercise the live-download failure path. Every other case
+  // reuses the one tarball downloaded above.
+  const env = { ...process.env };
+  if (shareTarball) env.TEST_INSTALL_TARBALL = tarball;
+  else delete env.TEST_INSTALL_TARBALL;
   const res = spawnSync('bash', [script, fixturePath], {
     encoding: 'utf8',
     timeout: 180_000,
-    env: { ...process.env, TEST_INSTALL_TARBALL: tarball },
+    env,
   });
   return { code: res.status, out: (res.stdout || '') + (res.stderr || '') };
 }
@@ -169,9 +179,41 @@ const cases = [
         );
       }
     },
-    match: 'Refusing to use unsafe ref extracted from index.json',
+    match: 'Refusing to use unsafe ref',
     wantCode: 2,
     // Aborts before the per-entry loop, so there is no summary line to check.
+    noSummary: true,
+  },
+  {
+    name: 'empty-index',
+    label: 'an index.json with no entries at all',
+    // Without the TOTAL floor in test-install.sh this reports
+    // "Total: 0, Failures: 0" and exits 0 — a vacuous pass on the script's
+    // whole reason for existing. TEST_INSTALL_REF supplies the ref the empty
+    // index can no longer provide.
+    fixture: () => {
+      const path = join(scratch, 'empty-index.json');
+      writeFileSync(path, '{}\n');
+      return path;
+    },
+    env: { TEST_INSTALL_REF: ref },
+    match: 'no entries were checked',
+    wantCode: 1,
+    noSummary: true,
+  },
+  {
+    name: 'download-failure',
+    label: 'a pinned ref that codeload does not serve',
+    // The one case that does its own fetch: every other case reuses the shared
+    // tarball, so nothing else here ever executes the download-failure branch.
+    mutate: (e, idx) => {
+      for (const entry of Object.values(idx)) {
+        entry.skillFileUrl = entry.skillFileUrl.replace(/library\/[^/]+\//, 'library/v0.0.0-no-such-tag/');
+      }
+    },
+    shareTarball: false,
+    match: 'Failed to download tarball',
+    wantCode: 1,
     noSummary: true,
   },
 ];
@@ -179,8 +221,10 @@ const cases = [
 let failures = 0;
 
 for (const c of cases) {
-  const path = fixture(c.name, c.mutate);
-  const { code, out } = run(path);
+  const path = c.fixture ? c.fixture() : fixture(c.name, c.mutate);
+  if (c.env) Object.assign(process.env, c.env);
+  const { code, out } = run(path, { shareTarball: c.shareTarball !== false });
+  if (c.env) for (const k of Object.keys(c.env)) delete process.env[k];
 
   const problems = [];
   if (c.wantCode !== undefined) {

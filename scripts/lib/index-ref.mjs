@@ -6,31 +6,70 @@
  * copy of the regex (scripts/test-install.sh and scripts/check-index-additive.mjs),
  * so an org rename or a URL change could silently desynchronize them.
  *
- * Also usable as a CLI, which is how the bash script consumes it:
+ * It also owns the two other rules every one of those readers needs to agree
+ * on: what counts as a safe ref, and what counts as a manifest path that stays
+ * inside its install folder.
+ *
+ * Also usable as a CLI, which is how the bash scripts consume it:
  *
  *   node scripts/lib/index-ref.mjs index <path/to/index.json>   # prints the ref
  *   node scripts/lib/index-ref.mjs readme <path/to/README.md>   # prints the ref
+ *   node scripts/lib/index-ref.mjs safe-ref <ref>               # exit 0 if safe
  *
  * Exits 1 with a message on stderr when the ref cannot be found.
  */
 
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 export const REPO_SLUG = 'skills-agents-co/skills-and-agents-library';
 
-/** Matches the pinned ref in a raw.githubusercontent.com skillFileUrl. */
+/**
+ * Matches the pinned ref in a raw.githubusercontent.com skillFileUrl.
+ *
+ * REPO_SLUG's one "/" is already a literal in a regex, so it is embedded as-is
+ * rather than passed through a replace() that substitutes a character for
+ * itself. The earlier `.replace('/', '/')` read like escaping and did nothing.
+ */
 export const SKILL_FILE_URL_RE = new RegExp(
-  '^https://raw\\.githubusercontent\\.com/' + REPO_SLUG.replace('/', '/') + '/([^/]+)/'
+  '^https://raw\\.githubusercontent\\.com/' + REPO_SLUG + '/([^/]+)/'
 );
 
-/** A ref this repo is willing to put in a URL: git-ref-safe, and no "..". */
+/**
+ * A ref this repo is willing to put in a URL or hand to git: git-ref-safe, no
+ * "..", and it must start with an alphanumeric. That last rule is what keeps a
+ * value like "-x" or "--upload-pack=..." from reaching git as an option rather
+ * than as a ref.
+ */
 export function isSafeRef(ref) {
-  return typeof ref === 'string' && ref.length > 0 && /^[A-Za-z0-9._/-]+$/.test(ref) && !ref.includes('..');
+  return (
+    typeof ref === 'string' &&
+    /^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(ref) &&
+    !ref.includes('..')
+  );
 }
 
 /**
- * The ref index.json pins, read off the first entry's skillFileUrl. Every
- * entry carries the same ref, so the first is representative.
+ * A manifest path that escapes its install folder, or names a directory rather
+ * than a file: absolute, or holding a "." or ".." segment. Shared so
+ * build-index.mjs (which refuses to write one) and check-index-additive.mjs
+ * (which refuses to accept one) cannot drift apart on the definition.
+ */
+export const TRAVERSAL = /(^\/)|(^|\/)\.\.?(\/|$)/;
+
+/** True when `p` is a non-empty string that stays inside its install folder. */
+export function isSafeManifestPath(p) {
+  return typeof p === 'string' && p.length > 0 && !TRAVERSAL.test(p);
+}
+
+/**
+ * The ref index.json pins, read off its entries' skillFileUrl.
+ *
+ * Every entry is expected to carry the same ref. Reading only the first and
+ * assuming the rest agree is how a half-regenerated index.json would go
+ * unnoticed, so all entries are checked and a disagreement returns null rather
+ * than an arbitrary winner.
+ *
  * Returns null when it cannot be determined.
  */
 export function refFromIndex(indexJsonText) {
@@ -40,10 +79,18 @@ export function refFromIndex(indexJsonText) {
   } catch {
     return null;
   }
-  const first = Object.values(idx)[0];
-  if (!first || typeof first.skillFileUrl !== 'string') return null;
-  const m = first.skillFileUrl.match(SKILL_FILE_URL_RE);
-  return m ? m[1] : null;
+  if (!idx || typeof idx !== 'object') return null;
+  const entries = Object.values(idx);
+  if (entries.length === 0) return null;
+  let ref = null;
+  for (const entry of entries) {
+    if (!entry || typeof entry.skillFileUrl !== 'string') return null;
+    const m = entry.skillFileUrl.match(SKILL_FILE_URL_RE);
+    if (!m) return null;
+    if (ref === null) ref = m[1];
+    else if (ref !== m[1]) return null;
+  }
+  return ref;
 }
 
 /**
@@ -66,19 +113,34 @@ export function refFromReadme(readmeText) {
 
 // --- CLI -------------------------------------------------------------------
 
-const isMain = process.argv[1] && process.argv[1].endsWith('index-ref.mjs');
+// Compare resolved URLs rather than matching the filename's suffix. The old
+// endsWith('index-ref.mjs') test also matched any importer whose own filename
+// ended the same way (scripts/test-index-ref.mjs did), so importing this
+// module from there ran the CLI and exited before a single test could run.
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const [mode, path] = process.argv.slice(2);
-  if (!mode || !path) {
-    console.error('Usage: node scripts/lib/index-ref.mjs <index|readme> <path>');
+  if (!mode || path === undefined) {
+    console.error('Usage: node scripts/lib/index-ref.mjs <index|readme|safe-ref> <path-or-ref>');
+    process.exit(2);
+  }
+  // safe-ref takes a ref rather than a file, so it answers before the read.
+  if (mode === 'safe-ref') {
+    if (!isSafeRef(path)) {
+      console.error(`Refusing to use unsafe ref: '${path}'`);
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+  // Validate the mode before touching the filesystem: an unknown mode with an
+  // unreadable path used to throw an ENOENT stack trace instead of saying which
+  // modes exist.
+  if (mode !== 'index' && mode !== 'readme') {
+    console.error(`Unknown mode "${mode}" (want "index", "readme", or "safe-ref")`);
     process.exit(2);
   }
   const text = readFileSync(path, 'utf8');
-  const ref = mode === 'index' ? refFromIndex(text) : mode === 'readme' ? refFromReadme(text) : undefined;
-  if (ref === undefined) {
-    console.error(`Unknown mode "${mode}" (want "index" or "readme")`);
-    process.exit(2);
-  }
+  const ref = mode === 'index' ? refFromIndex(text) : refFromReadme(text);
   if (!ref) {
     console.error(`Could not extract a ref from ${path}`);
     process.exit(1);

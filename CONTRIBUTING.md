@@ -92,9 +92,13 @@ bash scripts/test-install.sh                 # installs every entry from its pin
 node scripts/test-install-negative.mjs       # proves the check above can fail, against generated fixtures
 node scripts/check-index-additive.mjs        # index.json stays additive at its own pinned ref; README's ref agrees with it
 node scripts/test-check-index-additive.mjs   # proves that checker can fail, against generated fixtures
+node scripts/test-build-index.mjs            # index builder, against a throwaway git fixture repo (no network)
+node scripts/test-index-ref.mjs              # unit tests for the shared ref/path library (no network)
 bash scripts/test-readme-install.sh          # runs the README's documented install command as written
 ```
 
-**You do not normally regenerate `index.json`.** It describes the last tagged release, not your working tree: `scripts/build-index.mjs --tag v1.x.0` reads the repo's contents at that tag, and `scripts/test-install.sh` verifies the published manifest against that same tag's tarball. Adding a file inside a skill folder in a pull request therefore does not require an index change — the file joins the manifest when the next release is cut. Regenerating is a release step, documented in `README.md` under "Cutting a release", and `--worktree` is there if you deliberately want to generate against your checkout instead.
+**You do not normally regenerate `index.json`.** It describes the last tagged release, not your working tree: `scripts/build-index.mjs --tag v1.x.0` reads the repo's contents at that tag, and `scripts/test-install.sh` verifies the published manifest against that same tag's tarball. Adding a file inside a skill folder in a pull request therefore does not require an index change — the file joins the manifest when the next release is cut. Regenerating is a release step, documented in `README.md` under "Cutting a release".
+
+If the tag is not in your clone, `build-index.mjs` **fails** rather than quietly generating from your working tree instead — run `git fetch --tags`. Pass `--worktree` only when reading your checkout is what you actually want, which during a release is exactly once: at step 2, when the tag you are cutting does not exist yet.
 
 `scripts/test-install.sh` also takes an optional first argument, an alternate `index.json` path, used by `test-install-negative.mjs` to point it at doctored fixtures without touching the real index. It reads two environment variables for the same reason: `TEST_INSTALL_REF` overrides the ref (CI sets it to the pushed tag on a tag build) and `TEST_INSTALL_TARBALL` reuses an already-downloaded tarball so the fixture suite costs one codeload fetch rather than one per case.

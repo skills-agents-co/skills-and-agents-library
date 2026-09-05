@@ -54,8 +54,12 @@ else
   REF=$(node "$REPO_ROOT/scripts/lib/index-ref.mjs" index "$INDEX")
 fi
 
-if [[ -z "$REF" ]] || [[ ! "$REF" =~ ^[A-Za-z0-9._/-]+$ ]] || [[ "$REF" == *".."* ]]; then
-  echo "Refusing to use unsafe ref extracted from index.json: '$REF'" >&2
+# Validated by the same isSafeRef() the node scripts use, called through the
+# library's CLI. A bash retranscription of that regex right next to a library
+# that already exports it is how the two drift apart — and it meant the real
+# isSafeRef() was never executed by any test.
+if ! node "$REPO_ROOT/scripts/lib/index-ref.mjs" safe-ref "$REF"; then
+  echo "Refusing to use unsafe ref: '$REF'" >&2
   exit 2
 fi
 
@@ -72,7 +76,8 @@ TARBALL_URL="https://codeload.github.com/skills-agents-co/skills-and-agents-libr
 if [[ -n "${TEST_INSTALL_TARBALL:-}" && -s "${TEST_INSTALL_TARBALL}" ]]; then
   TARBALL="$TEST_INSTALL_TARBALL"
   echo "Reusing tarball: $TARBALL"
-elif ! curl -fsSL --connect-timeout 10 --max-time 120 -o "$TARBALL" "$TARBALL_URL"; then
+elif ! curl -fsSL --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 --retry-connrefused \
+    -o "$TARBALL" "$TARBALL_URL"; then
   echo "Failed to download tarball: $TARBALL_URL" >&2
   exit 1
 fi
@@ -97,6 +102,15 @@ MANIFEST=$(node -e '
   const US = "\x1f";
   const TRAVERSAL = /(^\/)|(^|\/)\.\.(\/|$)/;
   for (const [slug, v] of Object.entries(idx)) {
+    // The delimiter check comes FIRST, before any other BAD line can be
+    // emitted. Every line below (BAD lines included) is tab-separated and
+    // newline-terminated, so a slug carrying a tab or newline would split its
+    // own rejection message into two malformed records and be mis-parsed by
+    // the reader loop rather than reported.
+    if (typeof slug !== "string" || /[\n\t\x1f]/.test(slug)) {
+      console.log(["BAD", "<unprintable slug>", "slug contains a newline, tab, or \\x1f: " + JSON.stringify(slug)].join("\t"));
+      continue;
+    }
     if (!("files" in v)) { console.log(["BAD", slug, "index.json entry has no files key"].join("\t")); continue; }
     if (!Array.isArray(v.files)) { console.log(["BAD", slug, "files is not an array"].join("\t")); continue; }
     if (v.files.length === 0) { console.log(["BAD", slug, "files array is empty"].join("\t")); continue; }
@@ -213,4 +227,14 @@ done <<< "$MANIFEST"
 
 echo ""
 echo "Total: $TOTAL, Failures: $FAIL"
+
+# An empty or emptied index.json would otherwise report "Total: 0, Failures: 0"
+# and exit 0 — a vacuous pass on this script's whole reason for existing. The
+# check is a floor, not the real count, so it does not need updating as skills
+# are added.
+if [[ $TOTAL -lt 1 ]]; then
+  echo "FAIL: no entries were checked. index.json is empty, or every entry was skipped." >&2
+  exit 1
+fi
+
 [[ $FAIL -eq 0 ]]

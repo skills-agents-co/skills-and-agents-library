@@ -9,14 +9,22 @@
  * (name, description, optional license). The richer catalog metadata
  * (category, tags, runbook) lives in the catalog site, not here.
  *
+ * --tag names the git ref whose *content* is read, not merely a label stamped
+ * into the emitted URLs. `--tag v1.2.3` reads every file as it exists at
+ * v1.2.3, so the manifest describes that release's tarball rather than
+ * whatever happens to be in your checkout. If the ref is not present in this
+ * clone the script fails; pass --worktree to deliberately read the working
+ * tree instead (the ref still labels the URLs).
+ *
  * Usage:
- *   node scripts/build-index.mjs --tag v1.0.0
+ *   node scripts/build-index.mjs --tag v1.0.0 [--out <path>] [--worktree]
  */
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { isSafeRef, isSafeManifestPath } from './lib/index-ref.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
@@ -63,28 +71,38 @@ function refResolves(ref) {
  * additive check, and the regenerated manifest then named a file the released
  * tarball could not contain.
  *
- * --worktree forces the old behavior, which is what you want at release time
- * for a tag that exists only on the remote, or in a shallow clone.
+ * --worktree forces the working-tree read, which is what you want at release
+ * time for a tag that exists only on the remote, or in a shallow clone.
+ *
+ * When --tag names a ref this clone does NOT have, this is a hard failure, not
+ * a fallback. An earlier version warned and read the working tree anyway,
+ * which silently recreated the deadlock described above with no signal that it
+ * had happened — and left the remediation message telling the user to run the
+ * exact command that recreated it. Falling back to a different snapshot than
+ * the one asked for is the failure mode, so it fails loudly instead. Reading
+ * the working tree is still available, but only by asking for it.
  *
  * Either way the listing comes from git, never a filesystem walk: no untracked
  * junk (.DS_Store, __pycache__), no accidentally-published secrets, and no
  * symlink-cycle hazard, all by construction rather than by a deny-list.
  */
 function makeSource({ tag, worktree }) {
-  const useRef = !worktree && tag && refResolves(tag);
-  if (!useRef && !worktree) {
-    console.warn(
-      `Warning: ref "${tag}" does not resolve in this clone, so index.json is being ` +
-        'generated from the working tree. Run `git fetch --tags` if that is not what you want.'
+  const useRef = !worktree;
+  if (useRef && !refResolves(tag)) {
+    console.error(
+      `Ref "${tag}" does not resolve in this clone, so index.json cannot be generated at it.\n` +
+        'Run `git fetch --tags` (or `git fetch --unshallow` in a shallow clone) and try again.\n' +
+        'Pass --worktree if you deliberately want to generate from the working tree instead.'
     );
+    process.exit(1);
   }
   let listOut;
   try {
     listOut = useRef
-      ? execFileSync('git', ['ls-tree', '-r', '-z', '--name-only', tag], {
+      ? execFileSync('git', ['ls-tree', '-r', '-z', '--name-only', tag, '--'], {
           cwd: repoRoot, encoding: 'utf8', maxBuffer: GIT_MAX_BUFFER,
         })
-      : execFileSync('git', ['ls-files', '-z'], {
+      : execFileSync('git', ['ls-files', '-z', '--'], {
           cwd: repoRoot, encoding: 'utf8', maxBuffer: GIT_MAX_BUFFER,
         });
   } catch (err) {
@@ -268,13 +286,19 @@ function filesUnder(sourceFiles, installFolder) {
   return sourceFiles.filter((p) => p.startsWith(prefix)).map((p) => p.slice(prefix.length)).sort();
 }
 
-/** Nothing this script publishes may escape its own install folder. */
-const TRAVERSAL = /(^\/)|(^|\/)\.\.(\/|$)/;
-
 function main() {
   const { tag, out, worktree } = parseArgs(process.argv.slice(2));
   if (!tag) {
     console.error('Usage: build-index.mjs --tag <tag> [--out <path>] [--worktree]');
+    process.exit(2);
+  }
+  // The tag is interpolated into every published URL and handed to git as a
+  // ref, so it is validated before either happens.
+  if (!isSafeRef(tag)) {
+    console.error(
+      `Refusing to use an unsafe ref: "${tag}". A ref must start with a letter or digit, ` +
+        'contain only [A-Za-z0-9._/-], and hold no "..".'
+    );
     process.exit(2);
   }
 
@@ -300,8 +324,11 @@ function main() {
     const skillFilePath = relPath.slice(installFolder.length + 1);
     const files = filesUnder(source.files, installFolder);
 
-    for (const p of [installFolder, skillFilePath, ...files]) {
-      if (typeof p !== 'string' || p === '' || TRAVERSAL.test(p)) {
+    // slug is checked alongside the paths: consumers interpolate it into a
+    // destination directory, so a slug of "." or ".." is as dangerous there as
+    // a traversal inside the manifest itself.
+    for (const p of [entry.slug, installFolder, skillFilePath, ...files]) {
+      if (!isSafeManifestPath(p)) {
         console.error(`Refusing to write a manifest path that escapes its install folder: "${p}" (entry ${entry.slug})`);
         process.exit(1);
       }

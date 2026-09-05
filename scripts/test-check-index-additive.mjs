@@ -123,6 +123,65 @@ const cases = [
     wantCode: 1,
     match: 'manifest path escapes the install folder',
   },
+  {
+    name: 'index.json is not valid JSON',
+    index: () => writeFixture('not-json.json', '{ this is not json'),
+    readme: () => realReadmePath,
+    wantCode: 1,
+    match: 'index.json is not valid JSON',
+  },
+  {
+    name: 'an entry lost its installFolder',
+    index: () => indexFixture('no-install-folder.json', (idx) => { delete idx[firstSlug].installFolder; }),
+    readme: () => realReadmePath,
+    wantCode: 1,
+    match: `${firstSlug}: missing installFolder`,
+  },
+  {
+    name: 'an entry lost its skillFilePath',
+    index: () => indexFixture('no-skill-file-path.json', (idx) => { delete idx[firstSlug].skillFilePath; }),
+    readme: () => realReadmePath,
+    wantCode: 1,
+    match: `${firstSlug}: missing skillFilePath`,
+  },
+  {
+    name: 'an entry has an empty files array',
+    index: () => indexFixture('empty-files.json', (idx) => { idx[firstSlug].files = []; }),
+    readme: () => realReadmePath,
+    wantCode: 1,
+    match: `${firstSlug}: files is missing, not an array, or empty`,
+  },
+  {
+    name: 'files no longer lists the entry\'s own skill file',
+    index: () => indexFixture('files-without-skill-file.json', (idx) => {
+      const e = idx[firstSlug];
+      e.files = e.files.filter((f) => f !== e.skillFilePath);
+    }),
+    readme: () => realReadmePath,
+    wantCode: 1,
+    match: 'files does not list its own skillFilePath',
+  },
+  {
+    name: 'entries disagree about which ref they pin (a half-regenerated index)',
+    index: () => indexFixture('mixed-refs.json', (idx) => {
+      const other = Object.keys(idx).find((k) => k !== firstSlug);
+      idx[other].skillFileUrl = idx[other].skillFileUrl.replace(/library\/[^/]+\//, 'library/v0.0.1/');
+    }),
+    readme: () => realReadmePath,
+    wantCode: 1,
+    match: 'could not read a single pinned ref from index.json',
+  },
+  {
+    name: 'index.json pins a ref that is not git-ref-safe',
+    index: () => indexFixture('unsafe-ref.json', (idx) => {
+      for (const e of Object.values(idx)) {
+        e.skillFileUrl = e.skillFileUrl.replace(/library\/[^/]+\//, 'library/..%2f../');
+      }
+    }),
+    readme: () => realReadmePath,
+    wantCode: 1,
+    match: 'pins a ref that is not git-ref-safe',
+  },
 ];
 
 let failures = 0;

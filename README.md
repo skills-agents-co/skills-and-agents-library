@@ -60,10 +60,17 @@ Every skill installs the same way: download one pinned tarball, extract the skil
   skill="resume-tailor"   # <-- change me to the skill's folder (see note below)
   ref="v1.28.0"            # pinned release; matches index.json's skillFileUrl
 
+  # The install removes "$HOME/.claude/skills/$skill" before it copies. If
+  # $skill were empty or a path, that line would delete the wrong directory —
+  # every skill you have installed — so refuse anything but a plain name.
+  case "$skill" in
+    ""|.|..|*/*|-*) echo "Set skill to a plain folder name, e.g. resume-tailor" >&2; exit 1 ;;
+  esac
+
   work="$(mktemp -d)"
   trap 'rm -rf "$work"' EXIT
 
-  curl -fsSL --connect-timeout 10 --max-time 120 -o "$work/repo.tgz" \
+  curl -fsSL --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 -o "$work/repo.tgz" \
     "https://codeload.github.com/skills-agents-co/skills-and-agents-library/tar.gz/$ref"
 
   mkdir -p "$work/staged"
@@ -91,6 +98,10 @@ The block runs in a subshell (the parens) so `skill`, `ref`, and the other varia
   set -e
   agent="ceo-todo-daily"   # <-- or financial-pulse-grasshopper / -mercury / -ramp
   skill="ceo-todo"         # <-- the folder it ships in, per the paragraph above
+
+  case "$agent$skill" in
+    ""|*/*) echo "Set agent and skill to plain names, e.g. ceo-todo-daily / ceo-todo" >&2; exit 1 ;;
+  esac
 
   mkdir -p "$HOME/.claude/agents"
   cp "$HOME/.claude/skills/$skill/agents/$agent.md" "$HOME/.claude/agents/$agent.md"
@@ -158,13 +169,17 @@ This repo doubles as a working reference for how we package skills:
 
 Cutting a release:
 
-1. Bump `version` in frontmatter for any changed `SKILL.md`.
-2. Tag: `git tag v1.x.0 && git push origin v1.x.0`.
-3. Rebuild the index: `node scripts/build-index.mjs --tag v1.x.0`.
-4. **In the same commit**, bump the `ref="v1.x.0"` line in the install block above to the new tag. `scripts/check-index-additive.mjs` fails the build if the README's ref and `index.json`'s ref disagree, so this is not optional and CI will say so.
-5. Commit the regenerated `index.json` and the README together.
+The index is committed **before** the tag is placed, not after. Tagging first would leave the tag's own tarball carrying the *previous* release's `index.json`, so the manifest a user downloads would never describe the download it came in.
 
-`index.json` describes the tagged release, not your checkout: `build-index.mjs --tag v1.x.0` reads the repo's contents at that tag when your clone has it, and `scripts/test-install.sh` verifies the published `files` manifest against that same tag's tarball. That is why a pull request adding a file inside a skill folder does not need to regenerate `index.json` — the new file joins the manifest at the next release, and until then both checks are looking at the same snapshot. Add `--worktree` if you deliberately want to generate against your working tree instead.
+1. Bump `version` in frontmatter for any changed `SKILL.md`.
+2. Rebuild the index for the tag you are about to cut: `node scripts/build-index.mjs --tag v1.x.0 --worktree`. `--worktree` is required here and only here — the tag does not exist yet, so there is no ref to read content from, and the working tree is what is about to become that tag.
+3. **In the same commit**, bump the `ref="v1.x.0"` line in the install block above to the new tag. `scripts/check-index-additive.mjs` fails the build if the README's ref and `index.json`'s ref disagree, so this is not optional and CI will say so.
+4. Commit the regenerated `index.json` and the README together.
+5. Tag that commit and push both: `git tag v1.x.0 && git push origin main v1.x.0`.
+
+Because the tag lands on the commit that already holds the matching `index.json`, the tag-push build checks the tag against its own manifest rather than against the last release's, and re-running `node scripts/build-index.mjs --tag v1.x.0` afterwards reproduces the committed file byte for byte.
+
+`index.json` describes the tagged release, not your checkout: `build-index.mjs --tag v1.x.0` reads the repo's contents **at that tag**, and `scripts/test-install.sh` verifies the published `files` manifest against that same tag's tarball. That is why a pull request adding a file inside a skill folder does not need to regenerate `index.json` — the new file joins the manifest at the next release, and until then both checks are looking at the same snapshot. If the tag is not in your clone the build fails rather than quietly reading your working tree instead; run `git fetch --tags`, or pass `--worktree` when reading the working tree is what you actually want.
 
 ## License
 

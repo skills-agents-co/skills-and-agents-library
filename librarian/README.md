@@ -6,6 +6,7 @@ in quotes from the meetings it came from. Files-first, no live search, no extern
 licensed.
 
 - **Live directory:** https://skillsandagents.co
+- **Catalog page:** https://skillsandagents.co/skills/librarian/
 - **License:** [MIT](../LICENSE)
 
 ## Credit

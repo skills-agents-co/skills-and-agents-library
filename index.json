@@ -385,7 +385,7 @@
     "category": "",
     "tags": [],
     "version": "",
-    "evalContractVersion": "1.0.0",
+    "evalContractVersion": "1.1.0",
     "author": "Skills and Agents Co",
     "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.29.0/librarian/SKILL.md",
     "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.29.0/librarian",

@@ -58,7 +58,7 @@ Every skill installs the same way: download one pinned tarball, extract the skil
 (
   set -e
   skill="resume-tailor"   # <-- change me to the skill's folder (see note below)
-  ref="v1.28.0"            # pinned release; matches index.json's skillFileUrl
+  ref="v1.31.0"            # pinned release; matches index.json's skillFileUrl
 
   # The install removes "$HOME/.claude/skills/$skill" before it copies. If
   # $skill were empty or a path, that line would delete the wrong directory —

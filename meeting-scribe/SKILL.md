@@ -32,7 +32,9 @@ frozen template) with carry-forward of open action items across meetings, use `m
 `meeting-memo` for the notes your team reads, run `meeting-scribe` to keep your people/company/project
 files current. Nothing stops you running both against the same transcript. For pre-meeting prep instead
 — a dated brief on who's about to be in the room, before the meeting happens — use
-[`../calendar-agent/SKILL.md`](../calendar-agent/SKILL.md).
+[`../calendar-agent/SKILL.md`](../calendar-agent/SKILL.md). A fourth sibling, the `librarian` skill,
+runs periodically across everything already recorded here and turns the ideas that keep recurring
+across your meeting notes into short post drafts.
 
 ## Untrusted input
 

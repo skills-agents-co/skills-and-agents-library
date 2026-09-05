@@ -40,7 +40,6 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(__dirname, '..');
 
 const TAG = 'v9.9.9';
 
@@ -51,8 +50,24 @@ process.on('exit', () => rmSync(scratch, { recursive: true, force: true }));
 
 const fixture = join(scratch, 'repo');
 
+// The fixture must not inherit the developer's own git configuration: a global
+// commit.gpgsign, a core.hooksPath pointing at a hook that rejects the commit,
+// or a templatedir would make these tests fail for reasons that have nothing to
+// do with build-index.mjs. Every invocation is isolated the same way, including
+// `git init`.
+const GIT_ISOLATION = [
+  '-c', 'commit.gpgsign=false',
+  '-c', 'tag.gpgsign=false',
+  '-c', 'core.hooksPath=/dev/null',
+  '-c', 'init.templateDir=',
+];
+
 function git(...args) {
-  const res = spawnSync('git', args, { cwd: fixture, encoding: 'utf8' });
+  const res = spawnSync('git', [...GIT_ISOLATION, ...args], {
+    cwd: fixture,
+    encoding: 'utf8',
+    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null' },
+  });
   if (res.status !== 0) {
     console.error(`fixture git ${args.join(' ')} failed: ${res.stderr || res.stdout}`);
     process.exit(1);
@@ -164,6 +179,22 @@ check('the three layouts each produce one correctly-shaped entry', (want) => {
   want(nested.installFolder === 'nested-pack', `nested installFolder was ${nested.installFolder}`);
   want(nested.skillFilePath === 'skills/nested-skill/SKILL.md', `nested skillFilePath was ${nested.skillFilePath}`);
   want(nested.files.includes('references/guide.md'), 'nested manifest lost the sibling references file');
+
+  // Derived CONTENT, not just structure. Everything above could be right while
+  // name/description/version were read out of the wrong file, or off by one
+  // entry, and the structural assertions would not notice — which is exactly
+  // the class of bug check-index-additive.mjs's self-comparison cannot see
+  // either. These values come straight from the fixture's own frontmatter.
+  want(flat.name === 'flat-skill', `flat name was ${JSON.stringify(flat.name)}`);
+  want(flat.description === 'A flat skill.', `flat description was ${JSON.stringify(flat.description)}`);
+  want(flat.version === '1.0.0', `flat version was ${JSON.stringify(flat.version)}`);
+
+  want(nested.name === 'nested-skill', `nested name was ${JSON.stringify(nested.name)}`);
+  want(
+    nested.description === 'A nested skill.',
+    `nested description was ${JSON.stringify(nested.description)} — a derivation that read the wrong SKILL.md would land here`
+  );
+  want(nested.version === '1.0.0', `nested version was ${JSON.stringify(nested.version)}`);
 
   const agent = index['helper-agent'];
   want(agent.kind === 'agent', `agent kind was ${agent.kind}`);

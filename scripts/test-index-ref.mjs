@@ -15,6 +15,8 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isSafeRef, isSafeManifestPath, refFromIndex, refFromReadme } from './lib/index-ref.mjs';
@@ -40,10 +42,14 @@ function entry(ref) {
 }
 
 check('isSafeRef accepts real refs and rejects the dangerous shapes', (want) => {
-  for (const good of ['v1.28.0', 'main', 'release/v2', 'abc123def', '1.0.0-rc.1']) {
+  for (const good of ['v1.28.0', 'main', 'abc123def', '1.0.0-rc.1']) {
     want(isSafeRef(good) === true, `rejected a valid ref: ${good}`);
   }
-  for (const bad of ['', '-x', '--upload-pack=evil', '../etc', 'a..b', 'v1;rm -rf /', 'has space', null, undefined, 42]) {
+  // A ref containing "/" is rejected on purpose: SKILL_FILE_URL_RE captures a
+  // single path segment, so "release/v2" would validate here, be published into
+  // a URL, and then read back as "release" — the two rules have to agree.
+  for (const bad of ['', '-x', '--upload-pack=evil', '../etc', 'a..b', 'v1;rm -rf /', 'has space',
+    'release/v2', 'refs/heads/x', null, undefined, 42]) {
     want(isSafeRef(bad) === false, `accepted an unsafe ref: ${JSON.stringify(bad)}`);
   }
 });
@@ -93,6 +99,33 @@ check('the CLI arm exits the way test-install.sh depends on', (want) => {
   want(run('safe-ref', '').status === 1, 'safe-ref accepted an empty ref');
   want(run('bogus-mode', 'x').status === 2, 'an unknown mode did not exit 2');
   want(run().status === 2, 'a missing mode did not exit 2');
+});
+
+check('the CLI still runs when invoked through a symlink', (want) => {
+  // The isMain self-check compares import.meta.url to argv[1]. Node resolves
+  // the entry module through realpath and argv[1] stays as typed, so before
+  // realpathSync() was added the two differed under a symlink, isMain came out
+  // false, and the CLI printed nothing and exited 0. That is the dangerous
+  // direction: test-install.sh reads `safe-ref` exiting 0 as "this ref is
+  // safe", so an unsafe ref would have sailed through the gate.
+  const scratch = mkdtempSync(join(tmpdir(), 'index-ref-symlink-'));
+  try {
+    const link = join(scratch, 'linked-index-ref.mjs');
+    symlinkSync(cli, link);
+    const viaLink = (...args) => spawnSync('node', [link, ...args], { encoding: 'utf8' });
+
+    const unsafe = viaLink('safe-ref', '-x');
+    want(unsafe.status === 1, `safe-ref through a symlink exited ${unsafe.status}, wanted 1 — a no-op exit 0 is the gate silently passing`);
+
+    const safe = viaLink('safe-ref', 'v1.28.0');
+    want(safe.status === 0, `safe-ref through a symlink rejected a valid ref (exit ${safe.status})`);
+
+    // And the modes that print: an exit 0 with empty stdout is the same no-op.
+    const idx = viaLink('index', join(scratch, 'index.json'));
+    want(idx.status !== 0, 'reading a nonexistent index through a symlink exited 0');
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 });
 
 console.log('');

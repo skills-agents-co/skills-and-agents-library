@@ -19,10 +19,23 @@
  *      in the PR that makes it, and not at "the next release" either — it is
  *      caught by the tag-push build, which runs *after* the tag is already
  *      public. Recovery is a follow-up tag, not an amended one.
- *   2. Every key previously published at the pinned ref is still present, with
- *      the same JSON type, in the committed index.json. This is the actual
- *      additivity check: check 1 compares the file to a regeneration of
- *      itself and so cannot see a key that was removed or reshaped in both.
+ *   2. Every key published in the index.json *at the pinned ref* is still
+ *      present, with the same JSON type, in the committed index.json.
+ *
+ *      Be precise about what this does and does not catch, because the earlier
+ *      wording overclaimed. Between releases the committed index.json and the
+ *      one at the pinned ref are the same file, so the comparison is against
+ *      itself and passes vacuously — it cannot see a key dropped in both. It
+ *      earns its keep in exactly one window: a release commit, where the
+ *      committed index.json has been regenerated for the *new* tag while the
+ *      ref still names the previous one, so a key the last release published
+ *      and this one drops is caught before the tag is placed.
+ *
+ *      Comparing against the previous published tag instead would make it fire
+ *      continuously. That is the better check and it is deliberately not built
+ *      here: it needs a notion of "previous tag" (tag ordering, first-release
+ *      and unreachable-tag handling) that is more machinery than this round
+ *      should add. The narrow release-window guarantee is what is claimed.
  *   3. Structural invariants on the new manifest keys: installFolder +
  *      skillFilePath reconstructs path, files is non-empty, contains
  *      skillFilePath, and holds no path escaping the install folder.

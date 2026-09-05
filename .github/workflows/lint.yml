@@ -110,6 +110,13 @@ jobs:
       - name: Test the index builder against its fixtures
         run: node scripts/test-build-index.mjs
 
+      # This check and the two install tests below resolve the ref index.json
+      # pins. On a pull request that ref is the last release's tag, which is in
+      # this checkout (fetch-depth: 0), so all three run for real. A commit that
+      # bumps the pin to a tag that does not exist yet cannot go green here by
+      # construction — which is why a release commit is pushed straight to main
+      # with its tag rather than opened as a PR. See "Cutting a release" in
+      # README.md.
       - name: index.json stays additive, and README's ref matches it
         run: node scripts/check-index-additive.mjs
 

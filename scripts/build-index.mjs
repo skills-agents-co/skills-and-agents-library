@@ -113,12 +113,27 @@ function makeSource({ tag, worktree }) {
   return {
     label: useRef ? `git ref ${tag}` : 'working tree',
     files,
-    read: (p) =>
-      useRef
-        ? execFileSync('git', ['show', `${tag}:${p}`], {
-            cwd: repoRoot, encoding: 'utf8', maxBuffer: GIT_MAX_BUFFER,
-          })
-        : readFileSync(join(repoRoot, p), 'utf8'),
+    // Both read paths can fail on a file the listing named: a `git show` of a
+    // blob too large for the buffer, or, under --worktree, a file git still
+    // tracks that has been deleted from the checkout and not yet staged. Left
+    // unguarded either one exits with a raw ENOENT/execFileSync stack trace
+    // instead of saying which file and which mode, so both are routed through
+    // the same clean-error shape the rest of this script uses.
+    read: (p) => {
+      try {
+        return useRef
+          ? execFileSync('git', ['show', `${tag}:${p}`], {
+              cwd: repoRoot, encoding: 'utf8', maxBuffer: GIT_MAX_BUFFER,
+            })
+          : readFileSync(join(repoRoot, p), 'utf8');
+      } catch (err) {
+        console.error(
+          `Could not read "${p}" from ${useRef ? `git ref ${tag}` : 'the working tree'}: ${err.message}` +
+            (useRef ? '' : '\nA tracked file deleted from your checkout will do this; restore it or commit the deletion.')
+        );
+        process.exit(1);
+      }
+    },
   };
 }
 
@@ -333,6 +348,11 @@ function main() {
         process.exit(1);
       }
     }
+    // Defensive, and unreachable with today's callers: every entry is derived
+    // from a SKILL.md or agent file that filesUnder() therefore also finds, so
+    // `files` always holds at least that one path. Kept because it is the
+    // invariant every downstream consumer relies on, and a future change to how
+    // entries are discovered could break it silently otherwise.
     if (files.length === 0) {
       console.error(`Entry ${entry.slug} has an empty files manifest under "${installFolder}"`);
       process.exit(1);

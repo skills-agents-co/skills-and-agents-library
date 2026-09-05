@@ -63,14 +63,19 @@ Every skill installs the same way: download one pinned tarball, extract the skil
   # The install removes "$HOME/.claude/skills/$skill" before it copies. If
   # $skill were empty or a path, that line would delete the wrong directory —
   # every skill you have installed — so refuse anything but a plain name.
+  # The last arm rejects any character outside a folder name, which also keeps
+  # a glob like "*" out: bsdtar treats a member pattern as a glob, so "*" would
+  # extract the entire repository instead of one skill.
   case "$skill" in
-    ""|.|..|*/*|-*) echo "Set skill to a plain folder name, e.g. resume-tailor" >&2; exit 1 ;;
+    ""|.|..|*/*|-*|*[!A-Za-z0-9._-]*)
+      echo "Set skill to a plain folder name, e.g. resume-tailor" >&2; exit 1 ;;
   esac
 
   work="$(mktemp -d)"
   trap 'rm -rf "$work"' EXIT
 
-  curl -fsSL --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 -o "$work/repo.tgz" \
+  curl -fsSL --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 \
+    --retry-connrefused --retry-max-time 120 -o "$work/repo.tgz" \
     "https://codeload.github.com/skills-agents-co/skills-and-agents-library/tar.gz/$ref"
 
   mkdir -p "$work/staged"
@@ -99,9 +104,15 @@ The block runs in a subshell (the parens) so `skill`, `ref`, and the other varia
   agent="ceo-todo-daily"   # <-- or financial-pulse-grasshopper / -mercury / -ramp
   skill="ceo-todo"         # <-- the folder it ships in, per the paragraph above
 
-  case "$agent$skill" in
-    ""|*/*) echo "Set agent and skill to plain names, e.g. ceo-todo-daily / ceo-todo" >&2; exit 1 ;;
-  esac
+  # Each name is checked on its own. Testing "$agent$skill" would only catch an
+  # empty value when BOTH were empty, so an empty $agent with a real $skill
+  # sailed through.
+  for name in "$agent" "$skill"; do
+    case "$name" in
+      ""|.|..|*/*|-*|*[!A-Za-z0-9._-]*)
+        echo "Set agent and skill to plain names, e.g. ceo-todo-daily / ceo-todo" >&2; exit 1 ;;
+    esac
+  done
 
   mkdir -p "$HOME/.claude/agents"
   cp "$HOME/.claude/skills/$skill/agents/$agent.md" "$HOME/.claude/agents/$agent.md"
@@ -171,13 +182,18 @@ Cutting a release:
 
 The index is committed **before** the tag is placed, not after. Tagging first would leave the tag's own tarball carrying the *previous* release's `index.json`, so the manifest a user downloads would never describe the download it came in.
 
-1. Bump `version` in frontmatter for any changed `SKILL.md`.
-2. Rebuild the index for the tag you are about to cut: `node scripts/build-index.mjs --tag v1.x.0 --worktree`. `--worktree` is required here and only here — the tag does not exist yet, so there is no ref to read content from, and the working tree is what is about to become that tag.
+> **A release commit does not go through a pull request.** It is the one commit in this repo that pushes straight to `main`, with the tag created and pushed in the same motion. The reason is mechanical, not stylistic: a release commit bumps `index.json` and the `ref="…"` line above to a tag **that does not exist yet**, and `scripts/check-index-additive.mjs` and `scripts/test-install.sh` both resolve that ref. Opened as a PR, the release commit is red by construction, and there is no green state to merge — the ref only becomes resolvable once the tag is pushed, which happens after the merge. So: land the content changes through PRs as usual, then cut the release as a direct push. Nothing else in this repo is allowed to bypass review this way.
+
+1. Bump `version` in frontmatter for any changed `SKILL.md`. This is normal PR work, reviewed like anything else, and it lands before the release commit.
+2. On an up-to-date `main`, rebuild the index for the tag you are about to cut: `node scripts/build-index.mjs --tag v1.x.0 --worktree`. `--worktree` is required here and only here — the tag does not exist yet, so there is no ref to read content from, and the working tree is what is about to become that tag.
 3. **In the same commit**, bump the `ref="v1.x.0"` line in the install block above to the new tag. `scripts/check-index-additive.mjs` fails the build if the README's ref and `index.json`'s ref disagree, so this is not optional and CI will say so.
-4. Commit the regenerated `index.json` and the README together.
-5. Tag that commit and push both: `git tag v1.x.0 && git push origin main v1.x.0`.
+4. Commit the regenerated `index.json` and the README together, directly on `main`.
+5. Tag that commit and push both **in one command**: `git tag v1.x.0 && git push origin main v1.x.0`. Pushing the commit without the tag leaves `main` briefly pinned to a ref nobody can resolve, which is exactly the red state step 5 exists to avoid.
+6. Only now do the ref-resolving local checks mean anything. Run `node scripts/check-index-additive.mjs`, `bash scripts/test-install.sh`, and `bash scripts/test-readme-install.sh` against the pushed tag. Running them between steps 2 and 5 is expected to fail and tells you nothing.
 
 Because the tag lands on the commit that already holds the matching `index.json`, the tag-push build checks the tag against its own manifest rather than against the last release's, and re-running `node scripts/build-index.mjs --tag v1.x.0` afterwards reproduces the committed file byte for byte.
+
+**On a normal pull request none of this bites.** A PR does not touch the pinned ref, so the ref `index.json` names is the last release's tag, which resolves fine, and every check runs for real. The only PR that would go red by construction is one that bumps the ref — and that is precisely the commit the note above says not to open as a PR.
 
 `index.json` describes the tagged release, not your checkout: `build-index.mjs --tag v1.x.0` reads the repo's contents **at that tag**, and `scripts/test-install.sh` verifies the published `files` manifest against that same tag's tarball. That is why a pull request adding a file inside a skill folder does not need to regenerate `index.json` — the new file joins the manifest at the next release, and until then both checks are looking at the same snapshot. If the tag is not in your clone the build fails rather than quietly reading your working tree instead; run `git fetch --tags`, or pass `--worktree` when reading the working tree is what you actually want.
 

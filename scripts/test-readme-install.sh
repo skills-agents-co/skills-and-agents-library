@@ -11,7 +11,7 @@
 # executing it, with $HOME pointed at a scratch directory so nothing touches
 # the developer's real ~/.claude.
 #
-# Four runs:
+# Five runs:
 #   1. The block verbatim (skill="resume-tailor"), the flat-layout case.
 #   2. The block with skill="ads-copilot" plus the documented follow-up mv,
 #      the nested-layout case, asserting SKILL.md ends up at the top of the
@@ -23,6 +23,9 @@
 #   4. A NEGATIVE run: the block with an empty skill name must refuse to
 #      proceed, because the unguarded version turns its own `rm -rf` into a
 #      delete of the user's entire ~/.claude/skills/ directory.
+#   5. A NEGATIVE run on the agent block: an empty agent name with a valid
+#      skill name must also be refused. The guard once tested the two
+#      concatenated, so it only fired when both were empty.
 #
 # Needs network access (each positive run downloads the pinned tarball).
 #
@@ -41,18 +44,19 @@ FAIL=0
 
 # --- Extract the documented install block from README.md ---------------------
 
+# Fence-matching goes through scripts/lib/index-ref.mjs's `block` mode rather
+# than being re-implemented here. This script used to carry three separate
+# inline copies of the same fence regex, one per extracted block, next to a
+# library that already owned the rule for refFromReadme() — the same drift the
+# shared library exists to prevent.
+extract_block() {
+  # $1 = destination file, rest = substrings identifying the fenced block
+  local dest="$1"; shift
+  node "$REPO_ROOT/scripts/lib/index-ref.mjs" block "$README" "$@" > "$dest"
+}
+
 BLOCK="$SCRATCH_DIR/install-block.sh"
-node -e '
-  const fs = require("fs");
-  const readme = fs.readFileSync(process.argv[1], "utf8");
-  const fences = readme.match(/```bash\n[\s\S]*?\n```/g) || [];
-  const block = fences.find((b) => b.includes("codeload.github.com/skills-agents-co/skills-and-agents-library"));
-  if (!block) {
-    console.error("No fenced bash block in README.md fetches the codeload tarball.");
-    process.exit(1);
-  }
-  fs.writeFileSync(process.argv[2], block.replace(/^```bash\n/, "").replace(/\n```$/, "") + "\n");
-' "$README" "$BLOCK"
+extract_block "$BLOCK" "codeload.github.com/skills-agents-co/skills-and-agents-library"
 
 echo "Extracted README install block:"
 sed 's/^/  | /' "$BLOCK"
@@ -130,21 +134,11 @@ HOME2="$SCRATCH_DIR/home2"
 run_block "ads-copilot" "$HOME2"
 
 # The documented follow-up for the two nested skills, run the same way.
+# This one lives inside a blockquote, so each line carries a leading "> ".
+# The library's block mode scans a de-quoted copy of the document too, so the
+# caller does not have to know that.
 MVBLOCK="$SCRATCH_DIR/mv-block.sh"
-node -e '
-  const fs = require("fs");
-  const readme = fs.readFileSync(process.argv[1], "utf8");
-  // The nested follow-up lives in a blockquoted fence, so each line carries a
-  // leading "> ". Strip it, then take the fenced bash block that does the mv.
-  const unquoted = readme.split("\n").map((l) => l.replace(/^> ?/, "")).join("\n");
-  const fences = unquoted.match(/```bash\n[\s\S]*?\n```/g) || [];
-  const block = fences.find((b) => b.includes("mv ") && b.includes("SKILL.md"));
-  if (!block) {
-    console.error("No fenced bash block in README.md documents the nested SKILL.md mv.");
-    process.exit(1);
-  }
-  fs.writeFileSync(process.argv[2], block.replace(/^```bash\n/, "").replace(/\n```$/, "") + "\n");
-' "$README" "$MVBLOCK"
+extract_block "$MVBLOCK" "mv " "SKILL.md"
 echo "Extracted README nested-skill follow-up:"
 sed 's/^/  | /' "$MVBLOCK"
 ( HOME="$HOME2" bash "$MVBLOCK" )
@@ -167,17 +161,7 @@ HOME3="$SCRATCH_DIR/home3"
 run_block "ceo-todo" "$HOME3"
 
 AGENTBLOCK="$SCRATCH_DIR/agent-block.sh"
-node -e '
-  const fs = require("fs");
-  const readme = fs.readFileSync(process.argv[1], "utf8");
-  const fences = readme.match(/```bash\n[\s\S]*?\n```/g) || [];
-  const block = fences.find((b) => b.includes("cp ") && b.includes(".claude/agents"));
-  if (!block) {
-    console.error("No fenced bash block in README.md documents the agent cp step.");
-    process.exit(1);
-  }
-  fs.writeFileSync(process.argv[2], block.replace(/^```bash\n/, "").replace(/\n```$/, "") + "\n");
-' "$README" "$AGENTBLOCK"
+extract_block "$AGENTBLOCK" "cp " ".claude/agents"
 echo "Extracted README agent-install block:"
 sed 's/^/  | /' "$AGENTBLOCK"
 ( HOME="$HOME3" bash "$AGENTBLOCK" )
@@ -230,5 +214,33 @@ else
 fi
 
 echo ""
-echo "Total: 3 documented installs + 1 refused, Failures: $FAIL"
+
+# --- Run 5: the agent block's guard checks each name separately --------------
+#
+# The guard used to test "$agent$skill" as one concatenated string, so an empty
+# $agent with a real $skill passed and the cp then read
+# ".../ceo-todo/agents/.md". Each name has to be checked on its own.
+
+echo "--- Run 5: an empty agent name is refused even when skill is set ---"
+BADAGENT="$SCRATCH_DIR/bad-agent.sh"
+sed 's|^  agent="[^"]*"|  agent=""|' "$AGENTBLOCK" > "$BADAGENT"
+
+set +e
+( HOME="$SCRATCH_DIR/home5" bash "$BADAGENT" ) > "$SCRATCH_DIR/bad-agent.out" 2>&1
+bad_agent_status=$?
+set -e
+
+if [[ $bad_agent_status -eq 0 ]]; then
+  echo "FAIL: the documented agent step accepted an empty agent name (exit 0)" >&2
+  FAIL=$((FAIL + 1))
+elif ! grep -q "plain names" "$SCRATCH_DIR/bad-agent.out"; then
+  echo "FAIL: an empty agent name failed, but not via the guard's own message" >&2
+  sed 's/^/       /' "$SCRATCH_DIR/bad-agent.out" >&2
+  FAIL=$((FAIL + 1))
+else
+  echo "OK   empty agent name refused even with a valid skill name"
+fi
+
+echo ""
+echo "Total: 3 documented installs + 2 refused, Failures: $FAIL"
 [[ $FAIL -eq 0 ]]

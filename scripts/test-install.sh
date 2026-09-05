@@ -76,8 +76,8 @@ TARBALL_URL="https://codeload.github.com/skills-agents-co/skills-and-agents-libr
 if [[ -n "${TEST_INSTALL_TARBALL:-}" && -s "${TEST_INSTALL_TARBALL}" ]]; then
   TARBALL="$TEST_INSTALL_TARBALL"
   echo "Reusing tarball: $TARBALL"
-elif ! curl -fsSL --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 --retry-connrefused \
-    -o "$TARBALL" "$TARBALL_URL"; then
+elif ! curl -fsSL --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 \
+    --retry-connrefused --retry-max-time 120 -o "$TARBALL" "$TARBALL_URL"; then
   echo "Failed to download tarball: $TARBALL_URL" >&2
   exit 1
 fi
@@ -97,10 +97,15 @@ fi
 #   OK\t<slug>\t<installFolder>\t<skillFilePath>\t<files, \x1f-joined>
 #   BAD\t<slug>\t<reason>
 # so the rest of this script never re-parses JSON per entry or per file.
-MANIFEST=$(node -e '
-  const idx = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+MANIFEST=$(node --input-type=module -e '
+  import { readFileSync } from "node:fs";
+  import { pathToFileURL } from "node:url";
+  // Imported by absolute path handed in as argv[2]: an `import "./…"` inside
+  // `node -e` resolves against the current working directory, which this script
+  // does not control.
+  const { isSafeManifestPath } = await import(pathToFileURL(process.argv[2]).href);
+  const idx = JSON.parse(readFileSync(process.argv[1], "utf8"));
   const US = "\x1f";
-  const TRAVERSAL = /(^\/)|(^|\/)\.\.(\/|$)/;
   for (const [slug, v] of Object.entries(idx)) {
     // The delimiter check comes FIRST, before any other BAD line can be
     // emitted. Every line below (BAD lines included) is tab-separated and
@@ -119,8 +124,11 @@ MANIFEST=$(node -e '
     // slug is in this list because it is interpolated into the per-entry
     // destination directory, which is then handed to rm -rf: a slug of
     // "../.." would delete outside the scratch dir.
+    // isSafeManifestPath is the shared rule, imported rather than restated:
+    // the bash copy of this regex had already drifted (it missed single-dot
+    // segments the library rejects) while reaching the same rm -rf.
     const suspects = [slug, v.installFolder, v.skillFilePath, ...v.files];
-    const bad = suspects.find((p) => typeof p !== "string" || TRAVERSAL.test(p));
+    const bad = suspects.find((p) => !isSafeManifestPath(p));
     if (bad !== undefined) { console.log(["BAD", slug, "path traversal in manifest: " + bad].join("\t")); continue; }
     // The line protocol below is tab-separated, \x1f-joined, newline-terminated,
     // and git preserves all three characters in a filename. Reject them rather
@@ -129,7 +137,7 @@ MANIFEST=$(node -e '
     if (delim !== undefined) { console.log(["BAD", slug, "manifest path contains a newline, tab, or \\x1f: " + JSON.stringify(delim)].join("\t")); continue; }
     console.log(["OK", slug, v.installFolder, v.skillFilePath, v.files.join(US)].join("\t"));
   }
-' "$INDEX")
+' "$INDEX" "$REPO_ROOT/scripts/lib/index-ref.mjs")
 
 # --- 4. Install and verify each entry ----------------------------------------
 

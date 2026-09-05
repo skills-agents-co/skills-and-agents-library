@@ -194,6 +194,7 @@ def scrape(
                     if cat_el and cat_el.is_visible(timeout=1000):
                         detail["category"] = (cat_el.inner_text() or "").strip()
                 except Exception:
+                    # Category is optional; leave it blank and keep scraping.
                     pass
 
                 try:
@@ -203,6 +204,7 @@ def scrape(
                             addr_el.get_attribute("aria-label") or addr_el.inner_text() or ""
                         ).replace("Address:", "").strip()
                 except Exception:
+                    # Address is optional; leave it blank and keep scraping.
                     pass
 
                 try:
@@ -212,6 +214,7 @@ def scrape(
                             phone_el.get_attribute("aria-label") or phone_el.inner_text() or ""
                         ).replace("Phone:", "").strip()
                 except Exception:
+                    # Phone is optional; leave it blank for this listing and keep scraping.
                     pass
 
                 try:
@@ -219,6 +222,7 @@ def scrape(
                     if site_el and site_el.is_visible(timeout=1000):
                         detail["website"] = (site_el.get_attribute("href") or "").strip()
                 except Exception:
+                    # Website is optional; leave it blank and keep scraping.
                     pass
 
                 try:
@@ -229,6 +233,7 @@ def scrape(
                     if rating_label:
                         detail["rating"], detail["reviews"] = parse_rating_reviews(rating_label)
                 except Exception:
+                    # Rating/reviews are optional; leave them blank and keep scraping.
                     pass
 
                 dedupe_key = (detail["name"].lower(), detail["address"].lower())

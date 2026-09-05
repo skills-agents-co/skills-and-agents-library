@@ -9,26 +9,132 @@
  * (name, description, optional license). The richer catalog metadata
  * (category, tags, runbook) lives in the catalog site, not here.
  *
+ * --tag names the git ref whose *content* is read, not merely a label stamped
+ * into the emitted URLs. `--tag v1.2.3` reads every file as it exists at
+ * v1.2.3, so the manifest describes that release's tarball rather than
+ * whatever happens to be in your checkout. If the ref is not present in this
+ * clone the script fails; pass --worktree to deliberately read the working
+ * tree instead (the ref still labels the URLs).
+ *
  * Usage:
- *   node scripts/build-index.mjs --tag v1.0.0
+ *   node scripts/build-index.mjs --tag v1.0.0 [--out <path>] [--worktree]
  */
 
-import { readFileSync, readdirSync, writeFileSync, statSync, existsSync } from 'node:fs';
-import { join, relative, dirname } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { isSafeRef, isSafeManifestPath } from './lib/index-ref.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
+const GIT_MAX_BUFFER = 64 * 1024 * 1024;
 
 function parseArgs(argv) {
-  const args = { tag: null };
+  const args = { tag: null, out: null, worktree: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--tag' && argv[i + 1]) {
       args.tag = argv[i + 1];
       i++;
+    } else if (argv[i] === '--out' && argv[i + 1]) {
+      args.out = argv[i + 1];
+      i++;
+    } else if (argv[i] === '--worktree') {
+      args.worktree = true;
     }
   }
   return args;
+}
+
+/** True when `ref` names a commit this clone actually has. */
+function refResolves(ref) {
+  try {
+    execFileSync('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`], {
+      cwd: repoRoot,
+      stdio: 'pipe',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Where this run reads the repo's content from.
+ *
+ * index.json describes a *release*, not somebody's checkout: its skillFileUrl
+ * and githubUrl point at a tag, and scripts/test-install.sh verifies the
+ * published `files` manifest against that tag's tarball. So when --tag names a
+ * ref this clone has, read the tree at that ref. Reading the working tree
+ * instead is what made the two CI checks mutually exclusive: a PR adding a
+ * file under a skill folder had to regenerate index.json to satisfy the
+ * additive check, and the regenerated manifest then named a file the released
+ * tarball could not contain.
+ *
+ * --worktree forces the working-tree read, which is what you want at release
+ * time for a tag that exists only on the remote, or in a shallow clone.
+ *
+ * When --tag names a ref this clone does NOT have, this is a hard failure, not
+ * a fallback. An earlier version warned and read the working tree anyway,
+ * which silently recreated the deadlock described above with no signal that it
+ * had happened — and left the remediation message telling the user to run the
+ * exact command that recreated it. Falling back to a different snapshot than
+ * the one asked for is the failure mode, so it fails loudly instead. Reading
+ * the working tree is still available, but only by asking for it.
+ *
+ * Either way the listing comes from git, never a filesystem walk: no untracked
+ * junk (.DS_Store, __pycache__), no accidentally-published secrets, and no
+ * symlink-cycle hazard, all by construction rather than by a deny-list.
+ */
+function makeSource({ tag, worktree }) {
+  const useRef = !worktree;
+  if (useRef && !refResolves(tag)) {
+    console.error(
+      `Ref "${tag}" does not resolve in this clone, so index.json cannot be generated at it.\n` +
+        'Run `git fetch --tags` (or `git fetch --unshallow` in a shallow clone) and try again.\n' +
+        'Pass --worktree if you deliberately want to generate from the working tree instead.'
+    );
+    process.exit(1);
+  }
+  let listOut;
+  try {
+    listOut = useRef
+      ? execFileSync('git', ['ls-tree', '-r', '-z', '--name-only', tag, '--'], {
+          cwd: repoRoot, encoding: 'utf8', maxBuffer: GIT_MAX_BUFFER,
+        })
+      : execFileSync('git', ['ls-files', '-z', '--'], {
+          cwd: repoRoot, encoding: 'utf8', maxBuffer: GIT_MAX_BUFFER,
+        });
+  } catch (err) {
+    console.error(`Could not list the repo's tracked files from git: ${err.message}`);
+    process.exit(1);
+  }
+  const files = listOut.split('\0').filter(Boolean).sort();
+  return {
+    label: useRef ? `git ref ${tag}` : 'working tree',
+    files,
+    // Both read paths can fail on a file the listing named: a `git show` of a
+    // blob too large for the buffer, or, under --worktree, a file git still
+    // tracks that has been deleted from the checkout and not yet staged. Left
+    // unguarded either one exits with a raw ENOENT/execFileSync stack trace
+    // instead of saying which file and which mode, so both are routed through
+    // the same clean-error shape the rest of this script uses.
+    read: (p) => {
+      try {
+        return useRef
+          ? execFileSync('git', ['show', `${tag}:${p}`], {
+              cwd: repoRoot, encoding: 'utf8', maxBuffer: GIT_MAX_BUFFER,
+            })
+          : readFileSync(join(repoRoot, p), 'utf8');
+      } catch (err) {
+        console.error(
+          `Could not read "${p}" from ${useRef ? `git ref ${tag}` : 'the working tree'}: ${err.message}` +
+            (useRef ? '' : '\nA tracked file deleted from your checkout will do this; restore it or commit the deletion.')
+        );
+        process.exit(1);
+      }
+    },
+  };
 }
 
 /**
@@ -151,60 +257,107 @@ function stripFrontmatter(raw) {
   return raw.slice(end + 4);
 }
 
-function walkSkillFolders() {
+/**
+ * Every catalog entry, derived from the source's file listing rather than a
+ * directory walk, so a ref-backed run and a working-tree run find the same
+ * entries by the same rules. Three shapes, unchanged from the directory walk
+ * this replaces:
+ *
+ *   <skill>/SKILL.md                  -> skill, slug = <skill>
+ *   <skill>/skills/<name>/SKILL.md    -> skill, slug = <name>   (nested layout)
+ *   <skill>/agents/<name>.md          -> agent, slug = <name>
+ */
+function walkSkillFolders(sourceFiles) {
   const entries = [];
-  for (const name of readdirSync(repoRoot)) {
-    const full = join(repoRoot, name);
-    if (!statSync(full).isDirectory()) continue;
-    if (name.startsWith('.') || name === 'scripts' || name === 'node_modules') continue;
+  for (const path of sourceFiles) {
+    const top = path.split('/')[0];
+    if (!path.includes('/')) continue;
+    if (top.startsWith('.') || top === 'scripts' || top === 'node_modules') continue;
 
-    // top-level SKILL.md
-    const topSkill = join(full, 'SKILL.md');
-    if (existsSync(topSkill)) {
-      entries.push({ slug: name, file: topSkill, kind: 'skill' });
-    }
-
-    // nested: <skill>/skills/<name>/SKILL.md (financial-pulse layout)
-    const nestedSkillsDir = join(full, 'skills');
-    if (existsSync(nestedSkillsDir) && statSync(nestedSkillsDir).isDirectory()) {
-      for (const sub of readdirSync(nestedSkillsDir)) {
-        const subSkill = join(nestedSkillsDir, sub, 'SKILL.md');
-        if (existsSync(subSkill)) {
-          entries.push({ slug: sub, file: subSkill, kind: 'skill' });
-        }
-      }
-    }
-
-    // agents
-    const agentsDir = join(full, 'agents');
-    if (existsSync(agentsDir) && statSync(agentsDir).isDirectory()) {
-      for (const f of readdirSync(agentsDir)) {
-        if (!f.endsWith('.md')) continue;
-        entries.push({ slug: f.replace(/\.md$/, ''), file: join(agentsDir, f), kind: 'agent' });
-      }
+    let m;
+    if (path === `${top}/SKILL.md`) {
+      entries.push({ slug: top, file: path, kind: 'skill' });
+    } else if ((m = path.match(/^[^/]+\/skills\/([^/]+)\/SKILL\.md$/))) {
+      entries.push({ slug: m[1], file: path, kind: 'skill' });
+    } else if ((m = path.match(/^[^/]+\/agents\/([^/]+)\.md$/))) {
+      entries.push({ slug: m[1], file: path, kind: 'agent' });
     }
   }
   return entries;
 }
 
+/**
+ * Every file under `installFolder`, relative to it, sorted.
+ *
+ * Computed by string prefix on git's own repo-relative paths. The previous
+ * version passed an absolute folder to path.relative() against repo-relative
+ * git output, which Node resolves against process.cwd(): running this script
+ * from anywhere but the repo root silently wrote "../../../..." traversal
+ * paths into every entry's manifest and still exited 0. There is no cwd in
+ * this version to get wrong.
+ */
+function filesUnder(sourceFiles, installFolder) {
+  const prefix = installFolder + '/';
+  return sourceFiles.filter((p) => p.startsWith(prefix)).map((p) => p.slice(prefix.length)).sort();
+}
+
 function main() {
-  const { tag } = parseArgs(process.argv.slice(2));
+  const { tag, out, worktree } = parseArgs(process.argv.slice(2));
   if (!tag) {
-    console.error('Usage: build-index.mjs --tag <tag-or-branch>');
+    console.error('Usage: build-index.mjs --tag <tag> [--out <path>] [--worktree]');
+    process.exit(2);
+  }
+  // The tag is interpolated into every published URL and handed to git as a
+  // ref, so it is validated before either happens.
+  if (!isSafeRef(tag)) {
+    console.error(
+      `Refusing to use an unsafe ref: "${tag}". A ref must start with a letter or digit, ` +
+        'contain only [A-Za-z0-9._/-], and hold no "..".'
+    );
     process.exit(2);
   }
 
-  const entries = walkSkillFolders();
+  const source = makeSource({ tag, worktree });
+  const entries = walkSkillFolders(source.files);
   const index = {};
 
   for (const entry of entries) {
-    const raw = readFileSync(entry.file, 'utf8');
+    const raw = source.read(entry.file);
     const fm = parseFrontmatter(raw) || {};
     const evalContractVersion = extractEvalContractVersion(stripFrontmatter(raw));
-    const relPath = relative(repoRoot, entry.file);
-    const dirRel = relative(repoRoot, dirname(entry.file));
+    const relPath = entry.file;
+    const dirRel = dirname(entry.file);
     const skillFileUrl = `https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/${tag}/${relPath}`;
     const githubUrl = `https://github.com/skills-agents-co/skills-and-agents-library/tree/${tag}/${dirRel}`;
+
+    // installFolder is the repo top-level folder this entry ships under, e.g.
+    // "ceo-todo" for the "ceo-todo-daily" agent slug. skillFilePath is relPath
+    // with that leading segment removed, e.g. "agents/ceo-todo-daily.md". Both
+    // are additive, new keys; installFolder replaces the README's old wrong
+    // assumption that slug equals folder.
+    const installFolder = relPath.split('/')[0];
+    const skillFilePath = relPath.slice(installFolder.length + 1);
+    const files = filesUnder(source.files, installFolder);
+
+    // slug is checked alongside the paths: consumers interpolate it into a
+    // destination directory, so a slug of "." or ".." is as dangerous there as
+    // a traversal inside the manifest itself.
+    for (const p of [entry.slug, installFolder, skillFilePath, ...files]) {
+      if (!isSafeManifestPath(p)) {
+        console.error(`Refusing to write a manifest path that escapes its install folder: "${p}" (entry ${entry.slug})`);
+        process.exit(1);
+      }
+    }
+    // Defensive, and unreachable with today's callers: every entry is derived
+    // from a SKILL.md or agent file that filesUnder() therefore also finds, so
+    // `files` always holds at least that one path. Kept because it is the
+    // invariant every downstream consumer relies on, and a future change to how
+    // entries are discovered could break it silently otherwise.
+    if (files.length === 0) {
+      console.error(`Entry ${entry.slug} has an empty files manifest under "${installFolder}"`);
+      process.exit(1);
+    }
+
     index[entry.slug] = {
       slug: entry.slug,
       kind: entry.kind,
@@ -218,13 +371,17 @@ function main() {
       skillFileUrl,
       githubUrl,
       path: relPath,
+      installFolder,
+      skillFilePath,
+      files,
     };
   }
 
-  const outPath = join(repoRoot, 'index.json');
+  const outPath = out ? (out.startsWith('/') ? out : join(process.cwd(), out)) : join(repoRoot, 'index.json');
+  mkdirSync(dirname(outPath), { recursive: true });
   const ordered = Object.keys(index).sort().reduce((o, k) => { o[k] = index[k]; return o; }, {});
   writeFileSync(outPath, JSON.stringify(ordered, null, 2) + '\n');
-  console.log(`Wrote ${Object.keys(ordered).length} entries to ${outPath} (tag=${tag})`);
+  console.log(`Wrote ${Object.keys(ordered).length} entries to ${outPath} (tag=${tag}, read from ${source.label})`);
 }
 
 main();

@@ -4,12 +4,18 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags: ['v*']
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 brings the tags with it. check-index-additive.mjs
+      # regenerates index.json at the ref index.json itself pins, which means
+      # this checkout has to actually have that tag.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -98,9 +104,41 @@ jobs:
       - name: Test the backlink checker against its fixtures
         run: node scripts/test-check-backlinks.mjs
 
-      - name: Generate index.json
-        run: node scripts/build-index.mjs --tag "${GITHUB_REF_NAME}"
+      - name: Test the shared index-ref library
+        run: node scripts/test-index-ref.mjs
 
-      - name: Install smoke test (only on push to a tag)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Test the index builder against its fixtures
+        run: node scripts/test-build-index.mjs
+
+      # This check and the two install tests below resolve the ref index.json
+      # pins. On a pull request that ref is the last release's tag, which is in
+      # this checkout (fetch-depth: 0), so all three run for real. A commit that
+      # bumps the pin to a tag that does not exist yet cannot go green here by
+      # construction — which is why a release commit is pushed straight to main
+      # with its tag rather than opened as a PR. See "Cutting a release" in
+      # README.md.
+      - name: index.json stays additive, and README's ref matches it
+        run: node scripts/check-index-additive.mjs
+
+      - name: Test the index checker against its fixtures
+        run: node scripts/test-check-index-additive.mjs
+
+      # On a tag push, verify the tag that was just pushed rather than
+      # whatever ref the committed index.json still names. On a PR or a push
+      # to main the ref comes from index.json as usual.
+      #
+      # These are the same value on a correctly-cut release: the documented
+      # release order commits the regenerated index.json FIRST and places the
+      # tag on that commit, so the tag build checks the tag's manifest against
+      # the tag's own tarball. The override is what catches a release cut in
+      # the wrong order, where they would differ.
+      - name: Install smoke test
         run: bash scripts/test-install.sh
+        env:
+          TEST_INSTALL_REF: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+
+      - name: Test the install smoke test against its fixtures
+        run: node scripts/test-install-negative.mjs
+
+      - name: Run the README's documented install command as written
+        run: bash scripts/test-readme-install.sh

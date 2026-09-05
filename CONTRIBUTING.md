@@ -82,12 +82,25 @@ Before approving a skill that adds or changes a contract:
 1. Branch off `main`.
 2. Make the change in the relevant `<skill-name>/` folder.
 3. Bump `version` in frontmatter if behavior changed.
-4. Open a PR. CI runs the lint workflow. The install smoke test runs on tagged releases, not on PRs.
-5. After merge, a maintainer tags a new release and updates the catalog entry.
+4. Open a PR. CI runs the lint workflow, including the install smoke test, on every PR.
+5. After merge, a maintainer cuts a release: on `main`, one commit that regenerates `index.json` for the new tag and bumps the README's `ref="…"` line to match, then the commit and the tag pushed together. That release commit is the one thing here that does not go through a PR — it names a tag that does not exist yet, so CI cannot go green on it until the tag is pushed. The full procedure is in `README.md` under "Cutting a release". Your change ships to users at that release, not at merge.
 
 ## Local checks
 
 ```bash
-node scripts/build-index.mjs --tag main   # regenerates index.json against main
-bash scripts/test-install.sh              # smokes every install URL
+bash scripts/test-install.sh                 # installs every entry from its pinned tarball and checks the manifest arrived
+node scripts/test-install-negative.mjs       # proves the check above can fail, against generated fixtures
+node scripts/check-index-additive.mjs        # index.json stays additive at its own pinned ref; README's ref agrees with it
+node scripts/test-check-index-additive.mjs   # proves that checker can fail, against generated fixtures
+node scripts/test-build-index.mjs            # index builder, against a throwaway git fixture repo (no network)
+node scripts/test-index-ref.mjs              # unit tests for the shared ref/path library (no network)
+bash scripts/test-readme-install.sh          # runs the README's documented install command as written
 ```
+
+**You do not normally regenerate `index.json`.** It describes the last tagged release, not your working tree: `scripts/build-index.mjs --tag v1.x.0` reads the repo's contents at that tag, and `scripts/test-install.sh` verifies the published manifest against that same tag's tarball. Adding a file inside a skill folder in a pull request therefore does not require an index change — the file joins the manifest when the next release is cut. Regenerating is a release step, documented in `README.md` under "Cutting a release".
+
+**Three of those checks need the pinned tag in your clone**, not just `build-index.mjs`: `test-install.sh` downloads that tag's tarball, `check-index-additive.mjs` regenerates the index at it (and reads the index published there), and `test-readme-install.sh` runs the documented install against it. Each **fails** rather than quietly falling back to your working tree, so if any of them says the ref does not resolve, run `git fetch --tags` (or `git fetch --unshallow` in a shallow clone) and re-run. Pass `--worktree` only when reading your checkout is what you actually want, which during a release is exactly once: at the step where the tag you are cutting does not exist yet.
+
+Those same three checks are expected to fail **while a release is being prepared**, between regenerating the index for the new tag and pushing that tag. That is why a release commit is pushed straight to `main` with its tag rather than opened as a PR — see "Cutting a release" in `README.md`. Run them after the tag is pushed.
+
+`scripts/test-install.sh` also takes an optional first argument, an alternate `index.json` path, used by `test-install-negative.mjs` to point it at doctored fixtures without touching the real index. It reads two environment variables for the same reason: `TEST_INSTALL_REF` overrides the ref (CI sets it to the pushed tag on a tag build) and `TEST_INSTALL_TARBALL` reuses an already-downloaded tarball so the fixture suite costs one codeload fetch rather than one per case.

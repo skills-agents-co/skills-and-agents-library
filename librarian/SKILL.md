@@ -330,7 +330,3 @@ notes with nothing in common, so no idea appears in two distinct notes.
 
 *Inspired by USV's Librarian agent: https://blog.usv.com/meet-the-agents. This is a generic,
 independently built version — it does not reuse USV's code or internal deal-log schema.*
-
----
-
-**More from Skills and Agents Co:** see this skill in the [Skills & Agents catalog](https://skillsandagents.co/skills/librarian/).

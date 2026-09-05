@@ -9,8 +9,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/ads-copilot/skills/ads-copilot/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/ads-copilot/skills/ads-copilot",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/ads-copilot/skills/ads-copilot/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/ads-copilot/skills/ads-copilot",
     "path": "ads-copilot/skills/ads-copilot/SKILL.md"
   },
   "ap-invoice-processing": {
@@ -23,8 +23,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/ap-invoice-processing/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/ap-invoice-processing",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/ap-invoice-processing/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/ap-invoice-processing",
     "path": "ap-invoice-processing/SKILL.md"
   },
   "board-deck": {
@@ -37,8 +37,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/board-deck/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/board-deck",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/board-deck/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/board-deck",
     "path": "board-deck/SKILL.md"
   },
   "buy-side-diligence": {
@@ -51,8 +51,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/buy-side-diligence/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/buy-side-diligence",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/buy-side-diligence/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/buy-side-diligence",
     "path": "buy-side-diligence/SKILL.md"
   },
   "calendar-agent": {
@@ -65,8 +65,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/calendar-agent/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/calendar-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/calendar-agent/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/calendar-agent",
     "path": "calendar-agent/SKILL.md"
   },
   "card-receipt-forwarding": {
@@ -79,8 +79,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/card-receipt-forwarding/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/card-receipt-forwarding",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/card-receipt-forwarding/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/card-receipt-forwarding",
     "path": "card-receipt-forwarding/SKILL.md"
   },
   "ceo-todo": {
@@ -93,8 +93,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/ceo-todo/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/ceo-todo",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/ceo-todo/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/ceo-todo",
     "path": "ceo-todo/SKILL.md"
   },
   "ceo-todo-daily": {
@@ -107,8 +107,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/ceo-todo/agents/ceo-todo-daily.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/ceo-todo/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/ceo-todo/agents/ceo-todo-daily.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/ceo-todo/agents",
     "path": "ceo-todo/agents/ceo-todo-daily.md"
   },
   "contract-review": {
@@ -121,8 +121,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/contract-review/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/contract-review",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/contract-review/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/contract-review",
     "path": "contract-review/SKILL.md"
   },
   "data-set-analysis": {
@@ -135,8 +135,8 @@
     "version": "1.0.0",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/data-set-analysis/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/data-set-analysis",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/data-set-analysis/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/data-set-analysis",
     "path": "data-set-analysis/SKILL.md"
   },
   "discovery-call-prep": {
@@ -149,8 +149,8 @@
     "version": "1.5.1",
     "evalContractVersion": "1.5.1",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/discovery-call-prep/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/discovery-call-prep",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/discovery-call-prep/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/discovery-call-prep",
     "path": "discovery-call-prep/SKILL.md"
   },
   "discovery-to-prd": {
@@ -163,8 +163,8 @@
     "version": "1.0.0",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/discovery-to-prd/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/discovery-to-prd",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/discovery-to-prd/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/discovery-to-prd",
     "path": "discovery-to-prd/SKILL.md"
   },
   "drip-api": {
@@ -177,8 +177,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/drip-api/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/drip-api",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/drip-api/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/drip-api",
     "path": "drip-api/SKILL.md"
   },
   "equity-reconciliation": {
@@ -191,8 +191,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/equity-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/equity-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/equity-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/equity-reconciliation",
     "path": "equity-reconciliation/SKILL.md"
   },
   "equity-reconciliation-carta": {
@@ -205,8 +205,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/equity-reconciliation-carta/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/equity-reconciliation-carta",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/equity-reconciliation-carta/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/equity-reconciliation-carta",
     "path": "equity-reconciliation-carta/SKILL.md"
   },
   "expense-access-audit": {
@@ -219,8 +219,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/expense-access-audit/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/expense-access-audit",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/expense-access-audit/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/expense-access-audit",
     "path": "expense-access-audit/SKILL.md"
   },
   "expense-policy-check": {
@@ -233,8 +233,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/expense-policy-check/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/expense-policy-check",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/expense-policy-check/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/expense-policy-check",
     "path": "expense-policy-check/SKILL.md"
   },
   "financial-model-qa": {
@@ -247,8 +247,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/financial-model-qa/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/financial-model-qa",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/financial-model-qa/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/financial-model-qa",
     "path": "financial-model-qa/SKILL.md"
   },
   "financial-pulse": {
@@ -261,8 +261,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/financial-pulse/skills/financial-pulse/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/financial-pulse/skills/financial-pulse",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/financial-pulse/skills/financial-pulse/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/financial-pulse/skills/financial-pulse",
     "path": "financial-pulse/skills/financial-pulse/SKILL.md"
   },
   "financial-pulse-grasshopper": {
@@ -275,8 +275,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/financial-pulse/agents/financial-pulse-grasshopper.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/financial-pulse/agents/financial-pulse-grasshopper.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-grasshopper.md"
   },
   "financial-pulse-mercury": {
@@ -289,8 +289,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/financial-pulse/agents/financial-pulse-mercury.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/financial-pulse/agents/financial-pulse-mercury.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-mercury.md"
   },
   "financial-pulse-ramp": {
@@ -303,8 +303,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/financial-pulse/agents/financial-pulse-ramp.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/financial-pulse/agents",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/financial-pulse/agents/financial-pulse-ramp.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/financial-pulse/agents",
     "path": "financial-pulse/agents/financial-pulse-ramp.md"
   },
   "ghost-seo-agent": {
@@ -317,8 +317,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/ghost-seo-agent/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/ghost-seo-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/ghost-seo-agent/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/ghost-seo-agent",
     "path": "ghost-seo-agent/SKILL.md"
   },
   "gl-to-report": {
@@ -331,8 +331,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/gl-to-report/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/gl-to-report",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/gl-to-report/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/gl-to-report",
     "path": "gl-to-report/SKILL.md"
   },
   "investor-update": {
@@ -345,8 +345,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/investor-update/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/investor-update",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/investor-update/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/investor-update",
     "path": "investor-update/SKILL.md"
   },
   "invoice-generation": {
@@ -359,8 +359,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/invoice-generation/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/invoice-generation",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/invoice-generation/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/invoice-generation",
     "path": "invoice-generation/SKILL.md"
   },
   "learn-quiz": {
@@ -373,8 +373,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Thariq Shihipar",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/learn-quiz/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/learn-quiz",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/learn-quiz/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/learn-quiz",
     "path": "learn-quiz/SKILL.md"
   },
   "librarian": {
@@ -387,8 +387,8 @@
     "version": "",
     "evalContractVersion": "1.1.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/librarian/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/librarian",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/librarian/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/librarian",
     "path": "librarian/SKILL.md"
   },
   "llm-visibility-agent": {
@@ -401,8 +401,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/llm-visibility-agent/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/llm-visibility-agent",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/llm-visibility-agent/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/llm-visibility-agent",
     "path": "llm-visibility-agent/SKILL.md"
   },
   "local-lead-prospector": {
@@ -415,8 +415,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/local-lead-prospector/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/local-lead-prospector",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/local-lead-prospector/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/local-lead-prospector",
     "path": "local-lead-prospector/SKILL.md"
   },
   "meeting-memo": {
@@ -429,8 +429,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/meeting-memo/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/meeting-memo",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/meeting-memo/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/meeting-memo",
     "path": "meeting-memo/SKILL.md"
   },
   "meeting-scribe": {
@@ -443,8 +443,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/meeting-scribe/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/meeting-scribe",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/meeting-scribe/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/meeting-scribe",
     "path": "meeting-scribe/SKILL.md"
   },
   "news-monitor": {
@@ -457,8 +457,8 @@
     "version": "",
     "evalContractVersion": "2.6.4",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/news-monitor/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/news-monitor",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/news-monitor/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/news-monitor",
     "path": "news-monitor/SKILL.md"
   },
   "office-tells": {
@@ -471,8 +471,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Brian Aber",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/office-tells/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/office-tells",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/office-tells/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/office-tells",
     "path": "office-tells/SKILL.md"
   },
   "qbo-bank-reconciliation": {
@@ -485,8 +485,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/qbo-bank-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/qbo-bank-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/qbo-bank-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/qbo-bank-reconciliation",
     "path": "qbo-bank-reconciliation/SKILL.md"
   },
   "qbo-closing-package": {
@@ -499,8 +499,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/qbo-closing-package/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/qbo-closing-package",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/qbo-closing-package/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/qbo-closing-package",
     "path": "qbo-closing-package/SKILL.md"
   },
   "qbo-expenses-ap": {
@@ -513,8 +513,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/qbo-expenses-ap/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/qbo-expenses-ap",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/qbo-expenses-ap/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/qbo-expenses-ap",
     "path": "qbo-expenses-ap/SKILL.md"
   },
   "qbo-inventory-reconciliation": {
@@ -527,8 +527,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/qbo-inventory-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/qbo-inventory-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/qbo-inventory-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/qbo-inventory-reconciliation",
     "path": "qbo-inventory-reconciliation/SKILL.md"
   },
   "qbo-payroll-balance-sheet": {
@@ -541,8 +541,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/qbo-payroll-balance-sheet/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/qbo-payroll-balance-sheet",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/qbo-payroll-balance-sheet/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/qbo-payroll-balance-sheet",
     "path": "qbo-payroll-balance-sheet/SKILL.md"
   },
   "qbo-revenue-ar": {
@@ -555,8 +555,8 @@
     "version": "",
     "evalContractVersion": "1.1.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/qbo-revenue-ar/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/qbo-revenue-ar",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/qbo-revenue-ar/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/qbo-revenue-ar",
     "path": "qbo-revenue-ar/SKILL.md"
   },
   "resume-tailor": {
@@ -569,8 +569,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/resume-tailor/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/resume-tailor",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/resume-tailor/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/resume-tailor",
     "path": "resume-tailor/SKILL.md"
   },
   "sales-email-template-generator": {
@@ -583,8 +583,8 @@
     "version": "1.0.0",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/sales-email-template-generator/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/sales-email-template-generator",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/sales-email-template-generator/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/sales-email-template-generator",
     "path": "sales-email-template-generator/SKILL.md"
   },
   "statement-reconciliation": {
@@ -597,8 +597,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/statement-reconciliation/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/statement-reconciliation",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/statement-reconciliation/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/statement-reconciliation",
     "path": "statement-reconciliation/SKILL.md"
   },
   "unemployment-guide": {
@@ -611,8 +611,8 @@
     "version": "",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/unemployment-guide/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/unemployment-guide",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/unemployment-guide/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/unemployment-guide",
     "path": "unemployment-guide/SKILL.md"
   },
   "vendor-contract-extraction": {
@@ -625,8 +625,8 @@
     "version": "",
     "evalContractVersion": null,
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/vendor-contract-extraction/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/vendor-contract-extraction",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/vendor-contract-extraction/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/vendor-contract-extraction",
     "path": "vendor-contract-extraction/SKILL.md"
   },
   "working-backwards": {
@@ -639,8 +639,8 @@
     "version": "1.0.0",
     "evalContractVersion": "1.0.0",
     "author": "Skills and Agents Co",
-    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.30.0/working-backwards/SKILL.md",
-    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.30.0/working-backwards",
+    "skillFileUrl": "https://raw.githubusercontent.com/skills-agents-co/skills-and-agents-library/v1.31.0/working-backwards/SKILL.md",
+    "githubUrl": "https://github.com/skills-agents-co/skills-and-agents-library/tree/v1.31.0/working-backwards",
     "path": "working-backwards/SKILL.md"
   }
 }

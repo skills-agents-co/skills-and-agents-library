@@ -168,28 +168,47 @@ export function validateManifest(manifest, root, manifestPath, fail) {
 
     const generated = entry.generated.map((g) => {
       const resolvedPath = resolveInRoot(root, g, `manifest ${manifestPath}: entry ${i} (source "${entry.source}") generated`, fail);
-      if (existsSync(resolvedPath) && !statSync(resolvedPath).isFile()) {
-        fail(`manifest ${manifestPath}: entry ${i} (source "${entry.source}") generated "${g}" already exists and is not a file (is it a directory?)`);
+      if (existsSync(resolvedPath)) {
+        // lstat, not stat: a `generated` path that already exists as a
+        // symlink must be rejected outright, even if it points at a real
+        // file inside the root. Accepting it (statSync follows the link)
+        // would make writeFileSync silently write THROUGH the link to
+        // whatever it targets — including another skill's canonical source
+        // — while this validation, and every message it prints, describes
+        // "generated" as if it were a plain file.
+        const lst = lstatSync(resolvedPath);
+        if (lst.isSymbolicLink()) {
+          fail(`manifest ${manifestPath}: entry ${i} (source "${entry.source}") generated "${g}" already exists as a symlink — refusing to write through it`);
+        }
+        if (!lst.isFile()) {
+          fail(`manifest ${manifestPath}: entry ${i} (source "${entry.source}") generated "${g}" already exists and is not a file (is it a directory?)`);
+        }
       }
       return { path: g, resolvedPath };
     });
 
     normalized.push({ source: entry.source, sourcePath, generated });
-    allGenerated.push(...entry.generated);
+    allGenerated.push(...entry.generated.map((g, j) => generated[j].resolvedPath));
   });
 
+  // Collision checks compare RESOLVED paths, not the raw manifest strings.
+  // Two different spellings of the same file ("s.txt" and "./s.txt") are the
+  // same path on disk, and a check that only compares strings lets a
+  // `generated` path silently alias a `source` path — the generator would
+  // then overwrite a human-edited canonical file with no warning, which is
+  // exactly the failure mode both checks below exist to prevent.
   const generatedSeen = new Set();
-  for (const g of allGenerated) {
-    if (generatedSeen.has(g)) {
-      fail(`manifest ${manifestPath}: "${g}" is listed as a "generated" path more than once`);
+  for (const resolvedPath of allGenerated) {
+    if (generatedSeen.has(resolvedPath)) {
+      fail(`manifest ${manifestPath}: "${resolvedPath}" is listed as a "generated" path more than once`);
     }
-    generatedSeen.add(g);
+    generatedSeen.add(resolvedPath);
   }
 
-  const sourceSet = new Set(normalized.map((e) => e.source));
-  for (const g of allGenerated) {
-    if (sourceSet.has(g)) {
-      fail(`manifest ${manifestPath}: "${g}" is listed as both a "source" and a "generated" path`);
+  const sourceSet = new Set(normalized.map((e) => e.sourcePath));
+  for (const resolvedPath of allGenerated) {
+    if (sourceSet.has(resolvedPath)) {
+      fail(`manifest ${manifestPath}: "${resolvedPath}" is listed as both a "source" and a "generated" path`);
     }
   }
 

@@ -193,6 +193,43 @@ check('validateManifest rejects a path listed as both source and generated', (wa
   want(err === null, err);
 });
 
+check('validateManifest rejects an ALIASED path listed as both source and generated (different spelling, same file)', (want) => {
+  // "s.txt" and "./s.txt" are the same file on disk. A collision check that
+  // compares the raw manifest strings instead of resolved paths lets this
+  // through, and the generator then silently overwrites a canonical source.
+  const root = makeRoot('v-source-is-generated-aliased', { 's.txt': 'a' });
+  const err = expectFail(
+    () => validate(root, [{ source: 's.txt', generated: ['./s.txt'] }]),
+    'is listed as both a "source" and a "generated" path',
+  );
+  want(err === null, err);
+});
+
+check('validateManifest rejects an ALIASED duplicate generated path (different spelling, same file)', (want) => {
+  const root = makeRoot('v-dup-generated-aliased', { 's1.txt': 'a', 's2.txt': 'b' });
+  const err = expectFail(
+    () => validate(root, [
+      { source: 's1.txt', generated: ['sub/g.txt'] },
+      { source: 's2.txt', generated: ['./sub/g.txt'] },
+    ]),
+    'is listed as a "generated" path more than once',
+  );
+  want(err === null, err);
+});
+
+check('validateManifest rejects a generated path that already exists as a symlink', (want) => {
+  // Even a symlink pointing at a real file INSIDE the root must be rejected:
+  // accepting it (a plain statSync follows the link) would make the write
+  // silently land on whatever the link targets, not on "generated" itself.
+  const root = makeRoot('v-generated-is-symlink', { 's.txt': 'a', 'real-target.txt': 'canonical' });
+  symlinkSync(join(root, 'real-target.txt'), join(root, 'alias-link'));
+  const err = expectFail(
+    () => validate(root, [{ source: 's.txt', generated: ['alias-link'] }]),
+    'already exists as a symlink',
+  );
+  want(err === null, err);
+});
+
 check('validateManifest rejects an absolute path', (want) => {
   const root = makeRoot('v-absolute');
   const err = expectFail(() => validate(root, [{ source: '/etc/passwd', generated: ['g.txt'] }]), 'must be a relative path');

@@ -212,6 +212,32 @@ check('validateManifest rejects a source that is a directory, not a file', (want
   want(err === null, err);
 });
 
+check('validateManifest rejects a generated path that is a directory, not a file', (want) => {
+  const root = makeRoot('v-generated-is-dir', { 's.txt': 'hello' });
+  mkdirSync(join(root, 'a-directory'), { recursive: true });
+  const err = expectFail(
+    () => validate(root, [{ source: 's.txt', generated: ['a-directory'] }]),
+    'already exists and is not a file (is it a directory?)',
+  );
+  want(err === null, err);
+});
+
+check('resolveInRoot rejects a DANGLING symlink whose target does not exist', (want) => {
+  const root = makeRoot('resolve-dangling-symlink');
+  const outside = makeRoot('resolve-dangling-symlink-outside');
+  // Target doesn't exist yet (unlike the earlier "future path" case, where
+  // the symlink itself exists and points at a real directory) — this is the
+  // gap nearestExistingAncestor's realpath check alone can't see, because
+  // existsSync reports a dangling symlink's path as not-existing and walks
+  // straight past it.
+  symlinkSync(join(outside, 'does-not-exist-yet'), join(root, 'dangling'));
+  const err = expectFail(
+    () => resolveInRoot(root, 'dangling/file.txt', 'label', throwingFail),
+    "passes through a dangling symlink whose target can't be verified",
+  );
+  want(err === null, err);
+});
+
 check('validateManifest accepts a well-formed manifest and returns resolved paths', (want) => {
   const root = makeRoot('v-ok', { 's.txt': 'hello' });
   const normalized = validate(root, [{ source: 's.txt', generated: ['out/g.txt'] }]);

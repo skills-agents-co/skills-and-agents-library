@@ -31,17 +31,20 @@
  * unrecognized argument is also an error.
  *
  * Before writing anything, the whole manifest is validated and a pre-flight
- * pass checks that every `source` path exists and every `generated` path's
- * parent directory either already exists or can be created. If any check
- * fails, every problem found is reported and the script exits 1 without
- * writing a single file — a stale or half-set-up manifest should never result
- * in a partial write followed by a crash.
+ * pass checks that every `source` path exists, isn't a directory, and every
+ * `generated` path's parent directory either already exists and is writable
+ * or can be created. If any check fails, every problem found is reported and
+ * the script exits 1 without writing a single file. This covers every
+ * pre-flight-checkable cause of a partial write; an I/O failure the pre-flight
+ * can't predict (disk full mid-write, a permission change between the check
+ * and the write) still aborts mid-loop, but the failure message says how many
+ * files were already written so it's never mistaken for "nothing happened".
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync, accessSync, constants } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateManifest } from './lib/plugin-file-map.mjs';
+import { validateManifest, nearestExistingAncestor } from './lib/plugin-file-map.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
@@ -71,19 +74,22 @@ function parseArgs(argv) {
 
 /**
  * The nearest existing ancestor of `dir` that would block `mkdirSync(dir,
- * { recursive: true })` — i.e. an existing path segment that is a regular
- * file rather than a directory — or null if nothing blocks it.
+ * { recursive: true })` — either an existing path segment that is a regular
+ * file rather than a directory, or an existing directory the process can't
+ * write into — or null if nothing blocks it. Reuses the shared module's own
+ * upward walk (nearestExistingAncestor) instead of re-implementing it, which
+ * is exactly the kind of duplication the shared module exists to prevent.
  */
 function findBlockingAncestor(dir) {
-  let cur = dir;
-  for (;;) {
-    if (existsSync(cur)) {
-      return statSync(cur).isDirectory() ? null : cur;
-    }
-    const parent = dirname(cur);
-    if (parent === cur) return null;
-    cur = parent;
+  const nearest = nearestExistingAncestor(dir);
+  if (nearest === null) return null;
+  if (!statSync(nearest).isDirectory()) return nearest;
+  try {
+    accessSync(nearest, constants.W_OK);
+  } catch {
+    return nearest;
   }
+  return null;
 }
 
 function main() {
@@ -114,7 +120,8 @@ function main() {
     for (const g of entry.generated) {
       const blocker = findBlockingAncestor(dirname(g.resolvedPath));
       if (blocker) {
-        problems.push(`${g.path}: cannot create its parent directory — "${blocker}" already exists and is not a directory`);
+        const reason = statSync(blocker).isDirectory() ? 'is not writable' : 'already exists and is not a directory';
+        problems.push(`${g.path}: cannot create its parent directory — "${blocker}" ${reason}`);
       }
     }
   }
@@ -137,7 +144,7 @@ function main() {
       }
     }
   } catch (err) {
-    fail(`unexpected error while writing plugin files: ${err.message}`);
+    fail(`unexpected error while writing plugin files after ${written} file(s) were already written (re-run once the cause is fixed): ${err.message}`);
   }
 
   console.log(`generated ${written} file(s) from ${manifest.length} canonical source(s)`);

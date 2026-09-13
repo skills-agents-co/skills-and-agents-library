@@ -138,8 +138,14 @@ function check(name, condition, detail) {
     { source: 'src2/requirements.txt', generated: ['plugin2/requirements.txt'] },
   ], null, 2) + '\n');
   mkdirSync(join(root, 'src1'), { recursive: true });
-  writeFileSync(join(root, 'src1', 'requirements.txt'), 'a==1.0\n');
+  writeFileSync(join(root, 'src1', 'requirements.txt'), 'a==2.0\n');
   mkdirSync(join(root, 'plugin1'), { recursive: true });
+  // entry 1's generated copy deliberately DIFFERS from its source (a==1.0 vs
+  // a==2.0). If the pre-flight fails to stop entry 1 from being written
+  // before entry 2's missing source is discovered, this file would change to
+  // a==2.0 — making a real write distinguishable from "nothing happened",
+  // unlike the old version of this test where both sides held identical
+  // bytes and a partial write was invisible to the assertion.
   writeFileSync(join(root, 'plugin1', 'requirements.txt'), 'a==1.0\n');
   // src2/requirements.txt is deliberately never created.
 
@@ -154,8 +160,8 @@ function check(name, condition, detail) {
   check('missing source (2nd entry): exits non-zero', ranOk && code !== 0, out);
   check('missing source (2nd entry): reports the missing source', out.includes('src2/requirements.txt'), out);
   check(
-    "missing source (2nd entry): entry 1's already-correct generated target was NOT modified",
-    entry1After === before,
+    "missing source (2nd entry): entry 1's stale generated target was NOT overwritten",
+    entry1After === before && entry1After === 'a==1.0\n',
     `before=${JSON.stringify(before)} after=${JSON.stringify(entry1After)}`,
   );
   check("missing source (2nd entry): entry 2's generated target was NOT created", !entry2Created, 'plugin2/requirements.txt was created');

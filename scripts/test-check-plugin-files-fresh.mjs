@@ -152,6 +152,12 @@ const cases = [
     match: 'is not a file (is it a directory?)',
   },
   {
+    name: 'generated path that is a directory fails validation with a clean message, not EISDIR',
+    run: () => runFixture(join(fixturesRoot, 'generated-is-directory')),
+    expect: 'fail',
+    match: 'already exists and is not a file (is it a directory?)',
+  },
+  {
     name: 'symlink escape: generated path through a symlink pointing outside the root is rejected',
     run: () => runFixture(join(fixturesRoot, 'symlink-escape')),
     expect: 'fail',

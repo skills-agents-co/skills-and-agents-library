@@ -122,6 +122,14 @@ function main() {
       if (blocker) {
         const reason = statSync(blocker).isDirectory() ? 'is not writable' : 'already exists and is not a directory';
         problems.push(`${g.path}: cannot create its parent directory — "${blocker}" ${reason}`);
+        continue;
+      }
+      if (existsSync(g.resolvedPath)) {
+        try {
+          accessSync(g.resolvedPath, constants.W_OK);
+        } catch {
+          problems.push(`${g.path}: already exists and is not writable`);
+        }
       }
     }
   }

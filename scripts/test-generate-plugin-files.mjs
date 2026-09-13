@@ -15,7 +15,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync, symlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync, symlinkSync, chmodSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -229,6 +229,26 @@ function check(name, condition, detail) {
   );
 }
 
+// (d4) generated path that is a directory: same clean validation-time
+// failure, not a raw EISDIR stack trace from the write side.
+{
+  const root = join(scratch, 'generated-is-directory');
+  mkdirSync(join(root, 'src'), { recursive: true });
+  writeFileSync(join(root, 'src', 'requirements.txt'), 'a==1.0\n');
+  mkdirSync(join(root, 'plugin', 'requirements.txt'), { recursive: true });
+  writeFileSync(
+    join(root, 'plugin-file-map.json'),
+    JSON.stringify([{ source: 'src/requirements.txt', generated: ['plugin/requirements.txt'] }], null, 2) + '\n',
+  );
+  const { code, out, error } = run(root);
+  const ranOk = !error && code !== null;
+  check(
+    'generated is a directory: exits non-zero with a clean FAIL message, not a raw EISDIR stack trace',
+    ranOk && code !== 0 && out.includes('FAIL:') && !out.includes('EISDIR') && !out.includes('at Object.'),
+    out,
+  );
+}
+
 // (e) all-or-nothing when the SECOND item's generated parent is blocked by an
 // existing file (not just when its source is missing) — the pre-flight must
 // catch this before any write happens, not fail mid-loop after entry 1 wrote.
@@ -254,6 +274,44 @@ function check(name, condition, detail) {
   check('blocked generated parent: exits non-zero', ranOk && code !== 0, out);
   check('blocked generated parent: reports the blocked path', out.includes('blocker/nested/requirements.txt'), out);
   check('blocked generated parent: entry 1 was NOT written (all-or-nothing)', !entry1Written, 'plugin1/requirements.txt was created');
+}
+
+// (e2) all-or-nothing when the SECOND item's generated target already exists
+// but is read-only — the parent directory is writable, so the ancestor walk
+// alone would miss this; the pre-flight must also check the target file's
+// own permissions, or entry 1 gets written before the read-only target's
+// write fails mid-loop.
+{
+  const root = join(scratch, 'readonly-generated');
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'plugin-file-map.json'), JSON.stringify([
+    { source: 'src1/requirements.txt', generated: ['plugin1/requirements.txt'] },
+    { source: 'src2/requirements.txt', generated: ['plugin2/requirements.txt'] },
+  ], null, 2) + '\n');
+  mkdirSync(join(root, 'src1'), { recursive: true });
+  writeFileSync(join(root, 'src1', 'requirements.txt'), 'a==1.0\n');
+  mkdirSync(join(root, 'src2'), { recursive: true });
+  writeFileSync(join(root, 'src2', 'requirements.txt'), 'b==2.0\n');
+  mkdirSync(join(root, 'plugin1'), { recursive: true });
+  mkdirSync(join(root, 'plugin2'), { recursive: true });
+  writeFileSync(join(root, 'plugin2', 'requirements.txt'), 'b==1.0\n');
+  chmodSync(join(root, 'plugin2', 'requirements.txt'), 0o444);
+
+  const { code, out, error } = run(root);
+  const ranOk = !error && code !== null;
+  const entry1Written = existsSync(join(root, 'plugin1', 'requirements.txt'));
+
+  try {
+    if (process.getuid && process.getuid() === 0) {
+      check('read-only generated target: skipped (running as root, permissions are not enforced)', true, 'n/a');
+    } else {
+      check('read-only generated target: exits non-zero', ranOk && code !== 0, out);
+      check('read-only generated target: reports the read-only path', out.includes('plugin2/requirements.txt'), out);
+      check('read-only generated target: entry 1 was NOT written (all-or-nothing)', !entry1Written, 'plugin1/requirements.txt was created');
+    }
+  } finally {
+    chmodSync(join(root, 'plugin2', 'requirements.txt'), 0o644);
+  }
 }
 
 // (f) symlink escape defense: a manifest entry resolving through a symlink

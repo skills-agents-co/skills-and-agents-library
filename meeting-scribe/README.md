@@ -73,6 +73,8 @@ meeting-scribe/
 ├── SKILL.md                          # The skill
 ├── references/
 │   ├── mention-proposal.md           # JSON shape for one proposed mention (portability contract)
+│   ├── output-format.md              # Meeting-note template, mention-line format, recap email shape
+│   ├── error-handling.md             # Full error-handling rule list
 │   ├── sample-transcript.md          # Frozen sample transcript for the eval self-tests
 │   └── sample-entities/              # 2 people + 2 organizations, matches the self-tests
 └── README.md

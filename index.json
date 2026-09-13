@@ -696,7 +696,9 @@
     "files": [
       "README.md",
       "SKILL.md",
+      "references/error-handling.md",
       "references/mention-proposal.md",
+      "references/output-format.md",
       "references/sample-entities/organizations/anlo-robotics.md",
       "references/sample-entities/organizations/anlo-ventures.md",
       "references/sample-entities/people/jordan-lee.md",

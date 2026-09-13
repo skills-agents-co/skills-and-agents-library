@@ -98,6 +98,18 @@ jobs:
       - name: Test the skill-files checker against its fixtures
         run: node scripts/test-check-skill-files.mjs
 
+      - name: Check plugin-nested files stay in sync with their canonical source
+        run: node scripts/check-plugin-files-fresh.mjs
+
+      - name: Test the plugin-file-freshness checker against its fixtures
+        run: node scripts/test-check-plugin-files-fresh.mjs
+
+      - name: Test the plugin-file generator against a scratch root
+        run: node scripts/test-generate-plugin-files.mjs
+
+      - name: Test the shared plugin-file-map validation module directly
+        run: node scripts/test-plugin-file-map.mjs
+
       - name: Check every skill links back to its catalog page
         run: node scripts/check-backlinks.mjs
 

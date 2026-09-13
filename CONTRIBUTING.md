@@ -92,6 +92,9 @@ bash scripts/test-install.sh                 # installs every entry from its pin
 node scripts/test-install-negative.mjs       # proves the check above can fail, against generated fixtures
 node scripts/check-index-additive.mjs        # index.json stays additive at its own pinned ref; README's ref agrees with it
 node scripts/test-check-index-additive.mjs   # proves that checker can fail, against generated fixtures
+node scripts/check-plugin-files-fresh.mjs    # plugin-nested copies stay in sync with their canonical source
+node scripts/test-check-plugin-files-fresh.mjs # proves that checker can fail, against fixtures
+node scripts/test-generate-plugin-files.mjs  # generator writes correctly and refuses partial writes, against a scratch root
 node scripts/test-build-index.mjs            # index builder, against a throwaway git fixture repo (no network)
 node scripts/test-index-ref.mjs              # unit tests for the shared ref/path library (no network)
 bash scripts/test-readme-install.sh          # runs the README's documented install command as written

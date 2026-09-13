@@ -1,0 +1,4 @@
+[
+  { "source": "src1/requirements.txt", "generated": ["plugin1/requirements.txt"] },
+  { "source": "src2/requirements.txt", "generated": ["plugin2a/requirements.txt", "plugin2b/requirements.txt"] }
+]

@@ -21,145 +21,123 @@
  *
  * --fixtures points the whole run at an alternate root with its own
  * <dir>/plugin-file-map.json and `source`/`generated` paths resolved relative
- * to `<dir>`, for this script's own tests
- * (scripts/test-fixtures/generate-plugin-files/* or a scratch directory). Omit
- * it for the real run against this repo.
+ * to `<dir>`. This script's own tests (test-generate-plugin-files.mjs) don't
+ * use static fixture directories the way check-plugin-files-fresh.mjs's tests
+ * do — since this script writes files, each test case builds a fresh scratch
+ * root with mkdtempSync and points --fixtures at it. Omit --fixtures for the
+ * real run against this repo. `--fixtures` requires a directory argument that
+ * isn't blank and doesn't look like another flag — passing it with a missing
+ * operand is an error, not a silent fallback to the real repo. Any other
+ * unrecognized argument is also an error.
  *
- * Before writing anything, every `source` path named in the manifest is
- * checked to exist. If any is missing, all of the missing sources are
- * reported and the script exits 1 without writing a single file — a manifest
- * that names a stale source should never result in a partial write followed
- * by a crash.
+ * Before writing anything, the whole manifest is validated and a pre-flight
+ * pass checks that every `source` path exists and every `generated` path's
+ * parent directory either already exists or can be created. If any check
+ * fails, every problem found is reported and the script exits 1 without
+ * writing a single file — a stale or half-set-up manifest should never result
+ * in a partial write followed by a crash.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { join, dirname, resolve, isAbsolute, sep } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateManifest } from './lib/plugin-file-map.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
-
-function parseArgs(argv) {
-  const args = { root: repoRoot, manifest: join(__dirname, 'plugin-file-map.json') };
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--fixtures') {
-      const operand = argv[i + 1];
-      if (!operand || !operand.trim()) {
-        console.error('FAIL: --fixtures requires a directory argument');
-        process.exit(1);
-      }
-      args.root = operand;
-      args.manifest = join(args.root, 'plugin-file-map.json');
-      i++;
-    }
-  }
-  return args;
-}
 
 function fail(message) {
   console.error(`FAIL: ${message}`);
   process.exit(1);
 }
 
-/** Resolve `relPath` against `root` and abort if it would escape `root`. */
-function resolveInRoot(root, relPath, label) {
-  const rootResolved = resolve(root);
-  if (isAbsolute(relPath)) {
-    fail(`${label} "${relPath}" must be a relative path, not absolute`);
+function parseArgs(argv) {
+  const args = { root: repoRoot, manifest: join(__dirname, 'plugin-file-map.json') };
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--fixtures') {
+      const operand = argv[i + 1];
+      if (!operand || !operand.trim() || operand.startsWith('--')) {
+        fail('--fixtures requires a directory argument');
+      }
+      args.root = operand;
+      args.manifest = join(args.root, 'plugin-file-map.json');
+      i++;
+    } else {
+      fail(`unrecognized argument "${argv[i]}"`);
+    }
   }
-  const resolved = resolve(root, relPath);
-  if (resolved !== rootResolved && !resolved.startsWith(rootResolved + sep)) {
-    fail(`${label} "${relPath}" resolves outside of ${root} (path escapes the root)`);
-  }
-  return resolved;
+  return args;
 }
 
 /**
- * Validate the shape of a parsed plugin-file-map.json manifest and every path
- * it names, aborting the process with a clear message on the first problem
- * found. Returns nothing on success.
+ * The nearest existing ancestor of `dir` that would block `mkdirSync(dir,
+ * { recursive: true })` — i.e. an existing path segment that is a regular
+ * file rather than a directory — or null if nothing blocks it.
  */
-function validateManifest(manifest, root, manifestPath) {
-  if (!Array.isArray(manifest)) {
-    fail(`manifest ${manifestPath} must be a JSON array, got ${typeof manifest}`);
-  }
-
-  const allSources = [];
-  const allGenerated = [];
-
-  manifest.forEach((entry, i) => {
-    if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
-      fail(`manifest ${manifestPath}: entry ${i} must be an object, got ${JSON.stringify(entry)}`);
+function findBlockingAncestor(dir) {
+  let cur = dir;
+  for (;;) {
+    if (existsSync(cur)) {
+      return statSync(cur).isDirectory() ? null : cur;
     }
-    if (typeof entry.source !== 'string' || entry.source.trim() === '') {
-      fail(`manifest ${manifestPath}: entry ${i} must have a non-empty string "source", got ${JSON.stringify(entry.source)}`);
-    }
-    if (!Array.isArray(entry.generated) || entry.generated.length === 0) {
-      fail(`manifest ${manifestPath}: entry ${i} (source "${entry.source}") must have a non-empty array "generated"`);
-    }
-    entry.generated.forEach((g, j) => {
-      if (typeof g !== 'string' || g.trim() === '') {
-        fail(`manifest ${manifestPath}: entry ${i} (source "${entry.source}") generated[${j}] must be a non-empty string, got ${JSON.stringify(g)}`);
-      }
-    });
-
-    resolveInRoot(root, entry.source, `manifest ${manifestPath}: entry ${i} source`);
-    entry.generated.forEach((g) => resolveInRoot(root, g, `manifest ${manifestPath}: entry ${i} (source "${entry.source}") generated`));
-
-    allSources.push(entry.source);
-    allGenerated.push(...entry.generated);
-  });
-
-  const generatedSeen = new Set();
-  for (const g of allGenerated) {
-    if (generatedSeen.has(g)) {
-      fail(`manifest ${manifestPath}: "${g}" is listed as a "generated" path more than once`);
-    }
-    generatedSeen.add(g);
-  }
-
-  const sourceSet = new Set(allSources);
-  for (const g of allGenerated) {
-    if (sourceSet.has(g)) {
-      fail(`manifest ${manifestPath}: "${g}" is listed as both a "source" and a "generated" path`);
-    }
+    const parent = dirname(cur);
+    if (parent === cur) return null;
+    cur = parent;
   }
 }
 
 function main() {
   const { root, manifest: manifestPath } = parseArgs(process.argv.slice(2));
 
-  let manifest;
+  if (!existsSync(manifestPath)) {
+    fail(`manifest not found at ${manifestPath}`);
+  }
+
+  let rawManifest;
   try {
-    manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    rawManifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   } catch (err) {
     fail(`could not parse ${manifestPath}: ${err.message}`);
   }
 
-  validateManifest(manifest, root, manifestPath);
+  const manifest = validateManifest(rawManifest, root, manifestPath, fail);
 
-  const missingSources = manifest
-    .map((entry) => entry.source)
-    .filter((source) => !existsSync(join(root, source)));
+  // Pre-flight: check everything that could go wrong on either side of a
+  // write — a missing source, or a generated path whose parent directory is
+  // blocked by an existing file — before a single byte is written anywhere.
+  const problems = [];
 
-  if (missingSources.length > 0) {
-    console.error('FAIL: manifest names source(s) that do not exist — nothing was written:');
-    for (const s of missingSources) console.error('  - ' + s);
+  for (const entry of manifest) {
+    if (!existsSync(entry.sourcePath)) {
+      problems.push(`${entry.source}: manifest names this as a source but the file does not exist`);
+    }
+    for (const g of entry.generated) {
+      const blocker = findBlockingAncestor(dirname(g.resolvedPath));
+      if (blocker) {
+        problems.push(`${g.path}: cannot create its parent directory — "${blocker}" already exists and is not a directory`);
+      }
+    }
+  }
+
+  if (problems.length > 0) {
+    console.error('FAIL: manifest cannot be generated — nothing was written:');
+    for (const p of problems) console.error('  - ' + p);
     process.exit(1);
   }
 
   let written = 0;
-  for (const entry of manifest) {
-    const sourcePath = join(root, entry.source);
-    const sourceBytes = readFileSync(sourcePath);
-
-    for (const generated of entry.generated) {
-      const generatedPath = join(root, generated);
-      mkdirSync(dirname(generatedPath), { recursive: true });
-      writeFileSync(generatedPath, sourceBytes);
-      console.log(`wrote ${generated} from ${entry.source}`);
-      written++;
+  try {
+    for (const entry of manifest) {
+      const sourceBytes = readFileSync(entry.sourcePath);
+      for (const g of entry.generated) {
+        mkdirSync(dirname(g.resolvedPath), { recursive: true });
+        writeFileSync(g.resolvedPath, sourceBytes);
+        console.log(`wrote ${g.path} from ${entry.source}`);
+        written++;
+      }
     }
+  } catch (err) {
+    fail(`unexpected error while writing plugin files: ${err.message}`);
   }
 
   console.log(`generated ${written} file(s) from ${manifest.length} canonical source(s)`);

@@ -79,6 +79,96 @@ const cases = [
     expect: 'fail',
     match: 'plugin2b/requirements.txt: differs from its source src2/requirements.txt',
   },
+  {
+    name: 'empty-array manifest is rejected',
+    run: () => runFixture(join(fixturesRoot, 'empty-manifest')),
+    expect: 'fail',
+    match: 'is an empty array',
+  },
+  {
+    name: 'manifest must be a JSON array',
+    run: () => runFixture(join(fixturesRoot, 'invalid-non-array')),
+    expect: 'fail',
+    match: 'must be a JSON array',
+  },
+  {
+    name: 'manifest entry must be an object',
+    run: () => runFixture(join(fixturesRoot, 'invalid-entry-not-object')),
+    expect: 'fail',
+    match: 'entry 0 must be an object',
+  },
+  {
+    name: 'manifest entry missing "source"',
+    run: () => runFixture(join(fixturesRoot, 'invalid-missing-source')),
+    expect: 'fail',
+    match: 'must have a non-empty string "source"',
+  },
+  {
+    name: 'manifest entry blank "source"',
+    run: () => runFixture(join(fixturesRoot, 'invalid-blank-source')),
+    expect: 'fail',
+    match: 'must have a non-empty string "source"',
+  },
+  {
+    name: 'manifest entry missing/empty "generated"',
+    run: () => runFixture(join(fixturesRoot, 'invalid-missing-generated')),
+    expect: 'fail',
+    match: 'must have a non-empty array "generated"',
+  },
+  {
+    name: 'manifest entry generated[j] non-string',
+    run: () => runFixture(join(fixturesRoot, 'invalid-generated-non-string')),
+    expect: 'fail',
+    match: 'generated[0] must be a non-empty string',
+  },
+  {
+    name: 'duplicate "generated" path across the manifest',
+    run: () => runFixture(join(fixturesRoot, 'invalid-duplicate-generated')),
+    expect: 'fail',
+    match: 'is listed as a "generated" path more than once',
+  },
+  {
+    name: 'path listed as both "source" and "generated"',
+    run: () => runFixture(join(fixturesRoot, 'invalid-source-is-generated')),
+    expect: 'fail',
+    match: 'is listed as both a "source" and a "generated" path',
+  },
+  {
+    name: 'absolute path is rejected',
+    run: () => runFixture(join(fixturesRoot, 'invalid-absolute-path')),
+    expect: 'fail',
+    match: 'must be a relative path, not absolute',
+  },
+  {
+    name: '../ root escape is rejected',
+    run: () => runFixture(join(fixturesRoot, 'invalid-traversal-path')),
+    expect: 'fail',
+    match: 'path escapes the root',
+  },
+  {
+    name: 'source that is a directory fails validation with a clean message',
+    run: () => runFixture(join(fixturesRoot, 'source-is-directory')),
+    expect: 'fail',
+    match: 'is not a file (is it a directory?)',
+  },
+  {
+    name: 'symlink escape: generated path through a symlink pointing outside the root is rejected',
+    run: () => runFixture(join(fixturesRoot, 'symlink-escape')),
+    expect: 'fail',
+    match: 'escapes',
+  },
+  {
+    name: 'unrecognized argument is rejected',
+    run: () => run(['--bogus']),
+    expect: 'fail',
+    match: 'unrecognized argument',
+  },
+  {
+    name: '--fixtures with an operand that looks like another flag',
+    run: () => run(['--fixtures', '--verbose']),
+    expect: 'fail',
+    match: '--fixtures requires a directory argument',
+  },
 ];
 
 let failures = 0;

@@ -106,7 +106,7 @@ Thanks,
 [Your name / organization]
 ```
 
-**If no secure return channel was given to you** (see Inputs above), do not fill in that bracket with a guess. Instead, do not emit the template at all. Report instead: "A vendor request is ready to draft for [Vendor Name], but no secure return channel has been configured, a human needs to specify one (a secure upload link, encrypted email, or portal) before a draft can be produced, since a completed W-9 should never come back by plain email." Produce the full template only once a channel is known, in the same run or a follow-up one.
+**If no secure return channel was given to you** (see Inputs above), do not fill in that bracket with a guess. Instead, do not emit the template at all. Report instead: "A vendor request is ready to draft for [Vendor Name], but no secure return channel has been configured. A human needs to specify one (a secure upload link, encrypted email, or portal) before a draft can be produced, since a completed W-9 should never come back by plain email." Produce the full template only once a channel is known, in the same run or a follow-up one.
 
 Notes on the template:
 - The wording above deliberately never claims "we don't have one on file" as fact, it says a completed W-9 is needed, which is true whether the record shows missing, shows conflicting information, or shows nothing at all (Branch C). Don't rephrase this back into an assertion that no W9 exists; that's false in the Branch C case, where the truth is simply unknown.
@@ -116,7 +116,7 @@ Notes on the template:
 
 ## Output format
 
-Always lead with the report (vendor match status, W9 status, citations). Follow with the drafted vendor request only when Step 2 produced one. When a draft was produced, end the response with: "This is a draft. I have not sent anything, review and send it yourself through your organization's usual channel." When no draft was produced (Branch A, an unresolved ambiguous match, or no contact found), skip that line; instead, close with a one-line statement of what's needed next (a human's pick between candidate rows, a contact to locate, or a secure channel to configure).
+Always lead with the report (vendor match status, W9 status, citations). Follow with the drafted vendor request only when Step 2 produced one. When a draft was produced, end the response with: "This is a draft. I have not sent anything. Review and send it yourself through your organization's usual channel." When no draft was produced (Branch A, an unresolved ambiguous match, or no contact found), skip that line; instead, close with a one-line statement of what's needed next (a human's pick between candidate rows, a contact to locate, or a secure channel to configure).
 
 ## Edge cases
 

@@ -59,7 +59,7 @@ Every skill installs the same way: download one pinned tarball, extract the skil
 (
   set -e
   skill="resume-tailor"   # <-- change me to the skill's folder (see note below)
-  ref="v1.34.0"            # pinned release; matches index.json's skillFileUrl
+  ref="v1.35.0"            # pinned release; matches index.json's skillFileUrl
 
   # The install removes "$HOME/.claude/skills/$skill" before it copies. If
   # $skill were empty or a path, that line would delete the wrong directory —
@@ -179,6 +179,8 @@ This repo doubles as a working reference for how we package skills:
 - **One folder per skill**, supporting files in `references/`, `agents/`, `scripts/`
 - **Tagged releases** — `v1.0.0`, `v1.1.0`, etc. — with a generated [`index.json`](./index.json) the catalog consumes
 - **Contribution path** in [CONTRIBUTING.md](./CONTRIBUTING.md): new skill = new top-level folder, one PR
+
+**A skill that ships both standalone and bundled inside a plugin** (e.g. `local-lead-prospector` and its plugin copy `plugins/eta-searcher`) can end up with the same supporting file committed twice. For `requirements.txt`, exactly one copy is human-edited — the top-level skill's — and every plugin-nested copy is generated from it via `scripts/plugin-file-map.json`. After editing a canonical `requirements.txt`, run `node scripts/generate-plugin-files.mjs` and commit the regenerated copy alongside your change. CI's `scripts/check-plugin-files-fresh.mjs` step fails the build if a plugin-nested copy has drifted from its source, so a forgotten regeneration cannot merge silently.
 
 Cutting a release:
 

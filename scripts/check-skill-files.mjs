@@ -8,7 +8,18 @@
  * "Its own skill folder" is the skill's resolution root, which depends on layout:
  *   flat            <slug>/SKILL.md                          root = <slug>/
  *   nested          <slug>/skills/<name>/SKILL.md             root = <slug>/
- *   plugin-nested   plugins/<plugin>/skills/<name>/SKILL.md   root = plugins/<plugin>/
+ *   plugin-nested   plugins/<plugin>/skills/<name>/SKILL.md   root = plugins/<plugin>/skills/<name>/
+ *
+ * "nested" and "plugin-nested" look identical in shape (a `skills/<name>/` wrapper
+ * around the SKILL.md) but resolve differently on purpose. A "nested" slug wraps
+ * exactly one skill whose name matches the slug (e.g. `ads-copilot/skills/ads-copilot/`)
+ * — there is nothing to share a root with, so keeping the slug itself as root costs
+ * nothing. A plugin bundles several *independent* skills under one `plugins/<plugin>/`
+ * folder, each with its own `references/`; giving them a shared plugin-level root
+ * would let two unrelated skills' same-named files (e.g. two `output-templates.md`)
+ * silently resolve to whichever one happens to be evaluated, or worse, let one skill's
+ * body reach into a sibling skill's files without the escapes-root check ever firing.
+ * Every plugin-nested skill therefore gets its own root, one level below "nested"'s.
  *
  * The walk finds SKILL.md by filename, not by a fixed folder shape, so a fourth
  * layout cannot hide from the check. It ignores the top-level `examples/`, `scripts/`,
@@ -92,13 +103,21 @@ function findSkillMdFiles(root, ignoreAtTopLevel) {
 
 /**
  * Resolution root for a SKILL.md path:
- *   .../skills/<name>/SKILL.md  -> two levels up (parent of "skills")
- *   everything else             -> the directory containing SKILL.md
+ *   plugins/<plugin>/skills/<name>/SKILL.md  -> the directory containing SKILL.md
+ *                                               (each bundled skill gets its own root)
+ *   .../skills/<name>/SKILL.md               -> two levels up (parent of "skills")
+ *   everything else                          -> the directory containing SKILL.md
  */
 function resolveRootFor(skillMdPath) {
   const dir = dirname(skillMdPath);
   const parent = dirname(dir);
   if (dirname(parent) !== parent && basename(parent) === 'skills') {
+    // .../plugins/<plugin>/skills/<name>/SKILL.md: `parent` is ".../plugins/<plugin>/skills",
+    // so its own parent is ".../plugins/<plugin>" — check by path segment, not against
+    // repoRoot/walkRoot, so this works the same for the real repo and for --fixtures.
+    const pluginDir = dirname(parent);
+    const isPluginNested = dirname(pluginDir) !== pluginDir && basename(dirname(pluginDir)) === 'plugins';
+    if (isPluginNested) return dir;
     return dirname(parent);
   }
   return dir;

@@ -1,0 +1,6 @@
+[
+  {
+    "source": "local-lead-prospector/scripts/requirements.txt",
+    "generated": ["plugins/eta-searcher/scripts/requirements.txt"]
+  }
+]

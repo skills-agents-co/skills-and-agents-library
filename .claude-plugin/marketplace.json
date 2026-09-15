@@ -68,6 +68,25 @@
       ]
     },
     {
+      "name": "quickbooks-close",
+      "source": "./plugins/quickbooks-close",
+      "description": "The full QuickBooks Online month-end close, six skills deep — revenue/AR, bank and petty cash, expenses/AP, payroll and balance sheet, inventory, and a final closing package.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "finance",
+        "quickbooks",
+        "accounting",
+        "monthly close",
+        "reconciliation"
+      ]
+    },
+    {
       "name": "eta-searcher",
       "source": "./plugins/eta-searcher",
       "description": "Skills for running a search-fund or self-funded acquisition end to end — sourcing, screening, diligence, and investor updates through the LOI.",

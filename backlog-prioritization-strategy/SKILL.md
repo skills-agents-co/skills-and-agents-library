@@ -11,7 +11,7 @@ triggerPhrases:
   - "prioritize this backlog"
   - "which of these should we build first"
   - "/backlog-prioritization-strategy"
-status: draft
+status: published
 ---
 
 # Backlog Prioritization Strategy

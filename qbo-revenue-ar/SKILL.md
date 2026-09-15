@@ -119,19 +119,13 @@ other.
 
 ## Step 4: Build the AR Aging View
 
-Bucket every invoice that carries an open balance by days past due. An
-open balance means partially paid, unpaid, or overpaid. Anchor the days
-past due to the invoice due date and the period end date.
+Bucket every invoice that carries an open balance by days past due, into
+Current, 1-30, 31-60, 61-90, or 90+. An open balance means partially
+paid, unpaid, or overpaid. Anchor the days past due to the invoice due
+date and the period end date.
 
-```
-## AR Aging, as of [period end date]
-
-| Customer | Current | 1–30 days | 31–60 days | 61–90 days | 90+ days | Total Open |
-|----------|---------|-----------|------------|------------|----------|------------|
-| …        | $…      | $…        | $…         | $…         | $…       | $…         |
-
-Total AR outstanding: $X,XXX.XX
-```
+Render the AR Aging table using the template in
+`references/output-templates.md`.
 
 State the aging view total against the **Aged Receivables** report total
 from Step 2. Say so explicitly if the two totals do not match. Show both
@@ -149,15 +143,8 @@ customer record. Flag each of these in a dedicated section:
 - A discrepancy between your invoice-level reconciliation and QBO's own
   Aged Receivables or Customer Balance reports, from Step 3 and Step 4
 
-```
-## Unmatched / Flagged Items
-
-| Type | Date | Amount | Issue |
-|------|------|--------|-------|
-| …    | …    | $…     | …     |
-
-None of these count toward the reconciled totals below until someone sorts them out.
-```
+Render the Unmatched / Flagged Items table using the template in
+`references/output-templates.md`.
 
 Say so plainly if there is nothing to flag. Never omit the section.
 
@@ -166,19 +153,10 @@ Say so plainly if there is nothing to flag. Never omit the section.
 Reconcile the period's total income into one figure. Sum the period's
 sales receipts and the invoiced sales. Subtract the credit memos issued in
 the period. Exclude every item that Step 5 flagged as unmatched. State one
-number, and show the components:
+number, and show the components.
 
-```
-## Total Income for [period]
-
-Sales receipts:      $X,XXX.XX
-Invoiced sales:       $X,XXX.XX
-Less: credit memos:  ($XXX.XX)
------------------------------------
-Reconciled total income: $X,XXX.XX
-
-(Leaves out $X,XXX.XX in unmatched or flagged items, see above.)
-```
+Render the Total Income breakdown using the template in
+`references/output-templates.md`.
 
 Cross-check this figure against the **Customer Sales** report from Step 2.
 Flag the discrepancy if the two disagree. Never report either number as
@@ -189,138 +167,20 @@ final.
 This step sends data outside QuickBooks. Steps 2 to 4 already call
 QuickBooks Online. Those calls read records only. They stay inside
 QuickBooks. This step sends a summary of the run to skillsandagents.co.
-Send that summary only after the user confirms it.
+Send that summary only after the user confirms it. Count an email as
+consent only when the user gives it in direct answer to the consent
+question; never treat an email from earlier in the conversation as
+consent. The bearer key is a placeholder until it is configured: never
+send the placeholder text itself, and never echo the key. Send one
+attempt only. Never retry, and never queue the payload. If the send
+fails, or this session has no HTTP-capable tool, print the summary in
+chat and never drop it.
 
-**7a. Build the outcome summary.**
-
-Build an `outcome_counts` object with these five keys. Do not add another
-key. A fixed set of keys keeps every run's numbers comparable:
-
-- `paid_in_full`: the invoices in the Step 3 "Paid in full" category
-- `partially_paid`: the invoices in the Step 3 "Partially paid" category
-- `unpaid`: the invoices in the Step 3 "Unpaid" category
-- `overpaid`: the invoices in the Step 3 "Overpaid" category
-- `flagged`: the items in the Step 5 Unmatched / Flagged Items section
-
-Write a count for every key. Write `0` when a category is empty. Never
-omit a key. An overpaid invoice counts twice. It counts once in
-`overpaid`. It counts again in `flagged`, because Step 5 flags it too.
-That double count is correct.
-
-```json
-{
-  "paid_in_full": 41,
-  "partially_paid": 3,
-  "unpaid": 2,
-  "overpaid": 0,
-  "flagged": 0
-}
-```
-
-Build a `correction` object when the user corrected a match during this
-run. A correction means two things. The user told you that a proposed
-invoice-payment match was wrong. The user then gave you the right match.
-
-```json
-{
-  "invoice_id": "...",
-  "proposed": "...",
-  "corrected": "..."
-}
-```
-
-Omit the `correction` field when no correction happened. Never send an
-empty value for it. Never send a null value for it.
-
-The payload holds one `correction` at most. Report the last correction
-that the user confirmed, when the user corrected two or more matches.
-State the number of corrections in the 7c preview. State which correction
-you send. Never choose one correction silently. Never merge two
-corrections into one object.
-
-**7b. Ask for contact consent.**
-
-Ask the user this question, if you did not already ask it in this run:
-
-> Want us to be able to follow up with you about this? If so, share your
-> email.
-
-Count an email as consent only when the user gives it in direct answer to
-this question. Never treat an email from earlier in the conversation as
-consent. Continue without a `contact` field when the user declines.
-Continue without a `contact` field when the user gives no email. The run
-still reports.
-
-**7c. Preview the payload. Get explicit confirmation.**
-
-Generate a fresh UUID for `run_id`. Generate it once per run. Reuse it
-only if this step runs twice for the same run. Assemble the payload:
-
-```json
-{
-  "skill_slug": "qbo-revenue-ar",
-  "run_id": "<fresh UUID>",
-  "outcome_counts": { ... },
-  "correction": { ... },
-  "contact": { "email": "...", "consent": true }
-}
-```
-
-Omit `correction` per 7a. Omit `contact` per 7b.
-
-Show the user this exact payload. Show the JSON itself, or a
-plain-language version that names every field and every value. Ask the
-user to confirm before you send anything. Send nothing until the user
-says yes. Go to 7e if the user says no. Go to 7e also if the user does
-not answer. An unanswered question is not consent.
-
-**7d. Send the payload after the user confirms.**
-
-Send one POST. Use an HTTP-capable tool from this session. Examples are
-WebFetch, a connected fetch-capable MCP tool, or `curl` through Bash.
-Check which tool this session has before you choose one. Never assume
-that a given tool exists. Go to 7e if this session has no such tool.
-Never fake a call.
-
-The bearer key below is a placeholder. Set the real value once the
-backend ships `MARKETPLACE_FEEDBACK_KEY`. Send the real key value in the
-header. Never send the placeholder text itself.
-
-```
-POST https://app.skillsandagents.co/marketplace-feedback
-Authorization: Bearer <MARKETPLACE_FEEDBACK_KEY>
-Content-Type: application/json
-
-<the confirmed payload from 7c>
-```
-
-Send one attempt. Do not retry. Do not queue the payload.
-
-**7e. Report the outcome.**
-
-Handle a send that the user declined:
-
-- Send nothing when the user says no in 7c. Send nothing also when the
-  user does not answer. Tell the user that you sent nothing. Never call
-  this a failure. Never call it a missing feature. The user made a
-  choice, and you honored it. Print the outcome summary in the chat, so
-  the user keeps it. Stop there. Do not ask again. Do not offer another
-  route.
-
-Handle a send that failed:
-
-- Print the outcome summary in the chat when the POST fails. Print it
-  also when this session has no network tool. Tell the user that no
-  automatic route works right now. Tell the user to keep the summary.
-  Tell the user to send it to their Skills and Agents contact directly.
-  Say this in your own words. Never print a bracketed placeholder as the
-  message. Never print an internal note as the message. Never drop the
-  data.
-
-Handle a send that succeeded:
-
-- Tell the user that you sent the summary. Keep it brief. Do not repeat
-  the payload.
+See `references/run-report.md` for the exact procedure: the
+`outcome_counts` and `correction` object shapes (7a), the contact-consent
+question (7b), the payload preview and confirmation gate (7c), the send
+(7d), and the three outcome-handling branches for declined, failed, and
+successful sends (7e).
 
 ## Output Sequence
 

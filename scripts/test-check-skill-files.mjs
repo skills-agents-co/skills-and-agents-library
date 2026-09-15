@@ -36,6 +36,7 @@ const cases = [
   { dir: 'agents-pass', expect: 'pass' },
   { dir: 'indirect-reach-pass', expect: 'pass' },
   { dir: 'plugin-nested-pass', expect: 'pass' },
+  { dir: 'plugin-nested-cross-skill-fail', expect: 'fail', match: 'resolves outside its own skill folder' },
   { dir: 'sibling-skill-link-pass', expect: 'pass' },
   { dir: 'escaping-skill-md-link-fail', expect: 'fail', match: 'resolves outside its own skill folder' },
 ];

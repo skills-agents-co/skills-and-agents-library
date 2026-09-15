@@ -28,6 +28,8 @@ circulate-ready notes with carry-forward of open action items, use `meeting-memo
 the same transcript. For a pre-meeting brief on who's about to be in the room, use
 [`../calendar-agent/SKILL.md`](../calendar-agent/SKILL.md). The `librarian` skill runs periodically
 across everything recorded here and turns recurring ideas into short post drafts.
+[`../email-agent/SKILL.md`](../email-agent/SKILL.md) does for an email thread what this skill does
+for a transcript: logs a deal-flow or portfolio update against the same entity folder.
 
 ## Untrusted input
 

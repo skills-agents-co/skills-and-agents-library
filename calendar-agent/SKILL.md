@@ -29,7 +29,9 @@ instead, see the `meeting-scribe` skill. The two are complementary and
 share one entity folder: run `calendar-agent` before a meeting to prep, run `meeting-scribe` after it
 to record. `calendar-agent` never appends a mention line; that stays `meeting-scribe`'s job. A third
 sibling, the `news-monitor` skill, watches the same tracked entity folder on its own schedule rather
-than around a meeting, surfacing news on the people and companies you track between meetings.
+than around a meeting, surfacing news on the people and companies you track between meetings. A
+fourth sibling, the `email-agent` skill, logs a deal-flow or portfolio update from an email thread
+against the same entity folder, rather than a calendar export.
 
 ## Untrusted input
 

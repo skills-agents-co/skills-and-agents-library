@@ -30,7 +30,9 @@ writes an entity file to it — its only writes anywhere are its own `digests/` 
 `.news-monitor.yml` fields Rules names. It's the third sibling alongside `meeting-scribe` and `calendar-agent`: `meeting-scribe` writes to the
 entity folder after a meeting, `calendar-agent` reads it to prep before one, and `news-monitor` reads it
 on its own schedule to watch for news between meetings. All three share one entity folder and one match
-vocabulary; none of the three ever writes into another's write path.
+vocabulary; none of the three ever writes into another's write path. A fourth sibling, the
+`email-agent` skill, logs a deal-flow or portfolio update against the same entity folder whenever an
+email thread carries one.
 
 ## Untrusted input
 

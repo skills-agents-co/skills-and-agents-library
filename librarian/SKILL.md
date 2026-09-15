@@ -31,7 +31,10 @@ never writes a mention to it and never touches an entity file. If you want the a
 per-meeting record this skill reads from, see the `meeting-scribe` skill — it's the source of the
 meeting notes and mentions `librarian` distills. For pre-meeting prep instead, see the `calendar-agent`
 skill. For a live news pulse on the same tracked entities instead of your own meeting history, see the
-`news-monitor` skill.
+`news-monitor` skill. `email-agent` writes into the same entity folder too: it logs deal-flow and
+portfolio updates from email threads, and its own log entries are deliberately non-matchable, but the
+mention lines it appends to entity files are a fourth source this skill can eventually distill from,
+same as `meeting-scribe`'s.
 
 ## Untrusted input
 

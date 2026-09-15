@@ -84,9 +84,9 @@ Follow the same bank-agnostic pattern that `financial-pulse` uses:
 
 **Ramp is a corporate-card and spend platform, not a bank. It exposes card
 spend events and linked-account metadata. It does not expose a bank
-statement or a bank-transaction loader
-(`financial-pulse/agents/financial-pulse-ramp.md`).** Never offer Ramp
-here. A comparison of Ramp's card and spend records against a QBO bank
+statement or a bank-transaction loader — that's the financial-pulse
+plugin's Ramp connector, a different tool for a different job.** Never
+offer Ramp here. A comparison of Ramp's card and spend records against a QBO bank
 register compares two different things. It produces matches that do not
 mean what they look like. A cash side that runs through Ramp needs a
 different reconciliation than this skill performs. Say so, rather than

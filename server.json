@@ -1,5 +1,5 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "co.skillsandagents/catalog-mcp",
   "description": "Search and fetch skills from your org's Skills and Agents catalog. Bearer token required.",
   "version": "0.1.0",

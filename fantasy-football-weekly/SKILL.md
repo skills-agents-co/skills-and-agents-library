@@ -10,7 +10,7 @@ requiresMCP: false
 mcpDependencies:
   - name: "Flaim"
     configKey: "flaim"
-    description: "Optional. Reads your ESPN roster, matchups, free agents, and transactions. Without it, paste your roster each week."
+    description: "Optional. Read-only. Reads your ESPN, Yahoo, or Sleeper roster, matchups, free agents, and transactions. Without it, paste your roster each week."
     docsUrl: "https://flaim.app/docs/ai"
 triggerPhrases:
   - "give me my fantasy football weekly brief"
@@ -38,8 +38,8 @@ Everything league-specific lives in a profile file, not in this skill. Before an
 2. If the manager plays in several leagues, use the profile's `default` flag unless they name another.
 3. If no profile exists, do the first-run setup:
    1. Ask which platform the league is on.
-   2. Check the session for a platform connection. For ESPN, look for the Flaim tools (`get_user_session`, `get_league_info`).
-   3. If the league is on ESPN and Flaim is not connected, tell the manager: "This works best with Flaim connected. Flaim lets me read your ESPN roster, matchups, and transactions. Set it up at https://flaim.app/docs/ai, or keep going and paste your roster each week." Wait for their answer.
+   2. Check the session for a platform connection. Look for the Flaim tools (`get_user_session`, `get_league_info`). Flaim covers ESPN, Yahoo, and Sleeper.
+   3. If the league is on ESPN, Yahoo, or Sleeper and Flaim is not connected, tell the manager: "This works best with Flaim connected. Flaim lets me read your roster, matchups, and transactions. It's read-only. Set it up at https://flaim.app/docs/ai, or keep going and paste your roster each week." Wait for their answer.
    4. If the league is on another platform and no connection exists, ask the manager if they use an MCP for that platform. If not, continue with pasted data.
    5. Copy `references/league-profile-template.md`, fill in what the connection gives you, ask for the gaps, and save it. Record in the profile's data sources whether a platform connection exists. Do not guess scoring, roster slots or waiver rules.
 
@@ -81,7 +81,7 @@ The profile lists the actual tools and locations. The general shape:
 
 | Need | Typical source |
 |---|---|
-| Roster, matchup, free agents, transactions | Platform MCP or API (for ESPN, Flaim: `get_user_session`, then `get_league_info`, then the tool) |
+| Roster, matchup, free agents, transactions | Platform MCP or API (Flaim for ESPN, Yahoo, or Sleeper: `get_user_session`, then `get_league_info`, then the tool) |
 | Last week's player scores + started flags | A weekly capture file, or the platform matchup endpoint with player detail |
 | Weekly and season projections | Platform API (some MCPs return empty stats, so a browser fetch may be needed; see the profile) |
 | Injuries, news, depth charts | Web search, following the news rules below |

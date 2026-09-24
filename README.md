@@ -48,7 +48,7 @@ Swap `financial-pulse` for any plugin listed in [`.claude-plugin/marketplace.jso
 | **Get a news pulse on the people and companies you track** — filtered against your own tracked entities, not a generic feed, with a dated digest naming what was found or plainly saying nothing was | [`news-monitor/`](./news-monitor) | skill |
 | **Turn your meeting notes into content ideas** — find the ideas that keep recurring across more than one meeting and draft a short, quote-grounded post for each one | [`librarian/`](./librarian) | skill |
 | **Log an email thread's deal-flow or portfolio update** against the people and companies you track — one dated log entry, one mention line per entity named, never a sent or drafted reply | [`email-agent/`](./email-agent) | skill |
-| **Get a weekly fantasy football brief** — start/sit calls, waiver pickups with a FAAB bid, trade advice, and a season-kickoff projection, once your league profile is filled in | [`fantasy-football-weekly/`](./fantasy-football-weekly) | skill |
+| **Get a weekly fantasy football brief** — start/sit calls, waiver pickups with a FAAB bid, trade advice, and dynasty push-or-rebuild checks for ESPN, Sleeper, or Yahoo leagues, through the Flaim connector | [`fantasy-football-weekly/`](./fantasy-football-weekly) | skill |
 
 More skills land here regularly. **[Star or watch this repo](https://github.com/skills-agents-co/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 

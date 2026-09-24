@@ -49,6 +49,7 @@ Swap `financial-pulse` for any plugin listed in [`.claude-plugin/marketplace.jso
 | **Turn your meeting notes into content ideas** — find the ideas that keep recurring across more than one meeting and draft a short, quote-grounded post for each one | [`librarian/`](./librarian) | skill |
 | **Log an email thread's deal-flow or portfolio update** against the people and companies you track — one dated log entry, one mention line per entity named, never a sent or drafted reply | [`email-agent/`](./email-agent) | skill |
 | **Get a weekly fantasy football brief** — start/sit calls, waiver pickups with a FAAB bid, trade advice, and dynasty push-or-rebuild checks for ESPN, Sleeper, or Yahoo leagues, through the Flaim connector | [`fantasy-football-weekly/`](./fantasy-football-weekly) | skill |
+| ~~File for unemployment insurance~~ (deprecated, no longer maintained) | [`unemployment-guide/`](./unemployment-guide) | skill |
 
 More skills land here regularly. **[Star or watch this repo](https://github.com/skills-agents-co/skills-and-agents-library)** or follow the [catalog](https://skillsandagents.co) to catch new releases.
 

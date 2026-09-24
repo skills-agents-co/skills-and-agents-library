@@ -1,6 +1,7 @@
 ---
 name: fantasy-football-weekly
-description: "Private weekly fantasy football brief and team planner for your own team on ESPN, Sleeper or Yahoo, read through the Flaim connector. Use for start/sit, waivers and FAAB bids, trades, matchup previews, bench regret, draft review, dynasty picks and taxi, whether to push or rebuild, league history, or \"my weekly brief\"."
+description: >
+  Private weekly fantasy football brief and team planner for your own team on ESPN, Sleeper or Yahoo, read through the Flaim connector. Use for start/sit, waivers and FAAB bids, trades, matchup previews, bench regret, draft review, dynasty picks and taxi, whether to push or rebuild, league history, or "my weekly brief".
 tags:
   - fantasy football
   - sports

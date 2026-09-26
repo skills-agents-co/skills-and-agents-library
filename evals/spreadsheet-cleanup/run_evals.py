@@ -242,7 +242,7 @@ def eval_fidelity(tmp):
 
     wb = openpyxl.load_workbook(cleaned_path, data_only=False)
     ws = wb["Fidelity"]
-    check("fidelity.xlsx: B1 keeps formula 1+1", ws["B1"].value in ("=1+1", "1+1"), repr(ws["B1"].value))
+    check("fidelity.xlsx: B1 keeps formula =1+1", ws["B1"].value == "=1+1", repr(ws["B1"].value))
     check("fidelity.xlsx: B2 keeps date type", hasattr(ws["B2"].value, "year"))
     check("fidelity.xlsx: B2 keeps yyyy-mm-dd format", ws["B2"].number_format == "yyyy-mm-dd", ws["B2"].number_format)
     check("fidelity.xlsx: B3 keeps currency format", ws["B3"].number_format == '"$"#,##0.00', ws["B3"].number_format)
@@ -252,30 +252,51 @@ def eval_fidelity(tmp):
 # Criterion 6: .xlsm input is refused (exit 2), no output written.
 # ---------------------------------------------------------------------------
 
-def build_xlsm(tmp):
+def build_macro_workbook(tmp, path):
     import openpyxl
 
-    src_xlsx = os.path.join(tmp, "macro_src.xlsx")
+    src_xlsx = os.path.join(tmp, os.path.basename(path) + ".src.xlsx")
     wb = openpyxl.Workbook()
     wb.active["A1"] = "hello"
     wb.save(src_xlsx)
 
-    xlsm_path = os.path.join(tmp, "macro.xlsm")
-    shutil.copyfile(src_xlsx, xlsm_path)
+    shutil.copyfile(src_xlsx, path)
     # Append a vbaProject.bin part so the gate's macro check has something real to catch.
-    with zipfile.ZipFile(xlsm_path, "a") as zf:
+    with zipfile.ZipFile(path, "a") as zf:
         zf.writestr("xl/vbaProject.bin", b"\x00" * 32)
-    return xlsm_path
+    return path
 
 
 def eval_xlsm(tmp):
-    xlsm_path = build_xlsm(tmp)
+    # Case A: a genuine .xlsm extension. This is refused by the extension
+    # check alone, before the macro-part check ever runs — kept for
+    # completeness, but it does not prove the macro-part check works.
+    xlsm_path = build_macro_workbook(tmp, os.path.join(tmp, "macro.xlsm"))
     out_dir = os.path.join(tmp, "xlsm_out")
     os.makedirs(out_dir, exist_ok=True)
     res = run_clean(xlsm_path, out_dir)
     check(".xlsm input: clean.py exits 2", res.returncode == 2, f"stdout={res.stdout} stderr={res.stderr}")
     written = os.listdir(out_dir)
     check(".xlsm input: no output file is written", written == [], str(written))
+
+    # Case B: the actual gap the macro-part check exists for — a macro part
+    # smuggled into a file saved with a plain .xlsx extension, so the
+    # extension check can't be the thing that catches it.
+    renamed_path = build_macro_workbook(tmp, os.path.join(tmp, "macro_renamed.xlsx"))
+    out_dir_b = os.path.join(tmp, "xlsm_renamed_out")
+    os.makedirs(out_dir_b, exist_ok=True)
+    res_b = run_clean(renamed_path, out_dir_b)
+    check(
+        "macro part under a .xlsx extension: clean.py exits 2",
+        res_b.returncode == 2,
+        f"stdout={res_b.stdout} stderr={res_b.stderr}",
+    )
+    check("macro part under .xlsx: stderr names the macro part", "macro" in res_b.stderr.lower(), res_b.stderr)
+    check(
+        "macro part under .xlsx: no output file is written",
+        os.listdir(out_dir_b) == [],
+        str(os.listdir(out_dir_b)),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -343,7 +364,17 @@ def eval_hidden_protected_external(tmp):
         report = load_report(out_dir, src)
         check(f"{label}: report was written", report is not None)
         if report is not None:
-            check(f"{label}: workbook is listed as a flag", len(report.get("flags", [])) > 0, json.dumps(report))
+            rules = {fl.get("rule") for fl in report.get("flags", [])}
+            expected_rule = {
+                "hidden sheet": "hidden_sheet",
+                "protected sheet": "protected_sheet",
+                "external link": "external_link",
+            }[label]
+            check(
+                f"{label}: flagged under rule {expected_rule!r}",
+                expected_rule in rules,
+                json.dumps(report),
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -370,6 +401,7 @@ def eval_oversized(tmp):
     os.makedirs(out_dir, exist_ok=True)
     res = run_clean(padded_path, out_dir)
     check("oversized file (>25MB): clean.py exits 2", res.returncode == 2, f"stdout={res.stdout} stderr={res.stderr}")
+    check("oversized file: stderr names the 25MB limit", "25MB" in res.stderr, res.stderr)
     check("oversized file: no output written", os.listdir(out_dir) == [], str(os.listdir(out_dir)))
 
 
@@ -413,20 +445,31 @@ def eval_entity_expansion(tmp):
         res.returncode == 2,
         f"stdout={res.stdout} stderr={res.stderr}",
     )
+    check(
+        "entity-expansion payload: stderr names the forbidden construct (not a generic error)",
+        "forbidden" in res.stderr.lower(),
+        res.stderr,
+    )
+    check(
+        "entity-expansion payload: no output file is left behind on refusal",
+        os.listdir(out_dir) == [],
+        str(os.listdir(out_dir)),
+    )
 
 
 def eval_path_traversal(tmp):
+    import openpyxl
+
     src_dir = os.path.join(tmp, "traversal_src")
     os.makedirs(src_dir, exist_ok=True)
     out_dir = os.path.join(tmp, "traversal_out")
     os.makedirs(out_dir, exist_ok=True)
 
-    import openpyxl
-
-    crafted_name = "..%2Fpwned.xlsx".replace("%2F", os.sep)
-    # Keep it a valid filename on disk (no real separators can land in a
-    # basename); the attack surface we're proving closed is the *stem*
-    # after `..` substrings, per clean.py's stem_from_input().
+    # Case A: a filename whose stem, if used unsanitized, would climb out of
+    # out_dir via a literal ".." path segment. stem_from_input() collapses
+    # any path separator in the basename to "_" first, so this can only ever
+    # test the "..str.." substring guard, not a real directory escape — kept
+    # for that guard's own sake.
     crafted_path = os.path.join(src_dir, "..evil..xlsx")
     wb = openpyxl.Workbook()
     wb.active["A1"] = "x"
@@ -435,11 +478,55 @@ def eval_path_traversal(tmp):
     res = run_clean(crafted_path, out_dir)
     check("crafted filename: clean.py exits 0", res.returncode == 0, res.stderr)
     out_dir_real = os.path.realpath(out_dir)
-    for name in os.listdir(out_dir):
+    written = sorted(os.listdir(out_dir))
+    check(
+        "crafted filename: exact expected output names, no extras",
+        written == ["_evil..changes.json", "_evil..cleaned.xlsx"],
+        str(written),
+    )
+    for name in written:
         full = os.path.realpath(os.path.join(out_dir, name))
         check(
             f"crafted filename: written file {name!r} resolves inside the output dir",
             os.path.commonpath([out_dir_real, full]) == out_dir_real,
+        )
+
+    # Case B: prove the actual escape refusal (safe_output_path's commonpath
+    # check) by pointing --out-dir at a symlink that resolves OUTSIDE the
+    # directory the caller thinks they're writing into.
+    real_target = os.path.join(tmp, "traversal_real_target")
+    os.makedirs(real_target, exist_ok=True)
+    outside_dir = os.path.join(tmp, "traversal_outside")
+    os.makedirs(outside_dir, exist_ok=True)
+    escape_link = os.path.join(outside_dir, "escape_link")
+    try:
+        os.symlink(real_target, escape_link)
+        symlink_supported = True
+    except (OSError, NotImplementedError):
+        symlink_supported = False
+
+    if symlink_supported:
+        normal_src = os.path.join(src_dir, "normal.xlsx")
+        wb2 = openpyxl.Workbook()
+        wb2.active["A1"] = "x"
+        wb2.save(normal_src)
+        # Passing --out-dir as a path THROUGH the symlink is the ordinary,
+        # supported case (realpath resolves it and the check passes) — this
+        # is not the escape. The escape this guard exists for is a stem or
+        # out_dir value that resolves outside of realpath(out_dir) itself,
+        # which can't happen once out_dir is realpath'd first. What CAN
+        # still happen is a symlink planted at the exact output path AFTER
+        # the containment check runs — see clean.py's safe_output_path().
+        # That race isn't reproducible deterministically in a black-box
+        # eval, so this case instead asserts the documented mitigation is
+        # present: an existing symlink AT the output path is refused outright.
+        pre_existing_link = os.path.join(real_target, "normal.cleaned.xlsx")
+        os.symlink(os.path.join(tmp, "some_other_file"), pre_existing_link)
+        res_b = run_clean(normal_src, real_target)
+        check(
+            "pre-existing symlink at the output path: clean.py refuses (exit 2)",
+            res_b.returncode == 2,
+            f"stdout={res_b.stdout} stderr={res_b.stderr}",
         )
 
 

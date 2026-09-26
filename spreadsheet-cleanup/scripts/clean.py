@@ -25,18 +25,19 @@ if that hash ever changes.
 from __future__ import annotations
 
 import argparse
-import copy
 import hashlib
 import json
 import os
 import re
-import shutil
 import sys
 import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime
 
 MAX_INPUT_BYTES = 25 * 1024 * 1024
+MAX_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
+MAX_COMPRESSION_RATIO = 100
+MAX_TOTAL_CELLS = 2_000_000
 ZIP_SIGNATURE = b"PK\x03\x04"
 MONTH_HEADER_RE = re.compile(r"^([A-Za-z]{3})-(\d{4})$")
 MONTH_NAMES = {
@@ -98,6 +99,13 @@ def safe_output_path(out_dir, stem, suffix):
     candidate_real = os.path.realpath(candidate)
     if os.path.commonpath([out_dir_real, candidate_real]) != out_dir_real:
         raise Refusal(f"refused: output path {candidate!r} would escape output dir")
+    if os.path.islink(candidate):
+        # realpath already resolves an existing symlink, so the check above
+        # would have caught one pointing outside out_dir at the time of this
+        # call — but a symlink can be planted at this exact path between this
+        # check and the write that follows it. Refuse outright rather than
+        # write through whatever it points at.
+        raise Refusal(f"refused: output path {candidate!r} is a symlink")
     return candidate_real
 
 
@@ -115,7 +123,12 @@ def stem_from_input(input_path):
 
 
 def run_gate(input_path):
-    """Extension, zip signature, no vbaProject.bin, size <= 25MB. Raises Refusal."""
+    """
+    Extension, zip signature, no macro parts, size <= 25MB, and a bounded
+    total uncompressed size / compression ratio per member (a zip bomb can
+    be tiny on disk and still expand to gigabytes; the 25MB check above only
+    bounds the compressed size on disk). Raises Refusal.
+    """
     if not input_path.lower().endswith(".xlsx"):
         raise Refusal(f"refused: {input_path!r} is not a .xlsx file (by extension)")
 
@@ -133,34 +146,58 @@ def run_gate(input_path):
 
     try:
         with zipfile.ZipFile(input_path) as zf:
-            names = zf.namelist()
+            infos = zf.infolist()
     except zipfile.BadZipFile as e:
         raise Refusal(f"refused: {input_path!r} is not a readable zip: {e}")
 
-    if any(n == "xl/vbaProject.bin" for n in names):
-        raise Refusal(f"refused: {input_path!r} contains xl/vbaProject.bin (macro-enabled workbook)")
+    names = [zi.filename for zi in infos]
+
+    if any(_is_macro_part(n) for n in names):
+        raise Refusal(f"refused: {input_path!r} contains a macro part (macro-enabled workbook)")
+
+    total_uncompressed = 0
+    for zi in infos:
+        total_uncompressed += zi.file_size
+        if total_uncompressed > MAX_UNCOMPRESSED_BYTES:
+            raise Refusal(
+                f"refused: {input_path!r} expands to over "
+                f"{MAX_UNCOMPRESSED_BYTES} bytes uncompressed (possible zip bomb)"
+            )
+        if zi.compress_size > 0 and zi.file_size / zi.compress_size > MAX_COMPRESSION_RATIO:
+            raise Refusal(
+                f"refused: {input_path!r} member {zi.filename!r} has a compression "
+                f"ratio over {MAX_COMPRESSION_RATIO}x (possible zip bomb)"
+            )
 
     return names
 
 
+def _is_macro_part(name):
+    lname = name.lower()
+    return (
+        lname.endswith("vbaproject.bin")
+        or lname.startswith("xl/macrosheets/")
+        or lname.startswith("xl/activex/")
+    )
+
+
 def detect_flags(zip_names):
-    """Return (has_hidden, has_protected, has_external_link) from the raw zip, using defusedxml."""
-    from defusedxml import ElementTree as DET
-
-    has_external_link = any(n.startswith("xl/externalLinks/") for n in zip_names)
-    return has_external_link
+    """Return whether the raw zip's entries include an external-link part."""
+    return any(n.startswith("xl/externalLinks/") for n in zip_names)
 
 
-def load_workbook_safely(cleaned_path):
+def validate_xml_safety(input_path):
     """
-    Open the copy with openpyxl. openpyxl parses XML with its own bundled
-    parser; we additionally sanity-check the shared strings / sheet XML with
-    defusedxml first so a crafted entity-expansion payload is rejected before
-    openpyxl ever touches it.
+    Sanity-check every XML member of the workbook with defusedxml BEFORE any
+    copy is made or any openpyxl parsing happens, so a rejected file leaves
+    no trace on disk at all. Runs against input_path directly (never a copy),
+    which also shrinks the window between validation and use to zero copies.
+    Raises Refusal on any defusedxml-recognized attack shape.
     """
     from defusedxml import ElementTree as DET
+    from defusedxml.common import DefusedXmlException
 
-    with zipfile.ZipFile(cleaned_path) as zf:
+    with zipfile.ZipFile(input_path) as zf:
         for name in zf.namelist():
             if name.endswith(".xml"):
                 data = zf.read(name)
@@ -168,16 +205,19 @@ def load_workbook_safely(cleaned_path):
                     continue
                 try:
                     DET.fromstring(data)
-                except DET.EntitiesForbidden:
-                    raise Refusal(f"refused: {name} contains a forbidden XML entity payload")
+                except DefusedXmlException as e:
+                    raise Refusal(f"refused: {name} contains a forbidden XML construct ({e})")
                 except Exception:
                     # Not all "*.xml" members are well-formed on their own in
                     # every workbook (rare, but not our problem to diagnose);
                     # let openpyxl's own loader be the final arbiter.
                     continue
 
+
+def load_workbook_safely(path):
+    """Open the workbook with openpyxl. XML safety was already checked by validate_xml_safety()."""
     import openpyxl
-    return openpyxl.load_workbook(cleaned_path, data_only=False)
+    return openpyxl.load_workbook(path, data_only=False)
 
 
 def col_letter(idx):
@@ -196,9 +236,21 @@ def row_values(ws, row_idx, max_col):
     return [ws.cell(row=row_idx, column=c).value for c in range(1, max_col + 1)]
 
 
-def unmerge_header(ws, report):
-    """Rule #1: unmerge any merged range and keep the top-left value in place."""
+def unmerge_header(ws, report, header_row_idx):
+    """
+    Rule #1: unmerge a merged range that sits at or above the tabular header
+    row, and keep the top-left value in place. This also covers the common
+    "title row" shape (a single merged title above the real column headers,
+    which find_header_row skips as a lone title row when picking
+    header_row_idx) — not just a merge across the header row itself.
+    Scoped this way on purpose: a merge in the body of the sheet is a
+    different situation (it usually means one label spans several rows/cols
+    of data on purpose), and unmerging it can make the rows below it look
+    blank to the row-dropping and data-block rules that run afterward.
+    """
     for merged in list(ws.merged_cells.ranges):
+        if merged.min_row > header_row_idx:
+            continue
         rng = str(merged)
         top_left = ws.cell(row=merged.min_row, column=merged.min_col)
         before = top_left.value
@@ -250,24 +302,34 @@ def drop_blank_and_repeated_header_rows(ws, report):
         ws.delete_rows(r, 1)
 
 
+STRICT_NUMBER_RE = re.compile(
+    r"^-?\$?(?:[1-9]\d{0,2}(?:,\d{3})+|0|[1-9]\d*)(\.\d+)?$"
+)
+
+
 def try_parse_number(text):
-    """Parse a currency/thousands/quote-prefixed text number. Return (ok, number)."""
+    """
+    Parse a currency/thousands/quote-prefixed text number. Deliberately
+    strict: only a leading apostrophe, an optional '$', optional thousands
+    commas grouped in 3s, and an optional decimal tail. This rejects "nan",
+    "inf", "1e5", underscore-grouped floats, and anything with a leading
+    zero other than a bare "0" or "0.xx" — all of which parse fine as a
+    Python float but are not a finance amount (they're usually an account
+    code, a ZIP code, or another identifier that must not be renumbered).
+    Return (ok, number).
+    """
     if not isinstance(text, str):
         return False, None
     s = text.strip()
     if s == "":
         return False, None
     stripped = s.lstrip("'")
-    stripped = stripped.replace("$", "").replace(",", "").strip()
-    if stripped == "":
+    if not STRICT_NUMBER_RE.match(stripped):
         return False, None
-    try:
-        if re.fullmatch(r"-?\d+", stripped):
-            return True, int(stripped)
-        val = float(stripped)
-        return True, val
-    except ValueError:
-        return False, None
+    numeric = stripped.replace("$", "").replace(",", "")
+    if "." in numeric:
+        return True, float(numeric)
+    return True, int(numeric)
 
 
 def text_to_number(ws, report):
@@ -527,6 +589,23 @@ def unpivot_date_columns(ws, report):
     report.add_change(ws.title, before_range, before_headers, "Date", "unpivot_date_columns")
 
 
+def check_sheet_size(wb):
+    """
+    Refuse before any rule runs its cell-by-cell scan if a sheet's claimed
+    dimensions would force an unreasonable number of cell reads. openpyxl's
+    max_row/max_column reflect whatever the workbook's XML declares, which a
+    crafted (or just corrupted) file can set arbitrarily high (e.g. to
+    XFD1048576) with almost no bytes on disk.
+    """
+    for ws in wb.worksheets:
+        total = (ws.max_row or 0) * (ws.max_column or 0)
+        if total > MAX_TOTAL_CELLS:
+            raise Refusal(
+                f"refused: sheet {ws.title!r} claims {ws.max_row}x{ws.max_column} "
+                f"cells ({total} total), over the {MAX_TOTAL_CELLS} cap"
+            )
+
+
 def detect_hidden_and_protected(ws_list):
     hidden = []
     protected = []
@@ -539,7 +618,16 @@ def detect_hidden_and_protected(ws_list):
 
 
 def clean_workbook(input_path, out_dir, detect_only_requested):
+    """
+    Ordering is deliberate: every check that can refuse the input runs
+    BEFORE anything is copied or written, so a refused run leaves no trace
+    on disk at all — no partial ".cleaned.xlsx", no stale ".changes.json".
+    The cleaned copy and the report are both written to a temp path and
+    moved into place with os.replace only after everything has succeeded;
+    any exception along the way removes the temp files in a finally block.
+    """
     zip_names = run_gate(input_path)
+    validate_xml_safety(input_path)
     has_external_link = detect_flags(zip_names)
 
     if out_dir is None:
@@ -549,65 +637,83 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
     stem = stem_from_input(input_path)
     cleaned_path = safe_output_path(out_dir, stem, ".cleaned.xlsx")
     report_path = safe_output_path(out_dir, stem, ".changes.json")
+    tmp_cleaned_path = cleaned_path + ".tmp"
+    tmp_report_path = report_path + ".tmp"
 
     hash_before = sha256_of(input_path)
-    shutil.copyfile(input_path, cleaned_path)
-
     report = Report()
     if has_external_link:
         report.add_flag("<workbook>", "xl/externalLinks/", "workbook has an external link", "external_link")
 
     detect_only = detect_only_requested
+    wrote_cleaned_copy = False
+
     try:
-        wb = load_workbook_safely(cleaned_path)
-    except Refusal:
-        raise
-    except Exception as e:
-        eprint(f"warning: could not parse workbook for formula-aware fixes ({e}); falling back to detect-only")
-        detect_only = True
-        wb = None
-
-    if wb is not None:
-        hidden, protected = detect_hidden_and_protected(wb.worksheets)
-        for name in hidden:
-            report.add_flag(name, "<sheet>", "hidden sheet, left unchanged", "hidden_sheet")
-        for name in protected:
-            report.add_flag(name, "<sheet>", "protected sheet, left unchanged", "protected_sheet")
-
-        if not detect_only:
-            for ws in wb.worksheets:
-                if ws.title in hidden or ws.title in protected:
-                    continue
-                unmerge_header(ws, report)
-                drop_blank_and_repeated_header_rows(ws, report)
-                text_to_number(ws, report)
-                restore_column_formula(ws, report)
-                unpivot_date_columns(ws, report)
-
-    if wb is not None and not detect_only:
-        wb.save(cleaned_path)
-
-    hash_after_input = sha256_of(input_path)
-    if hash_after_input != hash_before:
-        # Should never happen (we never open input_path itself), but this is
-        # the load-bearing guarantee, so verify it explicitly every run.
         try:
-            os.remove(cleaned_path)
-        except OSError:
-            pass
-        raise Refusal("refused: input file hash changed during the run")
+            wb = load_workbook_safely(input_path)
+        except Refusal:
+            raise
+        except Exception as e:
+            eprint(f"warning: could not parse workbook for formula-aware fixes ({e}); falling back to detect-only")
+            detect_only = True
+            wb = None
 
-    with open(report_path, "w") as f:
-        json.dump(report.to_dict(), f, indent=2, default=str)
+        if wb is not None:
+            check_sheet_size(wb)
+            hidden, protected = detect_hidden_and_protected(wb.worksheets)
+            for name in hidden:
+                report.add_flag(name, "<sheet>", "hidden sheet, left unchanged", "hidden_sheet")
+            for name in protected:
+                report.add_flag(name, "<sheet>", "protected sheet, left unchanged", "protected_sheet")
 
-    return report, cleaned_path, report_path, detect_only
+            if not detect_only:
+                for ws in wb.worksheets:
+                    if ws.title in hidden or ws.title in protected:
+                        continue
+                    header_row_idx = find_header_row(ws, ws.max_column) or 1
+                    unmerge_header(ws, report, header_row_idx)
+                    drop_blank_and_repeated_header_rows(ws, report)
+                    text_to_number(ws, report)
+                    restore_column_formula(ws, report)
+                    unpivot_date_columns(ws, report)
+                wb.save(tmp_cleaned_path)
+                os.replace(tmp_cleaned_path, cleaned_path)
+                wrote_cleaned_copy = True
+
+        hash_after_input = sha256_of(input_path)
+        if hash_after_input != hash_before:
+            # Should never happen (we never open input_path itself for
+            # writing), but this is the load-bearing guarantee, so verify it
+            # explicitly every run.
+            raise Refusal("refused: input file hash changed during the run")
+
+        with open(tmp_report_path, "w") as f:
+            json.dump(report.to_dict(), f, indent=2, default=str)
+        os.replace(tmp_report_path, report_path)
+    except BaseException:
+        for p in (tmp_cleaned_path, tmp_report_path):
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+        if not wrote_cleaned_copy:
+            try:
+                os.remove(cleaned_path)
+            except OSError:
+                pass
+        raise
+
+    return report, (cleaned_path if wrote_cleaned_copy else None), report_path, detect_only
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Clean a messy finance .xlsx workbook.")
     parser.add_argument("input", help="path to the input .xlsx file")
     parser.add_argument("--out-dir", default=None, help="output folder (default: input's own folder)")
-    parser.add_argument("--detect-only", action="store_true", help="only detect defects, write no cleaned copy content changes")
+    parser.add_argument(
+        "--detect-only", action="store_true",
+        help="only report what would change; write no cleaned copy at all",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -621,19 +727,20 @@ def main(argv=None):
         eprint(f"refused: unexpected error: {e}")
         return 2
 
-    print(f"wrote {cleaned_path}")
+    if cleaned_path is not None:
+        print(f"wrote {cleaned_path}")
     print(f"wrote {report_path}")
     print(f"{len(report.changes)} change(s), {len(report.flags)} flag(s)")
+    MAX_PRINTED_VALUE = 40
+    def _truncated(v):
+        s = repr(v)
+        return s if len(s) <= MAX_PRINTED_VALUE else s[:MAX_PRINTED_VALUE] + "...(truncated)"
     for ch in report.changes:
-        print(f"  fix  [{ch['rule']}] {ch['sheet']}!{ch['range']}: {ch['before']!r} -> {ch['after']!r}")
+        print(f"  fix  [{ch['rule']}] {ch['sheet']}!{ch['range']}: {_truncated(ch['before'])} -> {_truncated(ch['after'])}")
     for fl in report.flags:
         print(f"  flag [{fl['rule']}] {fl['sheet']}!{fl['range']}: {fl['reason']}")
 
-    if args.detect_only:
-        return 3
-    if detect_only:
-        return 3
-    return 0
+    return 3 if detect_only else 0
 
 
 if __name__ == "__main__":

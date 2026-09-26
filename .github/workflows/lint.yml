@@ -121,7 +121,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install spreadsheet-cleanup's Python dependencies
-        run: pip install -r spreadsheet-cleanup/scripts/requirements.txt pip-audit
+        run: pip install -r spreadsheet-cleanup/scripts/requirements.txt "pip-audit==2.9.0"
 
       - name: Audit spreadsheet-cleanup's Python dependencies
         run: pip-audit -r spreadsheet-cleanup/scripts/requirements.txt

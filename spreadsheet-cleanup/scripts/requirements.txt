@@ -1,2 +1,2 @@
-openpyxl>=3.1
-defusedxml>=0.7
+openpyxl>=3.1,<4.0
+defusedxml>=0.7,<1.0

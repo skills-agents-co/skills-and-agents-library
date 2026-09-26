@@ -1,0 +1,104 @@
+{
+  "generatedBy": "scripts/generate-spreadsheet-fixtures.mjs",
+  "note": "Generated file — do not hand-edit. Re-run `npm run generate:fixtures` after changing MESSY_DEFECTS.",
+  "messy": {
+    "file": "messy.xlsx",
+    "defects": [
+      {
+        "id": "merged_header",
+        "defectNumber": 1,
+        "sheet": "Expenses",
+        "range": "A1:D1",
+        "description": "Header row title is a merged range across the header, instead of a single labeled cell."
+      },
+      {
+        "id": "wide_date_columns",
+        "defectNumber": 2,
+        "sheet": "Expenses",
+        "range": "B2:C2",
+        "description": "Months (Jan-2026, Feb-2026) are pivoted into separate header columns instead of a tidy date column."
+      },
+      {
+        "id": "numbers_as_text_currency",
+        "defectNumber": 3,
+        "sheet": "Expenses",
+        "range": "B9",
+        "description": "Amount stored as text carrying a currency symbol (\"$1,000\") instead of a numeric cell."
+      },
+      {
+        "id": "numbers_as_text_comma",
+        "defectNumber": 3,
+        "sheet": "Expenses",
+        "range": "B10",
+        "description": "Amount stored as text carrying a thousands comma (\"1,200\") instead of a numeric cell."
+      },
+      {
+        "id": "numbers_as_text_apostrophe",
+        "defectNumber": 3,
+        "sheet": "Expenses",
+        "range": "B11",
+        "description": "Amount stored as text via a leading apostrophe (\"'2200\"), forcing text storage of an otherwise-plain number."
+      },
+      {
+        "id": "hardcoded_formula_value",
+        "defectNumber": 5,
+        "sheet": "Expenses",
+        "range": "D6",
+        "description": "The Total column is a formula (=SUM(B:C)) for every other row, but this cell was typed over with a literal value (3100).",
+        "siblingCells": [
+          "D3",
+          "D4",
+          "D5",
+          "D9",
+          "D10",
+          "D11"
+        ]
+      },
+      {
+        "id": "blank_divider_row",
+        "defectNumber": 6,
+        "sheet": "Expenses",
+        "range": "A7:D7",
+        "description": "A fully blank row sits mid-sheet as a section divider, breaking the data range into two blocks."
+      },
+      {
+        "id": "duplicate_header_row",
+        "defectNumber": 6,
+        "sheet": "Expenses",
+        "range": "A8:D8",
+        "description": "The header row (Category | Jan-2026 | Feb-2026 | Total) is re-pasted mid-sheet, after the divider row."
+      }
+    ]
+  },
+  "cleanControl": {
+    "file": "clean-control.xlsx",
+    "note": "Same data shape as messy.xlsx (same categories/months), with none of the five defects present.",
+    "expectedDataRows": 14,
+    "monthColumn": {
+      "cell": "B",
+      "numFmt": "mmm-yyyy"
+    }
+  },
+  "fidelity": {
+    "file": "fidelity.xlsx",
+    "note": "Deliberately narrow: one live formula (B1), one date-typed cell (B2), one non-General number format (B3).",
+    "cells": {
+      "formula": {
+        "sheet": "Fidelity",
+        "cell": "B1",
+        "formula": "1+1",
+        "expectedResult": 2
+      },
+      "date": {
+        "sheet": "Fidelity",
+        "cell": "B2",
+        "numFmt": "yyyy-mm-dd"
+      },
+      "numberFormat": {
+        "sheet": "Fidelity",
+        "cell": "B3",
+        "numFmt": "\"$\"#,##0.00"
+      }
+    }
+  }
+}

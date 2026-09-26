@@ -116,6 +116,19 @@ jobs:
       - name: Test the backlink checker against its fixtures
         run: node scripts/test-check-backlinks.mjs
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install spreadsheet-cleanup's Python dependencies
+        run: pip install -r spreadsheet-cleanup/scripts/requirements.txt "pip-audit==2.9.0"
+
+      - name: Audit spreadsheet-cleanup's Python dependencies
+        run: pip-audit -r spreadsheet-cleanup/scripts/requirements.txt
+
+      - name: Run spreadsheet-cleanup evals
+        run: python evals/spreadsheet-cleanup/run_evals.py
+
       - name: Test the shared index-ref library
         run: node scripts/test-index-ref.mjs
 

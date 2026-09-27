@@ -301,13 +301,14 @@ def eval_xlsm(tmp):
         str(os.listdir(out_dir_b)),
     )
 
-    # Case C: the specific gap the OLD macro check had and the fix's
-    # _is_macro_part() closed — the old gate only matched the exact literal
-    # "xl/vbaProject.bin" (case-sensitive equality), so a differently-cased
-    # part (VBAProject.bin under a different case) or one relocated to
-    # xl/macrosheets/ would have slipped through unrefused. This case
-    # exercises exactly that, so it fails against the pre-fix exact-match
-    # check and passes against the broadened one.
+    # Case C: coverage for _is_macro_part()'s case-insensitive matching.
+    # The ORIGINAL gate (before the review that added _is_macro_part) only
+    # matched the exact literal "xl/vbaProject.bin" (case-sensitive
+    # equality), so a differently-cased part would have slipped through
+    # unrefused. _is_macro_part() has been case-insensitive since it was
+    # introduced, so this case passes on every commit from that point on —
+    # it's a real assertion against the current behavior, not a
+    # regression test distinguishing any two specific commits since then.
     cased_path = build_macro_workbook(
         tmp, os.path.join(tmp, "macro_cased.xlsx"), macro_part_name="xl/VBAProject.BIN"
     )
@@ -642,7 +643,16 @@ def eval_failure_does_not_delete_prior_output(tmp):
     wb2.save(second_src)
 
     res2 = run_clean(second_src, out_dir)
-    check("prior-output: second (oversized-dimensions) run exits non-zero", res2.returncode != 0, res2.stderr)
+    # Assert the specific refusal, not just "some failure happened" — a
+    # loosely-worded check here could keep passing even if a change moved
+    # this input to fail some OTHER, earlier gate instead of check_sheet_size,
+    # silently stopping this from testing what it claims to.
+    check("prior-output: second (oversized-dimensions) run exits 2", res2.returncode == 2, res2.stderr)
+    check(
+        "prior-output: second run's stderr names the cell-count cap",
+        "cells" in res2.stderr and "2000000" in res2.stderr,
+        res2.stderr,
+    )
     check(
         "prior-output: first run's cleaned copy still exists after the second run fails",
         os.path.isfile(cleaned_path),

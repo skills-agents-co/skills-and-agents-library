@@ -148,14 +148,20 @@ def stem_from_input(input_path):
 
 def read_input_snapshot(input_path):
     """
-    Read the whole input file into memory exactly once, after the checks
-    that only need the path (extension, existence, size on disk). Every
-    later check and the eventual openpyxl load all work off these same
-    bytes, never reopening input_path — so there is no window between
-    "validated" and "used" for the input's content to change underneath
-    the run. Only a change to the file made BEFORE this read is possible,
-    and that's caught below by re-hashing the path itself once, at the very
-    start, immediately after this read.
+    Read the whole input file into memory exactly once. Every later check
+    and the eventual openpyxl load all work off these same bytes, never
+    reopening input_path — so there is no window between "validated" and
+    "used" for the input's content to change underneath the run. A change
+    made to the file BEFORE this read (i.e. before the size check below
+    even ran) can still happen; that's caught separately, at the very end
+    of clean_workbook(), by re-hashing the path itself once against a hash
+    taken of this snapshot.
+
+    The read itself is bounded to MAX_INPUT_BYTES + 1, not unbounded: an
+    os.path.getsize() check followed by a separate, unbounded f.read() is
+    its own TOCTOU (the file can grow between the two calls), and the
+    whole point of this function is to not reintroduce that shape while
+    closing a different one.
     """
     if not input_path.lower().endswith(".xlsx"):
         raise Refusal(f"refused: {input_path!r} is not a .xlsx file (by extension)")
@@ -163,12 +169,11 @@ def read_input_snapshot(input_path):
     if not os.path.isfile(input_path):
         raise Refusal(f"refused: {input_path!r} does not exist")
 
-    size = os.path.getsize(input_path)
-    if size > MAX_INPUT_BYTES:
-        raise Refusal(f"refused: {input_path!r} is {size} bytes, over the 25MB limit")
-
     with open(input_path, "rb") as f:
-        data = f.read()
+        data = f.read(MAX_INPUT_BYTES + 1)
+
+    if len(data) > MAX_INPUT_BYTES:
+        raise Refusal(f"refused: {input_path!r} is over the 25MB limit")
 
     if data[:4] != ZIP_SIGNATURE:
         raise Refusal(f"refused: {input_path!r} does not have a zip signature (not a real .xlsx)")
@@ -232,8 +237,9 @@ def detect_flags(zip_names):
 def validate_xml_safety(data):
     """
     Sanity-check every XML-bearing member of the workbook with defusedxml
-    BEFORE any copy is made or any openpyxl parsing happens, so a rejected
-    file leaves no trace on disk at all. Works off the in-memory snapshot.
+    BEFORE any openpyxl parsing happens, so a rejected file leaves no trace
+    on disk at all (there's no input copy at any point in this script —
+    everything works off the in-memory snapshot passed in as `data`).
     Raises Refusal on any defusedxml-recognized attack shape.
 
     Covers both ".xml" parts and ".rels" relationship parts (case-
@@ -676,15 +682,25 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
     are the only things this function writes to until the very last two
     lines, where both get moved into place with os.replace. That means:
 
-    - A run that fails for any reason never touches cleaned_path or
-      report_path at all, whether or not a file already happens to sit
-      there from an earlier successful run. There is nothing to clean up
-      on the "final" paths, because nothing on them was ever written by
-      THIS run — only the run's own ".tmp" files are removed on failure,
-      which are always safe to remove because they are never anything but
-      this run's own in-progress output.
-    - A run that succeeds does two atomic renames at the very end, so a
-      reader can never observe a half-written cleaned copy or report.
+    - A run that fails BEFORE reaching the two os.replace calls below never
+      touches cleaned_path or report_path at all, whether or not a file
+      already happens to sit there from an earlier successful run. There
+      is nothing to clean up on the "final" paths in that case, because
+      nothing on them was ever written by THIS run — only the run's own
+      ".tmp" files are removed on failure, which are always safe to remove
+      because they are never anything but this run's own in-progress
+      output.
+    - Each of the two os.replace calls is itself atomic. Between the two
+      calls is not: if the first (cleaned_path) succeeds and the second
+      (report_path) then fails for some reason unrelated to this run's own
+      correctness (out of disk space, a permissions change mid-run), the
+      cleaned copy is this run's, but report_path is left holding an
+      earlier run's report or none — a real, if narrow, inconsistent
+      state this design does not fully close. Closing it completely would
+      need a single cross-file transaction (a lock file, or one archive
+      holding both), which isn't worth the complexity against how small
+      and non-adversarial this window is once both temp files already
+      exist ready to rename.
 
     An earlier version of this function copied the input up front and
     deleted "cleaned_path" in its failure handler whenever this run hadn't
@@ -765,9 +781,14 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
             os.replace(tmp_cleaned_path, cleaned_path)
         os.replace(tmp_report_path, report_path)
     except BaseException:
-        # Only ever the run's own in-progress temp files — never
-        # cleaned_path or report_path, which this function has not touched
-        # by the time any exception can reach here.
+        # Only ever the run's own in-progress temp files. cleaned_path and
+        # report_path are each touched only by their own os.replace call
+        # above, so an exception before those calls means neither final
+        # path was touched; an exception between them (see the docstring's
+        # note on that narrow window) means cleaned_path may already hold
+        # this run's output while report_path does not — this handler does
+        # not attempt to undo that half, since os.replace's own atomicity
+        # is what's relied on, not this handler.
         for p in (tmp_cleaned_path, tmp_report_path):
             try:
                 os.remove(p)

@@ -252,7 +252,7 @@ def eval_fidelity(tmp):
 # Criterion 6: .xlsm input is refused (exit 2), no output written.
 # ---------------------------------------------------------------------------
 
-def build_macro_workbook(tmp, path):
+def build_macro_workbook(tmp, path, macro_part_name="xl/vbaProject.bin"):
     import openpyxl
 
     src_xlsx = os.path.join(tmp, os.path.basename(path) + ".src.xlsx")
@@ -261,9 +261,12 @@ def build_macro_workbook(tmp, path):
     wb.save(src_xlsx)
 
     shutil.copyfile(src_xlsx, path)
-    # Append a vbaProject.bin part so the gate's macro check has something real to catch.
+    # Append the macro part so the gate's macro check has something real to
+    # catch. Callers can pass a non-default macro_part_name to exercise the
+    # broadened matching (case, xl/macrosheets/, xl/activeX/) rather than
+    # only the one exact literal path.
     with zipfile.ZipFile(path, "a") as zf:
-        zf.writestr("xl/vbaProject.bin", b"\x00" * 32)
+        zf.writestr(macro_part_name, b"\x00" * 32)
     return path
 
 
@@ -296,6 +299,30 @@ def eval_xlsm(tmp):
         "macro part under .xlsx: no output file is written",
         os.listdir(out_dir_b) == [],
         str(os.listdir(out_dir_b)),
+    )
+
+    # Case C: the specific gap the OLD macro check had and the fix's
+    # _is_macro_part() closed — the old gate only matched the exact literal
+    # "xl/vbaProject.bin" (case-sensitive equality), so a differently-cased
+    # part (VBAProject.bin under a different case) or one relocated to
+    # xl/macrosheets/ would have slipped through unrefused. This case
+    # exercises exactly that, so it fails against the pre-fix exact-match
+    # check and passes against the broadened one.
+    cased_path = build_macro_workbook(
+        tmp, os.path.join(tmp, "macro_cased.xlsx"), macro_part_name="xl/VBAProject.BIN"
+    )
+    out_dir_c = os.path.join(tmp, "xlsm_cased_out")
+    os.makedirs(out_dir_c, exist_ok=True)
+    res_c = run_clean(cased_path, out_dir_c)
+    check(
+        "differently-cased macro part: clean.py exits 2",
+        res_c.returncode == 2,
+        f"stdout={res_c.stdout} stderr={res_c.stderr}",
+    )
+    check(
+        "differently-cased macro part: no output file is written",
+        os.listdir(out_dir_c) == [],
+        str(os.listdir(out_dir_c)),
     )
 
 
@@ -445,9 +472,23 @@ def eval_entity_expansion(tmp):
         res.returncode == 2,
         f"stdout={res.stdout} stderr={res.stderr}",
     )
+    # Asserting the NEW wording ("XML construct") rather than just
+    # "forbidden" is deliberate: with defusedxml's default parser settings
+    # (forbid_entities=True), EntityDeclHandler intercepts every entity
+    # declaration before ExternalEntityRefHandler is ever reached, so
+    # EntitiesForbidden is the only exception this attack shape can
+    # actually raise — a payload distinguishing "only EntitiesForbidden is
+    # caught" from "any DefusedXmlException is caught" isn't constructible
+    # against this library's defaults. What DID change between the two
+    # versions of clean.py is the refusal message itself: the pre-fix
+    # handler said "...a forbidden XML entity payload" (no "construct"
+    # substring); the fix's broader `except DefusedXmlException` handler
+    # says "...a forbidden XML construct (...)". This assertion is real
+    # regression coverage for that wording change, even though it can't
+    # exercise the broadened exception type directly.
     check(
         "entity-expansion payload: stderr names the forbidden construct (not a generic error)",
-        "forbidden" in res.stderr.lower(),
+        "xml construct" in res.stderr.lower(),
         res.stderr,
     )
     check(
@@ -491,42 +532,127 @@ def eval_path_traversal(tmp):
             os.path.commonpath([out_dir_real, full]) == out_dir_real,
         )
 
-    # Case B: prove the actual escape refusal (safe_output_path's commonpath
-    # check) by pointing --out-dir at a symlink that resolves OUTSIDE the
-    # directory the caller thinks they're writing into.
+    # Case B: prove safe_output_path()'s symlink guard by planting a
+    # symlink at the EXACT output path clean.py will try to write to, then
+    # asserting it's refused rather than followed. The decoy target lives
+    # INSIDE real_target on purpose — a symlink pointing entirely outside
+    # out_dir is already caught by the pre-existing commonpath containment
+    # check (see Case A), which would make this case pass even with the
+    # newer islink() guard deleted, proving nothing about it.
     real_target = os.path.join(tmp, "traversal_real_target")
     os.makedirs(real_target, exist_ok=True)
-    outside_dir = os.path.join(tmp, "traversal_outside")
-    os.makedirs(outside_dir, exist_ok=True)
-    escape_link = os.path.join(outside_dir, "escape_link")
+    probe_link = os.path.join(real_target, "symlink_probe")
     try:
-        os.symlink(real_target, escape_link)
+        os.symlink(os.path.join(real_target, "probe_target"), probe_link)
+        os.remove(probe_link)
         symlink_supported = True
     except (OSError, NotImplementedError):
         symlink_supported = False
 
-    if symlink_supported:
+    if not symlink_supported:
+        print("[SKIP] pre-existing symlink at the output path: symlinks unsupported on this host")
+    else:
         normal_src = os.path.join(src_dir, "normal.xlsx")
         wb2 = openpyxl.Workbook()
         wb2.active["A1"] = "x"
         wb2.save(normal_src)
-        # Passing --out-dir as a path THROUGH the symlink is the ordinary,
-        # supported case (realpath resolves it and the check passes) — this
-        # is not the escape. The escape this guard exists for is a stem or
-        # out_dir value that resolves outside of realpath(out_dir) itself,
-        # which can't happen once out_dir is realpath'd first. What CAN
-        # still happen is a symlink planted at the exact output path AFTER
-        # the containment check runs — see clean.py's safe_output_path().
-        # That race isn't reproducible deterministically in a black-box
-        # eval, so this case instead asserts the documented mitigation is
-        # present: an existing symlink AT the output path is refused outright.
+        decoy_path = os.path.join(real_target, "decoy.xlsx")
+        with open(decoy_path, "wb") as f:
+            f.write(b"decoy content, must survive untouched")
         pre_existing_link = os.path.join(real_target, "normal.cleaned.xlsx")
-        os.symlink(os.path.join(tmp, "some_other_file"), pre_existing_link)
+        os.symlink(decoy_path, pre_existing_link)
+
         res_b = run_clean(normal_src, real_target)
         check(
             "pre-existing symlink at the output path: clean.py refuses (exit 2)",
             res_b.returncode == 2,
             f"stdout={res_b.stdout} stderr={res_b.stderr}",
+        )
+        check(
+            "pre-existing symlink at the output path: stderr names the symlink",
+            "symlink" in res_b.stderr.lower(),
+            res_b.stderr,
+        )
+        with open(decoy_path, "rb") as f:
+            decoy_after = f.read()
+        check(
+            "pre-existing symlink at the output path: the symlink's target is untouched",
+            decoy_after == b"decoy content, must survive untouched",
+            repr(decoy_after),
+        )
+        leftover = sorted(
+            n for n in os.listdir(real_target)
+            if n not in ("normal.cleaned.xlsx", "decoy.xlsx")
+        )
+        check(
+            "pre-existing symlink at the output path: no stray temp file left behind",
+            leftover == [],
+            str(leftover),
+        )
+
+
+def eval_failure_does_not_delete_prior_output(tmp):
+    """
+    A later run that fails for an unrelated reason must never delete a
+    ".cleaned.xlsx" a PREVIOUS, successful run already wrote at that same
+    path. An earlier version of clean.py deleted "cleaned_path" in its
+    failure handler whenever the CURRENT run hadn't (yet) finished writing
+    it, which silently destroyed a good file from an earlier run any time
+    a later, unrelated run over the same output folder failed.
+    """
+    import openpyxl
+
+    out_dir = os.path.join(tmp, "prior_output_out")
+    os.makedirs(out_dir, exist_ok=True)
+
+    good_src = os.path.join(tmp, "good.xlsx")
+    wb = openpyxl.Workbook()
+    wb.active["A1"] = "x"
+    wb.save(good_src)
+
+    res1 = run_clean(good_src, out_dir)
+    check("prior-output setup: first run exits 0", res1.returncode == 0, res1.stderr)
+    cleaned_path = os.path.join(out_dir, "good.cleaned.xlsx")
+    check("prior-output setup: first run wrote a cleaned copy", os.path.isfile(cleaned_path))
+    if not os.path.isfile(cleaned_path):
+        return
+    with open(cleaned_path, "rb") as f:
+        good_output_bytes = f.read()
+
+    # Now run again with the SAME stem (same input basename "good.xlsx", so
+    # the same cleaned_path) but a second input that fails check_sheet_size
+    # AFTER the workbook loads and BEFORE this run's own wb.save() ever
+    # runs. This is the actual shape the original bug needed: a Refusal
+    # raised at the very top of the function (like the oversized-file-size
+    # gate) never reached the old failure-cleanup handler at all, since it
+    # ran before that function's try block even opened — using that kind of
+    # failure here would pass even against the buggy code, for the wrong
+    # reason. A failure that happens once the workbook is loaded and
+    # cleaning is under way (check_sheet_size refusing, a rule raising) is
+    # what actually exercises the cleanup handler, with out_dir itself
+    # fully writable throughout — otherwise the old bug's own delete call
+    # would fail too, for an unrelated reason, and mask what's being tested.
+    second_src_dir = os.path.join(tmp, "prior_output_second_src")
+    os.makedirs(second_src_dir, exist_ok=True)
+    second_src = os.path.join(second_src_dir, "good.xlsx")
+    wb2 = openpyxl.Workbook()
+    ws2 = wb2.active
+    ws2["A1"] = "x"
+    ws2.cell(row=1_048_576, column=2).value = "y"  # forces max_row*max_col over the 2,000,000 cap
+    wb2.save(second_src)
+
+    res2 = run_clean(second_src, out_dir)
+    check("prior-output: second (oversized-dimensions) run exits non-zero", res2.returncode != 0, res2.stderr)
+    check(
+        "prior-output: first run's cleaned copy still exists after the second run fails",
+        os.path.isfile(cleaned_path),
+    )
+    if os.path.isfile(cleaned_path):
+        with open(cleaned_path, "rb") as f:
+            after_bytes = f.read()
+        check(
+            "prior-output: first run's cleaned copy is byte-identical after the second run fails",
+            after_bytes == good_output_bytes,
         )
 
 
@@ -540,6 +666,7 @@ def main():
         eval_oversized(tmp)
         eval_entity_expansion(tmp)
         eval_path_traversal(tmp)
+        eval_failure_does_not_delete_prior_output(tmp)
 
     print()
     if FAILURES:

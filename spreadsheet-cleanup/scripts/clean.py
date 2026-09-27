@@ -17,15 +17,19 @@ Exit codes:
         workbook could not be safely parsed for formulas and the script
         fell back to detect-only on its own).
 
-This script never edits the input file. It copies the input, opens the
-copy, computes the input's hash before and after, and refuses to proceed
-if that hash ever changes.
+This script never edits the input file. It reads the input into memory
+exactly once (every gate, safety check, and parse works off that single
+snapshot, never re-opening the path), and only writes a cleaned copy and a
+report once everything about that snapshot has already checked out — so
+there's no window where a later check can invalidate bytes something
+upstream already used.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import re
@@ -36,7 +40,13 @@ from datetime import datetime
 
 MAX_INPUT_BYTES = 25 * 1024 * 1024
 MAX_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
-MAX_COMPRESSION_RATIO = 100
+# Applied only to members over MIN_RATIO_CHECK_BYTES compressed: a tiny,
+# genuinely repetitive part (a few bytes of XML boilerplate) can innocently
+# exceed a 100x ratio, so the ratio check only matters once a member is
+# big enough that a high ratio is actually the sign of a bomb rather than
+# noise on a small file.
+MAX_COMPRESSION_RATIO = 200
+MIN_RATIO_CHECK_BYTES = 4096
 MAX_TOTAL_CELLS = 2_000_000
 ZIP_SIGNATURE = b"PK\x03\x04"
 MONTH_HEADER_RE = re.compile(r"^([A-Za-z]{3})-(\d{4})$")
@@ -92,8 +102,19 @@ def sha256_of(path):
     return h.hexdigest()
 
 
+def sha256_of_bytes(data):
+    return hashlib.sha256(data).hexdigest()
+
+
 def safe_output_path(out_dir, stem, suffix):
-    """Build a path inside out_dir, refusing to let a crafted stem escape it."""
+    """
+    Build a path inside out_dir, refusing to let a crafted stem escape it,
+    and refusing if a symlink already sits at that exact path. Call this
+    for every path this script will actually open for writing, including
+    a ".tmp" staging path — a symlink planted at the tmp name is exactly as
+    dangerous as one planted at the final name, since both get opened for
+    a write.
+    """
     out_dir_real = os.path.realpath(out_dir)
     candidate = os.path.join(out_dir_real, stem + suffix)
     candidate_real = os.path.realpath(candidate)
@@ -104,7 +125,10 @@ def safe_output_path(out_dir, stem, suffix):
         # would have caught one pointing outside out_dir at the time of this
         # call — but a symlink can be planted at this exact path between this
         # check and the write that follows it. Refuse outright rather than
-        # write through whatever it points at.
+        # write through whatever it points at. This is still check-then-use,
+        # not a closed race; it narrows the window to "between this line and
+        # the write a few lines later" rather than leaving it open for the
+        # whole run.
         raise Refusal(f"refused: output path {candidate!r} is a symlink")
     return candidate_real
 
@@ -122,12 +146,16 @@ def stem_from_input(input_path):
     return stem
 
 
-def run_gate(input_path):
+def read_input_snapshot(input_path):
     """
-    Extension, zip signature, no macro parts, size <= 25MB, and a bounded
-    total uncompressed size / compression ratio per member (a zip bomb can
-    be tiny on disk and still expand to gigabytes; the 25MB check above only
-    bounds the compressed size on disk). Raises Refusal.
+    Read the whole input file into memory exactly once, after the checks
+    that only need the path (extension, existence, size on disk). Every
+    later check and the eventual openpyxl load all work off these same
+    bytes, never reopening input_path — so there is no window between
+    "validated" and "used" for the input's content to change underneath
+    the run. Only a change to the file made BEFORE this read is possible,
+    and that's caught below by re-hashing the path itself once, at the very
+    start, immediately after this read.
     """
     if not input_path.lower().endswith(".xlsx"):
         raise Refusal(f"refused: {input_path!r} is not a .xlsx file (by extension)")
@@ -140,12 +168,24 @@ def run_gate(input_path):
         raise Refusal(f"refused: {input_path!r} is {size} bytes, over the 25MB limit")
 
     with open(input_path, "rb") as f:
-        head = f.read(4)
-    if head != ZIP_SIGNATURE:
+        data = f.read()
+
+    if data[:4] != ZIP_SIGNATURE:
         raise Refusal(f"refused: {input_path!r} does not have a zip signature (not a real .xlsx)")
 
+    return data
+
+
+def run_gate(data, input_path):
+    """
+    No macro parts, and a bounded total uncompressed size / compression
+    ratio per member (a zip bomb can be tiny on disk and still expand to
+    gigabytes; the size check in read_input_snapshot only bounds the
+    compressed size on disk). Works entirely off the in-memory snapshot.
+    Raises Refusal.
+    """
     try:
-        with zipfile.ZipFile(input_path) as zf:
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
             infos = zf.infolist()
     except zipfile.BadZipFile as e:
         raise Refusal(f"refused: {input_path!r} is not a readable zip: {e}")
@@ -163,7 +203,10 @@ def run_gate(input_path):
                 f"refused: {input_path!r} expands to over "
                 f"{MAX_UNCOMPRESSED_BYTES} bytes uncompressed (possible zip bomb)"
             )
-        if zi.compress_size > 0 and zi.file_size / zi.compress_size > MAX_COMPRESSION_RATIO:
+        if (
+            zi.compress_size > MIN_RATIO_CHECK_BYTES
+            and zi.file_size / zi.compress_size > MAX_COMPRESSION_RATIO
+        ):
             raise Refusal(
                 f"refused: {input_path!r} member {zi.filename!r} has a compression "
                 f"ratio over {MAX_COMPRESSION_RATIO}x (possible zip bomb)"
@@ -186,38 +229,44 @@ def detect_flags(zip_names):
     return any(n.startswith("xl/externalLinks/") for n in zip_names)
 
 
-def validate_xml_safety(input_path):
+def validate_xml_safety(data):
     """
-    Sanity-check every XML member of the workbook with defusedxml BEFORE any
-    copy is made or any openpyxl parsing happens, so a rejected file leaves
-    no trace on disk at all. Runs against input_path directly (never a copy),
-    which also shrinks the window between validation and use to zero copies.
+    Sanity-check every XML-bearing member of the workbook with defusedxml
+    BEFORE any copy is made or any openpyxl parsing happens, so a rejected
+    file leaves no trace on disk at all. Works off the in-memory snapshot.
     Raises Refusal on any defusedxml-recognized attack shape.
+
+    Covers both ".xml" parts and ".rels" relationship parts (case-
+    insensitively) — openpyxl parses both as XML, and a check that only
+    matched a literal lowercase ".xml" suffix left every .rels part (the
+    workbook's own relationships, each sheet's relationships) unchecked.
     """
     from defusedxml import ElementTree as DET
     from defusedxml.common import DefusedXmlException
 
-    with zipfile.ZipFile(input_path) as zf:
+    with zipfile.ZipFile(io.BytesIO(data)) as zf:
         for name in zf.namelist():
-            if name.endswith(".xml"):
-                data = zf.read(name)
-                if not data.strip():
+            lname = name.lower()
+            if lname.endswith(".xml") or lname.endswith(".rels"):
+                member = zf.read(name)
+                if not member.strip():
                     continue
                 try:
-                    DET.fromstring(data)
+                    DET.fromstring(member)
                 except DefusedXmlException as e:
                     raise Refusal(f"refused: {name} contains a forbidden XML construct ({e})")
                 except Exception:
-                    # Not all "*.xml" members are well-formed on their own in
-                    # every workbook (rare, but not our problem to diagnose);
-                    # let openpyxl's own loader be the final arbiter.
+                    # Not all XML-bearing members are well-formed on their
+                    # own in every workbook (rare, but not our problem to
+                    # diagnose); let openpyxl's own loader be the final
+                    # arbiter.
                     continue
 
 
-def load_workbook_safely(path):
-    """Open the workbook with openpyxl. XML safety was already checked by validate_xml_safety()."""
+def load_workbook_safely(data):
+    """Open the workbook with openpyxl from the in-memory snapshot. XML safety was already checked by validate_xml_safety()."""
     import openpyxl
-    return openpyxl.load_workbook(path, data_only=False)
+    return openpyxl.load_workbook(io.BytesIO(data), data_only=False)
 
 
 def col_letter(idx):
@@ -303,7 +352,8 @@ def drop_blank_and_repeated_header_rows(ws, report):
 
 
 STRICT_NUMBER_RE = re.compile(
-    r"^-?\$?(?:[1-9]\d{0,2}(?:,\d{3})+|0|[1-9]\d*)(\.\d+)?$"
+    r"^-?\$?(?:[1-9]\d{0,2}(?:,\d{3})+|0|[1-9]\d*)(\.\d+)?$",
+    re.ASCII,
 )
 
 
@@ -619,15 +669,36 @@ def detect_hidden_and_protected(ws_list):
 
 def clean_workbook(input_path, out_dir, detect_only_requested):
     """
-    Ordering is deliberate: every check that can refuse the input runs
-    BEFORE anything is copied or written, so a refused run leaves no trace
-    on disk at all — no partial ".cleaned.xlsx", no stale ".changes.json".
-    The cleaned copy and the report are both written to a temp path and
-    moved into place with os.replace only after everything has succeeded;
-    any exception along the way removes the temp files in a finally block.
+    Ordering is deliberate and load-bearing, not just tidy: EVERYTHING that
+    can fail — every safety gate, the workbook parse, every cleaning rule,
+    and the final re-hash of input_path — runs before either final output
+    path (cleaned_path / report_path) is ever touched. The two ".tmp" paths
+    are the only things this function writes to until the very last two
+    lines, where both get moved into place with os.replace. That means:
+
+    - A run that fails for any reason never touches cleaned_path or
+      report_path at all, whether or not a file already happens to sit
+      there from an earlier successful run. There is nothing to clean up
+      on the "final" paths, because nothing on them was ever written by
+      THIS run — only the run's own ".tmp" files are removed on failure,
+      which are always safe to remove because they are never anything but
+      this run's own in-progress output.
+    - A run that succeeds does two atomic renames at the very end, so a
+      reader can never observe a half-written cleaned copy or report.
+
+    An earlier version of this function copied the input up front and
+    deleted "cleaned_path" in its failure handler whenever this run hadn't
+    (yet) finished writing it — which meant a later, unrelated failure
+    could delete a perfectly good file left by an EARLIER successful run.
+    Never touching a final path before every check has passed removes that
+    failure mode structurally instead of trying to track "did this run
+    write it" as separate state.
     """
-    zip_names = run_gate(input_path)
-    validate_xml_safety(input_path)
+    data = read_input_snapshot(input_path)
+    hash_before = sha256_of_bytes(data)
+
+    zip_names = run_gate(data, input_path)
+    validate_xml_safety(data)
     has_external_link = detect_flags(zip_names)
 
     if out_dir is None:
@@ -637,20 +708,19 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
     stem = stem_from_input(input_path)
     cleaned_path = safe_output_path(out_dir, stem, ".cleaned.xlsx")
     report_path = safe_output_path(out_dir, stem, ".changes.json")
-    tmp_cleaned_path = cleaned_path + ".tmp"
-    tmp_report_path = report_path + ".tmp"
+    tmp_cleaned_path = safe_output_path(out_dir, stem, ".cleaned.xlsx.tmp")
+    tmp_report_path = safe_output_path(out_dir, stem, ".changes.json.tmp")
 
-    hash_before = sha256_of(input_path)
     report = Report()
     if has_external_link:
         report.add_flag("<workbook>", "xl/externalLinks/", "workbook has an external link", "external_link")
 
     detect_only = detect_only_requested
-    wrote_cleaned_copy = False
+    will_write_cleaned_copy = False
 
     try:
         try:
-            wb = load_workbook_safely(input_path)
+            wb = load_workbook_safely(data)
         except Refusal:
             raise
         except Exception as e:
@@ -677,33 +747,38 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
                     restore_column_formula(ws, report)
                     unpivot_date_columns(ws, report)
                 wb.save(tmp_cleaned_path)
-                os.replace(tmp_cleaned_path, cleaned_path)
-                wrote_cleaned_copy = True
+                will_write_cleaned_copy = True
 
+        # Re-hash the path itself (not the in-memory snapshot, which by
+        # definition can't have changed) to catch a change made to the file
+        # on disk between read_input_snapshot() and here. Runs BEFORE
+        # either os.replace below, so a change caught here still leaves
+        # both final paths untouched.
         hash_after_input = sha256_of(input_path)
         if hash_after_input != hash_before:
-            # Should never happen (we never open input_path itself for
-            # writing), but this is the load-bearing guarantee, so verify it
-            # explicitly every run.
-            raise Refusal("refused: input file hash changed during the run")
+            raise Refusal("refused: input file changed on disk during the run")
 
         with open(tmp_report_path, "w") as f:
             json.dump(report.to_dict(), f, indent=2, default=str)
+
+        if will_write_cleaned_copy:
+            os.replace(tmp_cleaned_path, cleaned_path)
         os.replace(tmp_report_path, report_path)
     except BaseException:
+        # Only ever the run's own in-progress temp files — never
+        # cleaned_path or report_path, which this function has not touched
+        # by the time any exception can reach here.
         for p in (tmp_cleaned_path, tmp_report_path):
             try:
                 os.remove(p)
             except OSError:
-                pass
-        if not wrote_cleaned_copy:
-            try:
-                os.remove(cleaned_path)
-            except OSError:
+                # The temp file may never have been created (e.g. the run
+                # failed before reaching wb.save/open), which is the
+                # expected common case, not an error to surface.
                 pass
         raise
 
-    return report, (cleaned_path if wrote_cleaned_copy else None), report_path, detect_only
+    return report, (cleaned_path if will_write_cleaned_copy else None), report_path, detect_only
 
 
 def main(argv=None):

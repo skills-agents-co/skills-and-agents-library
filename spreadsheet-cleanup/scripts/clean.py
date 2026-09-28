@@ -64,10 +64,6 @@ class Refusal(Exception):
     """Raised to abort the run with exit code 2. No output is written."""
 
 
-class DetectOnly(Exception):
-    """Raised to fall back to a detect-only run (exit code 3)."""
-
-
 @dataclass
 class Report:
     changes: list = field(default_factory=list)
@@ -366,75 +362,167 @@ def drop_blank_and_repeated_header_rows(ws, report):
     return min((r for r, _, _ in rows_to_delete), default=None)
 
 
-# A1-style cell reference, e.g. B5, $B$5, B$5. The lookbehind and lookahead
-# keep it from matching inside a function name (LOG10, ATAN2) or a longer
-# word, and a bare number like the 1.05 in =B2*1.05 has no letters in front
-# of it so it never matches. Only used to find which ROWS a formula points
-# at; it does not try to understand the formula.
-CELL_REF_ROW_RE = re.compile(r"(?<![A-Za-z0-9_])\$?[A-Za-z]{1,3}\$?(\d+)(?![0-9A-Za-z_(])")
+# Reading which rows a formula points at, without trying to understand it.
+#
+# A1-style reference, e.g. B5, $B$5, B$5. The lookbehind and lookahead keep it
+# from matching inside a function name (LOG10, ATAN2) or a longer word, and a
+# bare number like the 1.05 in =B2*1.05 has no letters in front of it so it
+# never matches. The row is capped at 7 digits (Excel's last row is
+# 1,048,576): a longer run of digits is not a cell reference, and capping it
+# also keeps int() away from a huge run, which raises ValueError under Python
+# 3.11+ and would otherwise stop the whole cleanup on one odd formula.
+CELL_REF_ROW_RE = re.compile(r"(?<![A-Za-z0-9_])\$?[A-Za-z]{1,3}\$?(\d{1,7})(?![0-9A-Za-z_(])")
+
+# A reference with a sheet name in front (Detail!D9, 'FY 24'!B2:C9). The sheet
+# name is tried only where a word starts (the first lookbehind), so a long run
+# of letters is scanned once and not once per character. A range's second end
+# belongs to the same sheet, so it is captured here as well.
+_QUALIFIED_REF_RE = re.compile(
+    r"(?<![A-Za-z0-9_.])"
+    r"(?P<sheet>'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*)!"
+    r"\$?[A-Za-z]{1,3}\$?(?P<r1>\d{1,7})(?![0-9A-Za-z_(])"
+    r"(?::\$?[A-Za-z]{1,3}\$?(?P<r2>\d{1,7})(?![0-9A-Za-z_(]))?"
+)
+
+# Text inside double quotes, e.g. the "Q4" in ="Q4"&B2, is not a reference.
+_STRING_LITERAL_RE = re.compile(r'"(?:[^"]|"")*"')
+
+# INDIRECT and OFFSET build their target at run time, so which rows they point
+# at cannot be read from the formula text.
+_DYNAMIC_REF_RE = re.compile(r"(?<![A-Za-z0-9_.])(?:INDIRECT|OFFSET)\s*\(", re.IGNORECASE)
 
 # Cap on individually listed flags per sheet, so one deletion on a big sheet
 # cannot produce an unbounded report.
 MAX_SHIFTED_FLAGS = 25
 
 
-def flag_shifted_formula_references(ws, report, first_deleted_row):
+def formula_row_refs(formula):
     """
-    Flag, without changing anything, every formula that points at a row at or
-    below `first_deleted_row`.
+    Return [(sheet_name_or_None, row_number), ...] for every A1-style reference
+    in the formula. None means "this formula's own sheet". A range contributes
+    both of its ends. Text in double quotes is ignored.
+    """
+    text = _STRING_LITERAL_RE.sub('""', formula)
+    refs = []
 
-    openpyxl's delete_rows() moves cells but does not rewrite formula text,
-    so after drop_blank_and_repeated_header_rows() removes a row, any formula
-    still pointing at a row from the deleted row down now points at the
-    wrong data (a total shows a neighbor's number, or zero). This is a flag
-    only. It never rewrites the formula.
+    def take(m):
+        sheet = m.group("sheet")
+        if sheet.startswith("'"):
+            sheet = sheet[1:-1].replace("''", "'")
+        refs.append((sheet, int(m.group("r1"))))
+        if m.group("r2"):
+            refs.append((sheet, int(m.group("r2"))))
+        return " "
+
+    text = _QUALIFIED_REF_RE.sub(take, text)
+    for m in CELL_REF_ROW_RE.finditer(text):
+        refs.append((None, int(m.group(1))))
+    return refs
+
+
+def flag_shifted_formula_references(wb, report, first_deleted_by_sheet):
+    """
+    Flag, without changing anything, every formula that points at a row on a
+    sheet from that sheet's first deleted row down.
+
+    openpyxl's delete_rows() moves cells but does not rewrite formula text, so
+    after drop_blank_and_repeated_header_rows() removes a row, any formula
+    still pointing at a row from the deleted row down now points at the wrong
+    data (a total shows a neighbor's number, or zero). This is a flag only. It
+    never rewrites the formula.
+
+    `first_deleted_by_sheet` maps a sheet's title to the lowest row deleted on
+    it. A reference is checked against the sheet it points at: a bare B5 is
+    this formula's own sheet, and Detail!D9 is the Detail sheet. So a summary
+    sheet's =Detail!D9 is flagged when Detail lost a row, and is left alone
+    when it did not. Every sheet is scanned, including hidden and protected
+    ones (this only reads).
 
     Deliberately simple: it looks only at which rows a formula references,
-    never at whether two formulas have the same "shape", so it cannot mistake
-    a constant like the 1.05 in =B2*1.05 for a row number. A formula is
-    checked wherever it sits on the sheet: a total at the top that sums a
-    range below the deletion is just as stale as a formula that moved. It
-    errs toward flagging (a formula that only references rows above the
-    deletion is left alone, but anything at or below is listed), because
-    the cost of a wrong extra flag is a person glancing at a cell, and the
-    cost of a missed one is a wrong number in a finance report.
+    never at whether two formulas have the same "shape", so it cannot mistake a
+    constant like the 1.05 in =B2*1.05 for a row number. A formula is checked
+    wherever it sits: a total at the top that sums a range below the deletion
+    is just as stale as a formula that moved. It errs toward flagging: a
+    formula that only references rows above the deletion is left alone, but
+    anything at or below is listed, because the cost of a wrong extra flag is a
+    person glancing at a cell, and the cost of a missed one is a wrong number
+    in a finance report.
 
-    It cannot see formulas on OTHER sheets that reference this sheet, or
-    named ranges, charts, and conditional formatting, so it adds one
-    sheet-level note saying so.
+    Also flagged, because their target rows cannot be read: formulas that use
+    INDIRECT or OFFSET, and array and data-table formulas (openpyxl gives those
+    back as objects, not "=..." strings). For an array formula the text is
+    checked like any other; a data table is flagged outright.
+
+    It cannot see named ranges, charts, tables, conditional formatting, or
+    other workbooks that link to this one, so each sheet that lost a row gets
+    one note saying so.
     """
-    suspects = []
-    for row in ws.iter_rows():
-        for cell in row:
-            v = cell.value
-            if not (isinstance(v, str) and v.startswith("=")):
-                continue
-            rows = [int(m.group(1)) for m in CELL_REF_ROW_RE.finditer(v)]
-            if rows and max(rows) >= first_deleted_row:
-                suspects.append(cell.coordinate)
+    from openpyxl.worksheet.formula import ArrayFormula, DataTableFormula
 
-    for coord in suspects[:MAX_SHIFTED_FLAGS]:
-        report.add_flag(
-            ws.title, coord,
-            f"points at a row at or below row {first_deleted_row}, where a blank or repeated-header "
-            f"row was deleted; its row references were not adjusted and may now point at the wrong "
-            f"rows. Please check it.",
-            "shifted_formula_reference",
-        )
-    if len(suspects) > MAX_SHIFTED_FLAGS:
-        report.add_flag(
-            ws.title, "<sheet>",
-            f"{len(suspects) - MAX_SHIFTED_FLAGS} more formula(s) on this sheet point at or below row "
-            f"{first_deleted_row} and are not listed individually. Please check them too.",
-            "shifted_formula_reference",
-        )
-    report.add_flag(
-        ws.title, "<sheet>",
-        f"rows were deleted starting at row {first_deleted_row}. Formulas on other sheets, named "
-        f"ranges, charts, and conditional formatting that refer to this sheet were not adjusted "
-        f"and may be off.",
-        "shifted_formula_reference",
-    )
+    deleted_lc = {title.lower(): row for title, row in first_deleted_by_sheet.items()}
+    if not deleted_lc:
+        return
+
+    for ws in wb.worksheets:
+        suspects = []  # (coordinate, reason)
+        for row in ws.iter_rows():
+            for cell in row:
+                v = cell.value
+                if isinstance(v, DataTableFormula):
+                    if ws.title in first_deleted_by_sheet:
+                        suspects.append((
+                            cell.coordinate,
+                            "is a data-table formula on a sheet where a blank or repeated-header row was "
+                            "deleted; its input cells may now be off. Please check it.",
+                        ))
+                    continue
+                if isinstance(v, ArrayFormula):
+                    text = v.text or ""
+                elif isinstance(v, str) and v.startswith("="):
+                    text = v
+                else:
+                    continue
+
+                hit = None
+                for sheet, ref_row in formula_row_refs(text):
+                    target = ws.title if sheet is None else sheet
+                    first = deleted_lc.get(target.lower())
+                    if first is not None and ref_row >= first:
+                        hit = (target, first)
+                        break
+                if hit is not None:
+                    target, first = hit
+                    where = "this sheet" if target == ws.title else f"sheet '{target}'"
+                    suspects.append((
+                        cell.coordinate,
+                        f"points at or below original row {first} of {where}, where a blank or repeated-header "
+                        f"row was deleted; its row references were not adjusted and may now point at the wrong "
+                        f"rows. Please check it.",
+                    ))
+                elif _DYNAMIC_REF_RE.search(_STRING_LITERAL_RE.sub('""', text)):
+                    suspects.append((
+                        cell.coordinate,
+                        "uses INDIRECT or OFFSET, so which rows it points at cannot be checked, and a row was "
+                        "deleted in this workbook. Please check it.",
+                    ))
+
+        for coord, reason in suspects[:MAX_SHIFTED_FLAGS]:
+            report.add_flag(ws.title, coord, reason, "shifted_formula_reference")
+        if len(suspects) > MAX_SHIFTED_FLAGS:
+            report.add_flag(
+                ws.title, "<sheet>",
+                f"{len(suspects) - MAX_SHIFTED_FLAGS} more formula(s) on this sheet need the same check "
+                f"and are not listed individually.",
+                "shifted_formula_reference",
+            )
+        if ws.title in first_deleted_by_sheet:
+            report.add_flag(
+                ws.title, "<sheet>",
+                f"rows were deleted starting at original row {first_deleted_by_sheet[ws.title]}. Named "
+                f"ranges, charts, tables, conditional formatting, and other workbooks that link to this "
+                f"sheet were not adjusted and may be off.",
+                "shifted_formula_reference",
+            )
 
 
 STRICT_NUMBER_RE = re.compile(
@@ -497,10 +585,10 @@ def formula_shape(formula):
 
 def restore_column_formula(ws, report):
     """
-    Rule #5: for each column, if every formula cell in the column shares one
-    relative shape (after generalizing away row numbers), flag any literal
-    cell in that same data block as a likely hardcoded value that should
-    match that shape. This rule is flag-only: it never writes a formula back
+    Rule #5: for each column, if every formula cell below the header row
+    shares one relative shape (after generalizing away row numbers), flag
+    any literal cell below the header row in that same column as a likely
+    hardcoded value that should match that shape. This rule is flag-only: it never writes a formula back
     into a cell and never re-anchors an existing formula cell. If the
     column's formula cells don't share one consistent shape, flag the
     literal as suspected instead — never guess a shape from inconsistent
@@ -531,10 +619,10 @@ def restore_column_formula(ws, report):
         if len(formula_cells) < 2 or not literal_cells:
             continue
 
-        shapes = {formula_shape(f) for r, f in formula_cells}
+        shapes = {formula_shape(f) for _, f in formula_cells}
         if len(shapes) != 1:
             # No single consistent shape to restore from; don't guess.
-            for r, v in literal_cells:
+            for r, _ in literal_cells:
                 cell = ws.cell(row=r, column=c)
                 report.add_flag(
                     ws.title, cell.coordinate,
@@ -544,7 +632,7 @@ def restore_column_formula(ws, report):
 
         # Flag the literal cell(s) that look like they should match the
         # column's shared formula shape. Never write a formula back.
-        for r, v in literal_cells:
+        for r, _ in literal_cells:
             cell = ws.cell(row=r, column=c)
             report.add_flag(
                 ws.title, cell.coordinate,
@@ -566,7 +654,7 @@ def parse_month_header(text):
     return datetime(year, MONTH_NAMES[mon], 1)
 
 
-def sheet_formulas_reference_cols(ws, cols, header_row_idx, max_row, exclude_col):
+def sheet_formulas_reference_cols(ws, cols, exclude_col):
     """
     True if any formula cell OUTSIDE `cols` (typically the "Total"-like
     column immediately after the month block) references a multi-cell RANGE
@@ -601,12 +689,12 @@ def unpivot_date_columns(ws, report):
     looking like it should be unpivoted into one Date/Amount layout. This
     rule is flag-only: it never rebuilds the sheet, never clears or rewrites
     any row, and never touches the month-column headers — it only reports
-    what it found. Also flags (without touching anything) if another
-    formula in the sheet references the month-column block as a multi-cell
-    range.
+    what it found. It raises exactly one flag per sheet: if another formula
+    in the sheet references the month-column block as a multi-cell range the
+    flag says so, otherwise it is the plain "should be one Date/Amount
+    column" flag.
     """
     max_col = ws.max_column
-    max_row = ws.max_row
     header_row_idx = find_header_row(ws, max_col)
     if header_row_idx is None:
         return
@@ -623,7 +711,7 @@ def unpivot_date_columns(ws, report):
     total_col = max(month_col_idxs) + 1 if max(month_col_idxs) < max_col else None
     rng = f"{col_letter(min(month_col_idxs))}{header_row_idx}:{col_letter(max(month_col_idxs))}{header_row_idx}"
 
-    if total_col and sheet_formulas_reference_cols(ws, month_col_idxs, header_row_idx, max_row, total_col):
+    if total_col and sheet_formulas_reference_cols(ws, month_col_idxs, total_col):
         report.add_flag(
             ws.title, rng,
             "another formula references this range as a block; not unpivoted", "unpivot_date_columns",
@@ -745,17 +833,21 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
                 report.add_flag(name, "<sheet>", "protected sheet, left unchanged", "protected_sheet")
 
             if not detect_only:
+                first_deleted_by_sheet = {}
                 for ws in wb.worksheets:
                     if ws.title in hidden or ws.title in protected:
                         continue
                     header_row_idx = find_header_row(ws, ws.max_column) or 1
                     unmerge_header(ws, report, header_row_idx)
                     first_deleted_row = drop_blank_and_repeated_header_rows(ws, report)
+                    if first_deleted_row is not None:
+                        first_deleted_by_sheet[ws.title] = first_deleted_row
                     text_to_number(ws, report)
                     restore_column_formula(ws, report)
                     unpivot_date_columns(ws, report)
-                    if first_deleted_row is not None:
-                        flag_shifted_formula_references(ws, report, first_deleted_row)
+                # After every sheet is cleaned, so a formula on one sheet is
+                # checked against rows deleted on any other.
+                flag_shifted_formula_references(wb, report, first_deleted_by_sheet)
                 wb.save(tmp_cleaned_path)
                 will_write_cleaned_copy = True
 
@@ -802,7 +894,8 @@ def main(argv=None):
     parser.add_argument("--out-dir", default=None, help="output folder (default: input's own folder)")
     parser.add_argument(
         "--detect-only", action="store_true",
-        help="only report what would change; write no cleaned copy at all",
+        help="only report hidden sheets, protected sheets, and links to other workbooks; runs none of the "
+             "cleaning rules and writes no cleaned copy",
     )
     args = parser.parse_args(argv)
 

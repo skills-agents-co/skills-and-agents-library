@@ -16,7 +16,7 @@ triggerPhrases:
   - "fix this messy Excel file"
   - "clean up this workbook"
   - "/spreadsheet-cleanup"
-version: "1.1.0"
+version: "1.2.0"
 author: "Skills and Agents Co"
 status: published
 ---
@@ -90,9 +90,12 @@ Then tell them about anything flagged instead of fixed, and why. The kinds are:
   don't follow one pattern, so the script wouldn't guess).
 - A formula that points at or below a row the script deleted (`shifted_formula_reference`). Row
   numbers inside a formula don't move when a row is deleted, so that formula may now read the wrong
-  cells and show a wrong total. Name the sheet and cell, and say to check it. There is also one note per
-  sheet that formulas on other sheets, named ranges, charts, and conditional formatting were not
-  adjusted either.
+  cells and show a wrong total. This covers formulas on other sheets that point at the sheet that lost
+  a row, array and data-table formulas, and formulas built with `INDIRECT` or `OFFSET` (their target is
+  worked out at run time, so the script can't tell where they land). Name the sheet and cell, and say
+  to check it. Only the first 25 are listed one by one; a final flag gives the count of the rest. There
+  is also one note per sheet that lost a row, saying where the deletion started and that named ranges,
+  charts, and conditional formatting were not adjusted either.
 Make clear all of these need a person to look at them.
 
 If the file was refused, tell the user the exact reason the script gave and that nothing was written or
@@ -124,7 +127,7 @@ flags every instance of the two defect types it never auto-fixes (month columns 
 column, and a formula cell overwritten with a hardcoded value) rather than guessing at a rewrite. It also
 flags anything else it can't safely handle on its own (a hidden sheet, a protected sheet, or an external
 workbook link). When it deletes a blank or repeated-header row, it also flags every formula that points at
-or below the first deleted row, wherever that formula sits, without rewriting it. A workbook that isn't a real `.xlsx`, is over 25MB, or carries a macro is refused
+or below the first deleted row, wherever that formula sits (including on other sheets, in array formulas, and in `INDIRECT`/`OFFSET` calls), without rewriting it. A workbook that isn't a real `.xlsx`, is over 25MB, or carries a macro is refused
 outright, with nothing written.
 
 ### Rubric
@@ -185,4 +188,4 @@ score below 6/7: don't relay the result as clean - re-run or escalate to a human
 
 ### Version
 
-1.1.0
+1.2.0

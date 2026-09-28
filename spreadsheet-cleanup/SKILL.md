@@ -1,7 +1,7 @@
 ---
 name: "Spreadsheet Cleanup"
-description: "Cleans up a messy finance spreadsheet automatically - fixes merged headers, split-out month columns, numbers stuck as text, and stray formulas, then hands you a clean copy plus a plain list of what changed."
-longDescription: "Give it a .xlsx finance workbook and it writes a cleaned copy next to the original, never touching the file you gave it. It fixes five common spreadsheet defects by rule (merged header cells, months spread across separate columns instead of one date column, amounts stored as text, a formula cell that got typed over with a number, and stray blank or repeated header rows), and it tells you plainly what it changed and why. Anything it isn't sure is safe to fix on its own, like a hidden or protected sheet or a link to another workbook, gets flagged instead so a person can look at it."
+description: "Cleans up a messy finance spreadsheet automatically - fixes merged headers, numbers stuck as text, and stray blank or repeated rows. It also flags split-out month columns and formulas that look overwritten, so you can check those yourself, then hands you a clean copy plus a plain list of what changed and what got flagged."
+longDescription: "Give it a .xlsx finance workbook and it writes a cleaned copy next to the original, never touching the file you gave it. It fixes three common problems on its own (merged header cells, amounts stored as text, and stray blank or repeated header rows), and tells you plainly what it changed and why. Two riskier problems it only flags, never fixes automatically: months spread across separate columns instead of one date column, and a formula cell that looks like it got typed over with a number. Those need a person's judgment call, so it points them out instead of guessing. Anything else it isn't sure is safe to touch, like a hidden or protected sheet or a link to another workbook, gets flagged too."
 category: finance
 tags:
   - spreadsheets
@@ -16,7 +16,7 @@ triggerPhrases:
   - "fix this messy Excel file"
   - "clean up this workbook"
   - "/spreadsheet-cleanup"
-version: "1.0.0"
+version: "1.1.0"
 author: "Skills and Agents Co"
 status: published
 ---
@@ -91,8 +91,10 @@ changed.
 
 - It never edits, overwrites, or deletes the file the user gave it. It only ever reads it and writes a
   new copy.
-- It never guesses at a fix it isn't sure about. A formula gets restored only when every other cell in
-  its column shares one clear pattern; otherwise it's flagged for a person to decide.
+- It never guesses at a fix it isn't sure about.
+- It never rewrites a formula and never restructures month columns on its own. A hardcoded value in a
+  formula column, and month columns that look like they should be one date column, are always flagged
+  for a person to confirm - never fixed automatically.
 - It never unhides or unprotects a sheet, and it never repairs a link to another workbook. Those are
   flagged, not fixed.
 - It never remaps categories or account names, and it never touches `.xlsm`, `.xls`, or `.csv` files.
@@ -105,12 +107,13 @@ Learn more: https://skillsandagents.co/skills/spreadsheet-cleanup/
 ### Spec
 
 Given a `.xlsx` finance workbook, a correct run writes a cleaned copy and a change report into the
-output folder, leaves the input file byte-for-byte unchanged, fixes every instance of the five defect
-types it knows how to fix (merged header, month columns that should be one date column, numbers stored
-as text, a formula cell overwritten with a hardcoded value, and stray blank/repeated header rows), and
-flags anything it can't safely fix on its own (a hidden sheet, a protected sheet, an external workbook
-link, or a formula pattern too inconsistent to restore from) instead of guessing. A workbook that isn't
-a real `.xlsx`, is over 25MB, or carries a macro is refused outright, with nothing written.
+output folder, leaves the input file byte-for-byte unchanged, fixes every instance of the three defect
+types it auto-fixes (merged header, numbers stored as text, and stray blank/repeated header rows), and
+flags every instance of the two defect types it never auto-fixes (month columns that should be one date
+column, and a formula cell overwritten with a hardcoded value) rather than guessing at a rewrite. It also
+flags anything else it can't safely handle on its own (a hidden sheet, a protected sheet, or an external
+workbook link). A workbook that isn't a real `.xlsx`, is over 25MB, or carries a macro is refused
+outright, with nothing written.
 
 ### Rubric
 
@@ -123,8 +126,7 @@ Scored dimensions (0 or 1 each):
 1. Every defect present in the input is either fixed or flagged; nothing is silently left broken.
 2. Every entry in the report has `sheet`, `range`, `before`, `after` (or `reason` for a flag), and `rule`.
 3. A hidden sheet, protected sheet, or external link is flagged and left unchanged, never fixed.
-4. A formula is restored only when every other cell in its column shares one consistent shape; an
-   inconsistent column is flagged, not guessed at.
+4. A formula-pattern match and a month-column pattern are always flagged, never restored automatically.
 5. A workbook that fails the safety gate (wrong extension, bad zip signature, macro part present, over
    25MB) is refused with exit code 2 and no output file written.
 6. A workbook with none of the five defects produces an empty change report and exits 0.
@@ -139,9 +141,13 @@ score below 5/6: don't relay the result as clean - re-run or escalate to a human
   sign, a Total-column formula cell overwritten with a plain number while every sibling cell in that
   column still holds the matching formula, a fully blank divider row, and a repeated header row further
   down.
-  *Output MUST* fix all six defects and report one change entry per defect, each with `sheet`, `range`,
-  `before`, `after`, and `rule`. *Output MUST NOT* change the input file's contents, and MUST NOT leave
-  any defect un-reported.
+  *Output MUST* fix the merged header, the text-stored amount, the blank divider row, and the repeated
+  header row (four defects, one change entry each with `sheet`, `range`, `before`, `after`, and `rule`),
+  and MUST flag the month columns and the overwritten formula cell instead (two flag entries with
+  `sheet`, `range`, `reason`, and `rule`), leaving the month-column headers and the hardcoded cell's
+  value exactly as given. *Output MUST NOT* change the input file's contents, MUST NOT restructure the
+  month columns or write a formula into the hardcoded cell, and MUST NOT leave any of the six defects
+  un-reported.
 - *Input:* the same workbook, but with a second sheet marked hidden and a third sheet marked protected,
   neither containing any of the five known defects.
   *Output MUST* list both sheets as flags in the report and leave their contents byte-identical to the
@@ -156,4 +162,4 @@ score below 5/6: don't relay the result as clean - re-run or escalate to a human
 
 ### Version
 
-1.0.0
+1.1.0

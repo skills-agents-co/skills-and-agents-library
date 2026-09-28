@@ -103,11 +103,14 @@ def eval_messy(tmp):
 
     wb = openpyxl.load_workbook(cleaned_path, data_only=False)
     ws = wb["Expenses"]
+    wb_in = openpyxl.load_workbook(messy_src, data_only=False)
+    ws_in = wb_in["Expenses"]
 
     # Defect 1: merged header gone.
     check("messy.xlsx: A1:D1 no longer merged", "A1:D1" not in {str(r) for r in ws.merged_cells.ranges})
 
-    # Defect 2: month columns unpivoted into one date column.
+    # Defect 2 (flag-only): month columns are left exactly as they were — not
+    # unpivoted, not restructured. This rule only ever flags now.
     header_row = None
     for r in range(1, ws.max_row + 1):
         vals = [ws.cell(row=r, column=c).value for c in range(1, ws.max_column + 1)]
@@ -119,61 +122,66 @@ def eval_messy(tmp):
     if header_row:
         header_vals = [ws.cell(row=header_row, column=c).value for c in range(1, ws.max_column + 1)]
     check(
-        "messy.xlsx: month columns collapsed into a single Date column",
-        header_row is not None and "Date" in header_vals and "Jan-2026" not in header_vals and "Feb-2026" not in header_vals,
+        "messy.xlsx: month columns Jan-2026/Feb-2026 are still separate header columns (not unpivoted)",
+        header_row is not None and "Jan-2026" in header_vals and "Feb-2026" in header_vals and "Date" not in header_vals,
         str(header_vals),
     )
 
-    import datetime as _dt
-    date_col = None
-    amount_col = None
-    if header_row:
-        for c, v in enumerate(header_vals, start=1):
-            if v == "Date":
-                date_col = c
-            if v == "Amount":
-                amount_col = c
-    dates_found = set()
-    amounts_found = []
-    if date_col and amount_col:
-        for r in range(header_row + 1, ws.max_row + 1):
-            dv = ws.cell(row=r, column=date_col).value
-            av = ws.cell(row=r, column=amount_col).value
-            if isinstance(dv, _dt.datetime):
-                dates_found.add((dv.year, dv.month))
-            if av is not None:
-                amounts_found.append(av)
-    check(
-        "messy.xlsx: unpivoted rows carry real Jan/Feb 2026 dates",
-        dates_found == {(2026, 1), (2026, 2)},
-        str(dates_found),
-    )
+    # Deleting the blank divider row and the duplicate header row (defect 6)
+    # shifts every row below them up by two, in both the cleaned copy (once
+    # those rows are dropped) and not at all in the input. So defects 3 and 5
+    # are checked by category label (column A), never by a fixed coordinate,
+    # to stay correct regardless of that shift — and every lookup here uses
+    # ws.cell(row=, column=), never ws["<coord>"], since indexing openpyxl by
+    # a string coordinate past the sheet's current bounds silently grows
+    # max_row/max_column with a blank cell, which would corrupt the defect-6
+    # blank-row check below.
+    def row_by_category(sheet, label, max_r, max_c):
+        for r in range(1, max_r + 1):
+            if sheet.cell(row=r, column=1).value == label:
+                return r
+        return None
+
+    cleaned_rows_by_cat = {
+        label: row_by_category(ws, label, ws.max_row, ws.max_column)
+        for label in ("Rent", "Utilities", "Payroll", "Marketing", "Travel", "Software", "Insurance")
+    }
+    input_rows_by_cat = {
+        label: row_by_category(ws_in, label, ws_in.max_row, ws_in.max_column)
+        for label in ("Rent", "Utilities", "Payroll", "Marketing", "Travel", "Software", "Insurance")
+    }
 
     # Defect 3: text-stored numbers converted to real numbers with the right values.
+    text_to_num_expected = {"Travel": 1000, "Software": 1200, "Insurance": 2200}
+    text_to_num_actual = {
+        label: ws.cell(row=cleaned_rows_by_cat[label], column=2).value
+        for label in text_to_num_expected
+    }
     check(
-        "messy.xlsx: former text amounts 1000/1200/2200 are now numeric",
-        all(isinstance(v, (int, float)) for v in amounts_found) and
-        {1000, 1200, 2200}.issubset({v for v in amounts_found if isinstance(v, (int, float))}),
-        str(amounts_found),
+        "messy.xlsx: former text amounts (Travel/Software/Insurance, col B) are now numeric 1000/1200/2200",
+        text_to_num_actual == text_to_num_expected,
+        str(text_to_num_actual),
     )
 
-    # Defect 5: every Total-like formula cell shares one relative shape (no hardcode left).
-    total_col = None
-    if header_row:
-        for c, v in enumerate(header_vals, start=1):
-            if v == "Total":
-                total_col = c
-    total_vals = []
-    if total_col:
-        for r in range(header_row + 1, ws.max_row + 1):
-            v = ws.cell(row=r, column=total_col).value
-            if v is not None:
-                total_vals.append(v)
+    # Defect 5 (flag-only): Marketing's hardcoded D-column literal is left
+    # completely untouched (still 3100, not a restored formula), and every
+    # other formula cell in the column is byte-identical to the input's own
+    # cell for that same category — no re-anchoring, no rewrite of any kind.
+    marketing_cleaned_d = ws.cell(row=cleaned_rows_by_cat["Marketing"], column=4).value
+    marketing_input_d = ws_in.cell(row=input_rows_by_cat["Marketing"], column=4).value
     check(
-        "messy.xlsx: every Total cell is a formula (no hardcoded value survives)",
-        total_col is not None and len(total_vals) > 0 and all(isinstance(v, str) and v.startswith("=") for v in total_vals),
-        str(total_vals),
+        "messy.xlsx: Marketing's D-column hardcoded literal is untouched (still 3100)",
+        marketing_cleaned_d == marketing_input_d == 3100,
+        f"cleaned={marketing_cleaned_d!r} input={marketing_input_d!r}",
     )
+    for label in ("Rent", "Utilities", "Payroll", "Travel", "Software", "Insurance"):
+        cleaned_d = ws.cell(row=cleaned_rows_by_cat[label], column=4).value
+        input_d = ws_in.cell(row=input_rows_by_cat[label], column=4).value
+        check(
+            f"messy.xlsx: {label}'s D-column formula is byte-identical to input (not re-anchored)",
+            cleaned_d == input_d,
+            f"cleaned={cleaned_d!r} input={input_d!r}",
+        )
 
     # Defect 6: blank divider row and duplicate header row are gone.
     all_rows = []
@@ -184,9 +192,14 @@ def eval_messy(tmp):
     check("messy.xlsx: no fully-blank divider row remains", len(blank_rows) == 0, str(all_rows))
     check("messy.xlsx: no repeated header row remains", len(header_like_rows) <= 1, str(all_rows))
 
-    # Every manifest defect maps to at least one report entry.
+    # Every manifest defect maps to at least one report entry. wide_date_columns
+    # and hardcoded_formula_value are flag-only now, so those two are checked
+    # against report["flags"] instead of report["changes"].
     defect_ids = [d["id"] for d in manifest["messy"]["defects"]]
     rules_seen = {c["rule"] for c in changes}
+    flags = report.get("flags", [])
+    flag_rules_seen = {f["rule"] for f in flags}
+    flag_only_defects = {"wide_date_columns", "hardcoded_formula_value"}
     defect_to_rule = {
         "merged_header": "unmerge_header",
         "wide_date_columns": "unpivot_date_columns",
@@ -199,11 +212,18 @@ def eval_messy(tmp):
     }
     for defect_id in defect_ids:
         expected_rule = defect_to_rule[defect_id]
-        check(
-            f"messy.xlsx: manifest defect '{defect_id}' has a matching report entry",
-            expected_rule in rules_seen,
-            f"rules seen: {rules_seen}",
-        )
+        if defect_id in flag_only_defects:
+            check(
+                f"messy.xlsx: manifest defect '{defect_id}' has a matching flag entry",
+                expected_rule in flag_rules_seen,
+                f"flag rules seen: {flag_rules_seen}",
+            )
+        else:
+            check(
+                f"messy.xlsx: manifest defect '{defect_id}' has a matching report entry",
+                expected_rule in rules_seen,
+                f"rules seen: {rules_seen}",
+            )
 
 
 # ---------------------------------------------------------------------------

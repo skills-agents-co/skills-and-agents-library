@@ -422,12 +422,13 @@ def instantiate_shape(shape, row):
 def restore_column_formula(ws, report):
     """
     Rule #5: for each column, if every formula cell in the column shares one
-    relative shape (after generalizing away row numbers), restore any literal
-    cell in that same data block to that shape instantiated at its own row —
-    and re-anchor every formula cell in the group to its own current row too,
-    since an earlier row deletion can leave a surviving formula pointing at a
-    stale (pre-deletion) row number. Otherwise flag as suspected — never
-    guess a shape from inconsistent formulas.
+    relative shape (after generalizing away row numbers), flag any literal
+    cell in that same data block as a likely hardcoded value that should
+    match that shape. This rule is flag-only: it never writes a formula back
+    into a cell and never re-anchors an existing formula cell, even one left
+    pointing at a stale (pre-deletion) row number. If the column's formula
+    cells don't share one consistent shape, flag as suspected instead —
+    never guess a shape from inconsistent formulas.
     """
     max_col = ws.max_column
     max_row = ws.max_row
@@ -461,24 +462,16 @@ def restore_column_formula(ws, report):
                 )
             continue
 
-        shape = next(iter(shapes))
-
-        # Re-anchor every formula cell to its own current row (repairs any
-        # staleness from an earlier row deletion).
-        for r, f in formula_cells:
-            cell = ws.cell(row=r, column=c)
-            new_formula = instantiate_shape(shape, r)
-            if new_formula != f:
-                report.add_change(ws.title, cell.coordinate, f, new_formula, "restore_column_formula")
-                cell.value = new_formula
-
-        # Restore the literal cell(s) using the same shape.
+        # Flag the literal cell(s) that look like they should match the
+        # column's shared formula shape. Never write a formula back, and
+        # never re-anchor an existing formula cell — this rule is flag-only.
         for r, v in literal_cells:
             cell = ws.cell(row=r, column=c)
-            new_formula = instantiate_shape(shape, r)
-            before = v
-            cell.value = new_formula
-            report.add_change(ws.title, cell.coordinate, before, new_formula, "restore_column_formula")
+            report.add_flag(
+                ws.title, cell.coordinate,
+                "column's other cells share one formula shape; this literal looks like it should match — not restored",
+                "restore_column_formula",
+            )
 
 
 def parse_month_header(text):
@@ -498,9 +491,10 @@ def sheet_formulas_reference_cols(ws, cols, header_row_idx, max_row, exclude_col
     """
     True if any formula cell OUTSIDE `cols` (typically the "Total"-like
     column immediately after the month block) references a multi-cell RANGE
-    drawn from `cols` as a block, e.g. SUM(B2:C11) — as opposed to the
-    per-row SUM(Br:Cr) shape that restore_column_formula already normalized
-    and that this same unpivot is about to migrate.
+    drawn from `cols` as a block, e.g. SUM(B2:C11) — as opposed to a per-row
+    SUM(Br:Cr) shape, which restore_column_formula only ever flags now (it
+    no longer rewrites formulas) and which this unpivot check would still
+    need to tell apart from a block reference if it ever rebuilt the sheet.
     """
     col_letters = {col_letter(c) for c in cols}
     range_re = re.compile(
@@ -522,10 +516,13 @@ def sheet_formulas_reference_cols(ws, cols, header_row_idx, max_row, exclude_col
 
 def unpivot_date_columns(ws, report):
     """
-    Rule #2: if 2+ adjacent header cells parse as Mon-YYYY month labels,
-    unpivot them into one Date column, exploding each data row into one row
-    per month column. Skips (flags) if another formula in the sheet
-    references the month-column block as a multi-cell range.
+    Rule #2: if 2+ adjacent header cells parse as Mon-YYYY month labels, flag
+    the sheet as looking like it should be unpivoted into one Date/Amount
+    layout. This rule is flag-only: it never rebuilds the sheet, never clears
+    or rewrites any row, and never touches the month-column headers — it
+    only reports what it found. Also flags (without touching anything) if
+    another formula in the sheet references the month-column block as a
+    multi-cell range.
     """
     max_col = ws.max_column
     max_row = ws.max_row
@@ -555,94 +552,16 @@ def unpivot_date_columns(ws, report):
         )
         return
 
-    other_cols = [c for c in range(1, max_col + 1) if c not in month_col_idxs]
     header_first_month = min(month_col_idxs)
-
-    new_rows = []
-    category_col = 1  # by convention, column A is the row label
-    for r in range(header_row_idx + 1, max_row + 1):
-        row_vals = {c: ws.cell(row=r, column=c).value for c in range(1, max_col + 1)}
-        if all(v in (None, "") for v in row_vals.values()):
-            continue
-        for c, month_date in month_cols:
-            new_row = {}
-            for oc in other_cols:
-                if oc < header_first_month:
-                    new_row[oc] = row_vals.get(oc)
-            new_row["date"] = month_date
-            new_row["amount"] = row_vals.get(c)
-            if total_col:
-                new_row["total_formula_row"] = r
-                new_row["total_col_letter"] = col_letter(c)
-            new_rows.append(new_row)
-
     before_range = (
         f"{col_letter(header_first_month)}{header_row_idx}:"
         f"{col_letter(max(month_col_idxs))}{header_row_idx}"
     )
-    before_headers = [ws.cell(row=header_row_idx, column=c).value for c in month_col_idxs]
-
-    # Rebuild the sheet: label columns (before the month block), Date, Amount,
-    # then any trailing columns (e.g. Total) shifted to follow.
-    label_cols = [c for c in other_cols if c < header_first_month]
-    trailing_cols = [c for c in other_cols if c > header_first_month]
-
-    new_header_row = header_row_idx
-    new_col_order = label_cols + ["DATE_COL", "AMOUNT_COL"] + trailing_cols
-    header_labels = {}
-    for c in label_cols:
-        header_labels[c] = ws.cell(row=header_row_idx, column=c).value
-    for c in trailing_cols:
-        header_labels[c] = ws.cell(row=header_row_idx, column=c).value
-
-    # Clear all data rows first (header stays).
-    for r in range(header_row_idx + 1, max_row + 1):
-        for c in range(1, max_col + 1):
-            ws.cell(row=r, column=c).value = None
-
-    # Write new header.
-    out_c = 1
-    col_map = {}
-    for c in label_cols:
-        ws.cell(row=header_row_idx, column=out_c).value = header_labels[c]
-        col_map[("label", c)] = out_c
-        out_c += 1
-    date_out_c = out_c
-    ws.cell(row=header_row_idx, column=out_c).value = "Date"
-    out_c += 1
-    amount_out_c = out_c
-    ws.cell(row=header_row_idx, column=out_c).value = "Amount"
-    out_c += 1
-    trailing_out_cols = {}
-    for c in trailing_cols:
-        ws.cell(row=header_row_idx, column=out_c).value = header_labels[c]
-        trailing_out_cols[c] = out_c
-        out_c += 1
-
-    date_cell_fmt = "mmm-yyyy"
-
-    write_row = header_row_idx + 1
-    for nr in new_rows:
-        for c in label_cols:
-            ws.cell(row=write_row, column=col_map[("label", c)]).value = nr.get(c)
-        dcell = ws.cell(row=write_row, column=date_out_c)
-        dcell.value = nr["date"]
-        dcell.number_format = date_cell_fmt
-        ws.cell(row=write_row, column=amount_out_c).value = nr["amount"]
-        for c in trailing_cols:
-            out_col = trailing_out_cols[c]
-            if total_col and c == total_col:
-                amount_letter = col_letter(amount_out_c)
-                ws.cell(row=write_row, column=out_col).value = f"=SUM({amount_letter}{write_row}:{amount_letter}{write_row})"
-            else:
-                ws.cell(row=write_row, column=out_col).value = None
-        write_row += 1
-
-    # Trim any now-unused trailing rows beyond what we wrote.
-    if write_row - 1 < max_row:
-        ws.delete_rows(write_row, max_row - (write_row - 1))
-
-    report.add_change(ws.title, before_range, before_headers, "Date", "unpivot_date_columns")
+    report.add_flag(
+        ws.title, before_range,
+        "month columns look like they should be one Date/Amount column; not unpivoted",
+        "unpivot_date_columns",
+    )
 
 
 def check_sheet_size(wb):

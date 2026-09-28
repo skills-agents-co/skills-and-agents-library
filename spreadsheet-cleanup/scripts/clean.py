@@ -438,6 +438,12 @@ def restore_column_formula(ws, report):
     silently left. If the column's formula cells don't share one consistent
     shape in the first place, flag as suspected instead — never guess a
     shape from inconsistent formulas.
+
+    This staleness check runs whenever a column has 2+ formula cells,
+    whether or not the column also has a literal cell to restore. A column
+    made entirely of formulas is exactly where a stale reference is most
+    consequential (a wrong total with nothing else in the column to draw
+    attention to it), so it can't be gated on a literal being present.
     """
     max_col = ws.max_column
     max_row = ws.max_row
@@ -457,7 +463,7 @@ def restore_column_formula(ws, report):
             else:
                 literal_cells.append((r, v))
 
-        if len(formula_cells) < 2 or not literal_cells:
+        if len(formula_cells) < 2:
             continue
 
         shapes = {formula_shape(f) for r, f in formula_cells}

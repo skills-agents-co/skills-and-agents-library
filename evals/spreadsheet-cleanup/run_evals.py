@@ -395,6 +395,69 @@ def eval_flag_only_edge_cases(tmp):
             str(headers_b),
         )
 
+    # Case C (#F1 regression): an ALL-formula column, with no literal cell at
+    # all, below a deleted blank/duplicate-header row pair. The stale-row
+    # check must not be gated on a literal being present in the column —
+    # this fixture has none — or a wrong total ships with zero signal.
+    path_c = os.path.join(tmp, "all_formula_stale.xlsx")
+    wb_c = openpyxl.Workbook()
+    ws_c = wb_c.active
+    ws_c.title = "Sheet"
+    ws_c.append(["Category", "B", "C", "Total"])  # row 1: header
+    ws_c.append(["A", 10, 1, "=B2+C2"])            # row 2: above the deletion, never shifts
+    ws_c.append([None, None, None, None])          # row 3: blank divider (deleted)
+    ws_c.append(["Category", "B", "C", "Total"])   # row 4: duplicate header (deleted)
+    ws_c.append(["Bee", 20, 2, "=B5+C5"])           # row 5 -> shifts to row 3, stale
+    ws_c.append(["Cee", 30, 3, "=B6+C6"])           # row 6 -> shifts to row 4, stale
+    wb_c.save(path_c)
+
+    out_dir_c2 = os.path.join(tmp, "all_formula_stale_out")
+    os.makedirs(out_dir_c2, exist_ok=True)
+    res_c = run_clean(path_c, out_dir_c2)
+    check("all-formula stale column: clean.py exits 0", res_c.returncode == 0, res_c.stderr)
+    report_c = load_report(out_dir_c2, path_c)
+    check("all-formula stale column: report was written", report_c is not None)
+    if report_c is not None:
+        flags_c = report_c.get("flags", [])
+        stale_ranges_c = {
+            f["range"] for f in flags_c
+            if f["rule"] == "restore_column_formula" and "stale" in f["reason"]
+        }
+        check(
+            "all-formula stale column: D3 (was row 5) is flagged stale",
+            "D3" in stale_ranges_c,
+            json.dumps(flags_c),
+        )
+        check(
+            "all-formula stale column: D4 (was row 6) is flagged stale",
+            "D4" in stale_ranges_c,
+            json.dumps(flags_c),
+        )
+        check(
+            "all-formula stale column: D2 (never shifted) is NOT flagged stale",
+            "D2" not in stale_ranges_c,
+            json.dumps(flags_c),
+        )
+        check(
+            "all-formula stale column: no change entries for restore_column_formula",
+            not any(c["rule"] == "restore_column_formula" for c in report_c.get("changes", [])),
+            json.dumps(report_c.get("changes", [])),
+        )
+    cleaned_path_c = os.path.join(out_dir_c2, "all_formula_stale.cleaned.xlsx")
+    if os.path.isfile(cleaned_path_c):
+        wb_out_c = openpyxl.load_workbook(cleaned_path_c, data_only=False)
+        ws_out_c = wb_out_c["Sheet"]
+        check(
+            "all-formula stale column: D3's formula is byte-identical to input's D5 (not rewritten)",
+            ws_out_c.cell(row=3, column=4).value == "=B5+C5",
+            repr(ws_out_c.cell(row=3, column=4).value),
+        )
+        check(
+            "all-formula stale column: D4's formula is byte-identical to input's D6 (not rewritten)",
+            ws_out_c.cell(row=4, column=4).value == "=B6+C6",
+            repr(ws_out_c.cell(row=4, column=4).value),
+        )
+
 
 # ---------------------------------------------------------------------------
 # Criterion 4: clean-control.xlsx produces an empty report and exits 0.

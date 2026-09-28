@@ -128,28 +128,30 @@ def eval_messy(tmp):
     )
 
     # Deleting the blank divider row and the duplicate header row (defect 6)
-    # shifts every row below them up by two, in both the cleaned copy (once
-    # those rows are dropped) and not at all in the input. So defects 3 and 5
-    # are checked by category label (column A), never by a fixed coordinate,
-    # to stay correct regardless of that shift — and every lookup here uses
+    # shifts every row below them up by two IN THE CLEANED COPY ONLY — the
+    # input keeps its original row numbers, since it's never modified. So
+    # defects 3 and 5 are checked by category label (column A), never by a
+    # fixed coordinate, to compare the same logical row on both sides
+    # regardless of that shift — and every lookup here uses
     # ws.cell(row=, column=), never ws["<coord>"], since indexing openpyxl by
     # a string coordinate past the sheet's current bounds silently grows
     # max_row/max_column with a blank cell, which would corrupt the defect-6
     # blank-row check below.
-    def row_by_category(sheet, label, max_r, max_c):
+    CATEGORY_LABELS = ("Rent", "Utilities", "Payroll", "Marketing", "Travel", "Software", "Insurance")
+
+    def row_by_category(sheet, label, max_r):
         for r in range(1, max_r + 1):
             if sheet.cell(row=r, column=1).value == label:
                 return r
         return None
 
-    cleaned_rows_by_cat = {
-        label: row_by_category(ws, label, ws.max_row, ws.max_column)
-        for label in ("Rent", "Utilities", "Payroll", "Marketing", "Travel", "Software", "Insurance")
-    }
-    input_rows_by_cat = {
-        label: row_by_category(ws_in, label, ws_in.max_row, ws_in.max_column)
-        for label in ("Rent", "Utilities", "Payroll", "Marketing", "Travel", "Software", "Insurance")
-    }
+    cleaned_rows_by_cat = {label: row_by_category(ws, label, ws.max_row) for label in CATEGORY_LABELS}
+    input_rows_by_cat = {label: row_by_category(ws_in, label, ws_in.max_row) for label in CATEGORY_LABELS}
+    for label in CATEGORY_LABELS:
+        check(f"messy.xlsx: category '{label}' found in cleaned copy", cleaned_rows_by_cat[label] is not None)
+        check(f"messy.xlsx: category '{label}' found in input", input_rows_by_cat[label] is not None)
+    if None in cleaned_rows_by_cat.values() or None in input_rows_by_cat.values():
+        return
 
     # Defect 3: text-stored numbers converted to real numbers with the right values.
     text_to_num_expected = {"Travel": 1000, "Software": 1200, "Insurance": 2200}
@@ -181,6 +183,62 @@ def eval_messy(tmp):
             f"messy.xlsx: {label}'s D-column formula is byte-identical to input (not re-anchored)",
             cleaned_d == input_d,
             f"cleaned={cleaned_d!r} input={input_d!r}",
+        )
+
+    # Rows below the blank-divider/duplicate-header deletion (Travel, Software,
+    # Insurance) shift up by two, so their surviving D-column formulas are now
+    # stale — they still literally reference their pre-deletion row numbers
+    # (=SUM(B9:C9) etc. sitting at row 7). Since restore_column_formula no
+    # longer re-anchors ANYTHING, this staleness must be reported as a flag
+    # instead of silently left with no signal at all — check that here,
+    # separately from the byte-identity check above (which only proves the
+    # cell wasn't rewritten, not that its staleness was noticed).
+    flags_before_defect_check = report.get("flags", [])
+    stale_flags_by_range = {
+        f["range"]: f
+        for f in flags_before_defect_check
+        if f["rule"] == "restore_column_formula" and "stale" in f["reason"]
+    }
+    for label in ("Travel", "Software", "Insurance"):
+        cell = ws.cell(row=cleaned_rows_by_cat[label], column=4)
+        check(
+            f"messy.xlsx: {label}'s now-stale D-column formula is flagged (row shifted, formula wasn't re-anchored)",
+            cell.coordinate in stale_flags_by_range,
+            f"flags seen: {[f['range'] for f in flags_before_defect_check if f['rule'] == 'restore_column_formula']}",
+        )
+    for label in ("Rent", "Utilities", "Payroll"):
+        # These rows sit ABOVE the deletion and never shift, so their formulas
+        # were never stale and must NOT be flagged.
+        cell = ws.cell(row=cleaned_rows_by_cat[label], column=4)
+        check(
+            f"messy.xlsx: {label}'s D-column formula (never shifted) is not flagged as stale",
+            cell.coordinate not in stale_flags_by_range,
+        )
+
+    # Defect 2 continued: unpivot_date_columns is flag-only, so the month
+    # DATA cells (columns B and C), not just the header row, must be
+    # byte-identical to the input for every category — a regression that
+    # rewrote or cleared data rows while leaving the header alone would
+    # otherwise pass unnoticed.
+    for label in ("Rent", "Utilities", "Payroll", "Marketing"):
+        for col, col_name in ((2, "B"), (3, "C")):
+            cleaned_v = ws.cell(row=cleaned_rows_by_cat[label], column=col).value
+            input_v = ws_in.cell(row=input_rows_by_cat[label], column=col).value
+            check(
+                f"messy.xlsx: {label}'s column {col_name} (month data) is byte-identical to input (not unpivoted)",
+                cleaned_v == input_v,
+                f"cleaned={cleaned_v!r} input={input_v!r}",
+            )
+    # Travel/Software/Insurance's column B is converted by text_to_number on
+    # purpose (checked above); column C for those three is untouched by any
+    # rule and must still match the input exactly.
+    for label in ("Travel", "Software", "Insurance"):
+        cleaned_c = ws.cell(row=cleaned_rows_by_cat[label], column=3).value
+        input_c = ws_in.cell(row=input_rows_by_cat[label], column=3).value
+        check(
+            f"messy.xlsx: {label}'s column C (month data) is byte-identical to input (not unpivoted)",
+            cleaned_c == input_c,
+            f"cleaned={cleaned_c!r} input={input_c!r}",
         )
 
     # Defect 6: blank divider row and duplicate header row are gone.
@@ -224,6 +282,118 @@ def eval_messy(tmp):
                 expected_rule in rules_seen,
                 f"rules seen: {rules_seen}",
             )
+
+    # Neither flag-only rule may EVER produce a "changes" entry, written cell
+    # or not — that's the whole point of making them flag-only. A regression
+    # that logged a change (with or without an actual write) for either rule
+    # would otherwise slip through every check above.
+    check(
+        "messy.xlsx: restore_column_formula and unpivot_date_columns never appear in report['changes']",
+        rules_seen.isdisjoint({"restore_column_formula", "unpivot_date_columns"}),
+        f"rules seen in changes: {rules_seen}",
+    )
+
+
+def eval_flag_only_edge_cases(tmp):
+    """
+    The other two flag paths in restore_column_formula and
+    unpivot_date_columns — inconsistent formula shapes, and a formula
+    referencing the month block as a block range — predate this task and had
+    no eval coverage at all before it. This task's own edits sit directly
+    around both, so cover them now.
+    """
+    import openpyxl
+
+    # Case A: a column of formulas with no single consistent shape, plus a
+    # literal cell. Must be flagged as "multiple formula shapes", and the
+    # literal must be left completely untouched.
+    path = os.path.join(tmp, "mixed_shapes.xlsx")
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Sheet"
+    ws.append(["Category", "B", "C", "Total"])
+    ws.append(["Rent", 100, 5, "=B2+C2"])
+    ws.append(["Utilities", 200, 3, "=B3*C3"])  # different shape on purpose
+    ws.append(["Payroll", 300, 2, 999])  # the literal that should stay untouched
+    wb.save(path)
+
+    out_dir = os.path.join(tmp, "mixed_shapes_out")
+    os.makedirs(out_dir, exist_ok=True)
+    res = run_clean(path, out_dir)
+    check("mixed formula shapes: clean.py exits 0", res.returncode == 0, res.stderr)
+    report = load_report(out_dir, path)
+    check("mixed formula shapes: report was written", report is not None)
+    if report is not None:
+        flags = report.get("flags", [])
+        check(
+            "mixed formula shapes: flagged as 'column has multiple formula shapes'",
+            any(
+                f["rule"] == "restore_column_formula" and "multiple formula shapes" in f["reason"]
+                for f in flags
+            ),
+            json.dumps(flags),
+        )
+        check(
+            "mixed formula shapes: no change entries for restore_column_formula",
+            not any(c["rule"] == "restore_column_formula" for c in report.get("changes", [])),
+            json.dumps(report.get("changes", [])),
+        )
+    cleaned_path = os.path.join(out_dir, "mixed_shapes.cleaned.xlsx")
+    if os.path.isfile(cleaned_path):
+        wb_out = openpyxl.load_workbook(cleaned_path, data_only=False)
+        d4 = wb_out["Sheet"].cell(row=4, column=4).value
+        check("mixed formula shapes: the literal cell is untouched (still 999)", d4 == 999, repr(d4))
+
+    # Case B: month columns where another formula references the month block
+    # as a range (e.g. a grand-total elsewhere). Must be flagged as
+    # "references this range as a block", and the sheet must be untouched.
+    # total_col only exists (and only then does the block-reference guard
+    # ever run) when the month block doesn't already reach the sheet's last
+    # column, so this fixture needs a trailing column past Feb-2026 — and the
+    # block-referencing formula has to sit outside that trailing column
+    # (which the guard explicitly excludes as "the Total-like column"), so
+    # it's placed in column A instead.
+    path_b = os.path.join(tmp, "block_ref.xlsx")
+    wb_b = openpyxl.Workbook()
+    ws_b = wb_b.active
+    ws_b.title = "Sheet"
+    ws_b.append(["Category", "Jan-2026", "Feb-2026", "Total"])
+    ws_b.append(["Rent", 100, 200, "=B2+C2"])
+    ws_b.append(["Utilities", 150, 250, "=B3+C3"])
+    ws_b.append(["=SUM(B2:C3)", None, None, None])  # references the month block as a range
+    wb_b.save(path_b)
+
+    out_dir_b = os.path.join(tmp, "block_ref_out")
+    os.makedirs(out_dir_b, exist_ok=True)
+    res_b = run_clean(path_b, out_dir_b)
+    check("block-referenced months: clean.py exits 0", res_b.returncode == 0, res_b.stderr)
+    report_b = load_report(out_dir_b, path_b)
+    check("block-referenced months: report was written", report_b is not None)
+    if report_b is not None:
+        flags_b = report_b.get("flags", [])
+        check(
+            "block-referenced months: flagged as 'references this range as a block'",
+            any(
+                f["rule"] == "unpivot_date_columns" and "references this range as a block" in f["reason"]
+                for f in flags_b
+            ),
+            json.dumps(flags_b),
+        )
+        check(
+            "block-referenced months: no change entries for unpivot_date_columns",
+            not any(c["rule"] == "unpivot_date_columns" for c in report_b.get("changes", [])),
+            json.dumps(report_b.get("changes", [])),
+        )
+    cleaned_path_b = os.path.join(out_dir_b, "block_ref.cleaned.xlsx")
+    if os.path.isfile(cleaned_path_b):
+        wb_out_b = openpyxl.load_workbook(cleaned_path_b, data_only=False)
+        ws_out_b = wb_out_b["Sheet"]
+        headers_b = [ws_out_b.cell(row=1, column=c).value for c in range(1, 5)]
+        check(
+            "block-referenced months: header unchanged (not unpivoted)",
+            headers_b == ["Category", "Jan-2026", "Feb-2026", "Total"],
+            str(headers_b),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -697,6 +867,7 @@ def main():
         eval_entity_expansion(tmp)
         eval_path_traversal(tmp)
         eval_failure_does_not_delete_prior_output(tmp)
+        eval_flag_only_edge_cases(tmp)
 
     print()
     if FAILURES:

@@ -407,10 +407,10 @@ def formula_shape(formula):
     """
     Generalize a formula by replacing every digit run with a placeholder, so
     two formulas that differ only in which row they reference compare equal.
-    This also means the shape is independent of any row-deletion shift that
-    happened earlier in the pipeline (openpyxl does not rewrite formula text
-    when delete_rows() is called, so a surviving formula can still literally
-    reference its pre-deletion row number).
+    This also means shape comparison alone can't tell a formula's row number
+    is stale after an earlier row deletion (openpyxl doesn't rewrite formula
+    text when delete_rows() is called) — restore_column_formula checks that
+    separately, via instantiate_shape(), once it already knows the shape.
     """
     return DIGIT_RUN_RE.sub("{R}", formula)
 
@@ -425,10 +425,19 @@ def restore_column_formula(ws, report):
     relative shape (after generalizing away row numbers), flag any literal
     cell in that same data block as a likely hardcoded value that should
     match that shape. This rule is flag-only: it never writes a formula back
-    into a cell and never re-anchors an existing formula cell, even one left
-    pointing at a stale (pre-deletion) row number. If the column's formula
-    cells don't share one consistent shape, flag as suspected instead —
-    never guess a shape from inconsistent formulas.
+    into a cell and never re-anchors an existing formula cell.
+
+    Row deletion earlier in the pipeline (drop_blank_and_repeated_header_rows)
+    can leave a surviving formula pointing at its pre-deletion row number,
+    since openpyxl doesn't rewrite formula text when delete_rows() is called.
+    Because this rule no longer re-anchors, that staleness would otherwise go
+    completely unreported — the shape check alone can't see it, since
+    formula_shape() deliberately generalizes row numbers away. So once a
+    consistent shape is found, every formula cell is checked against its OWN
+    current row (instantiate_shape(shape, r)); a mismatch is flagged, not
+    silently left. If the column's formula cells don't share one consistent
+    shape in the first place, flag as suspected instead — never guess a
+    shape from inconsistent formulas.
     """
     max_col = ws.max_column
     max_row = ws.max_row
@@ -462,9 +471,24 @@ def restore_column_formula(ws, report):
                 )
             continue
 
+        shape = next(iter(shapes))
+
+        # Flag any formula cell whose own row no longer matches the shared
+        # shape instantiated at its own row — a leftover from an earlier row
+        # deletion. Never rewrite it, just surface it.
+        for r, f in formula_cells:
+            expected = instantiate_shape(shape, r)
+            if expected != f:
+                cell = ws.cell(row=r, column=c)
+                report.add_flag(
+                    ws.title, cell.coordinate,
+                    f"formula may reference a stale row after an earlier row deletion "
+                    f"(current: {f!r}, expected shape at this row: {expected!r}); not corrected",
+                    "restore_column_formula",
+                )
+
         # Flag the literal cell(s) that look like they should match the
-        # column's shared formula shape. Never write a formula back, and
-        # never re-anchor an existing formula cell — this rule is flag-only.
+        # column's shared formula shape. Never write a formula back.
         for r, v in literal_cells:
             cell = ws.cell(row=r, column=c)
             report.add_flag(
@@ -492,9 +516,9 @@ def sheet_formulas_reference_cols(ws, cols, header_row_idx, max_row, exclude_col
     True if any formula cell OUTSIDE `cols` (typically the "Total"-like
     column immediately after the month block) references a multi-cell RANGE
     drawn from `cols` as a block, e.g. SUM(B2:C11) — as opposed to a per-row
-    SUM(Br:Cr) shape, which restore_column_formula only ever flags now (it
-    no longer rewrites formulas) and which this unpivot check would still
-    need to tell apart from a block reference if it ever rebuilt the sheet.
+    SUM(Br:Cr) shape. unpivot_date_columns is flag-only and never rebuilds
+    the sheet either way; this check only decides which of its two flag
+    messages applies.
     """
     col_letters = {col_letter(c) for c in cols}
     range_re = re.compile(
@@ -516,13 +540,15 @@ def sheet_formulas_reference_cols(ws, cols, header_row_idx, max_row, exclude_col
 
 def unpivot_date_columns(ws, report):
     """
-    Rule #2: if 2+ adjacent header cells parse as Mon-YYYY month labels, flag
-    the sheet as looking like it should be unpivoted into one Date/Amount
-    layout. This rule is flag-only: it never rebuilds the sheet, never clears
-    or rewrites any row, and never touches the month-column headers — it
-    only reports what it found. Also flags (without touching anything) if
-    another formula in the sheet references the month-column block as a
-    multi-cell range.
+    Rule #2: if 2+ header cells parse as Mon-YYYY month labels (not
+    necessarily adjacent — this check only counts matching headers, it
+    doesn't require them to sit next to each other), flag the sheet as
+    looking like it should be unpivoted into one Date/Amount layout. This
+    rule is flag-only: it never rebuilds the sheet, never clears or rewrites
+    any row, and never touches the month-column headers — it only reports
+    what it found. Also flags (without touching anything) if another
+    formula in the sheet references the month-column block as a multi-cell
+    range.
     """
     max_col = ws.max_column
     max_row = ws.max_row
@@ -530,35 +556,27 @@ def unpivot_date_columns(ws, report):
     if header_row_idx is None:
         return
 
-    month_cols = []
+    month_col_idxs = []
     for c in range(1, max_col + 1):
         header_val = ws.cell(row=header_row_idx, column=c).value
-        parsed = parse_month_header(header_val)
-        if parsed is not None:
-            month_cols.append((c, parsed))
+        if parse_month_header(header_val) is not None:
+            month_col_idxs.append(c)
 
-    if len(month_cols) < 2:
+    if len(month_col_idxs) < 2:
         return
 
-    month_col_idxs = [c for c, _ in month_cols]
     total_col = max(month_col_idxs) + 1 if max(month_col_idxs) < max_col else None
+    rng = f"{col_letter(min(month_col_idxs))}{header_row_idx}:{col_letter(max(month_col_idxs))}{header_row_idx}"
 
     if total_col and sheet_formulas_reference_cols(ws, month_col_idxs, header_row_idx, max_row, total_col):
-        first_c, last_c = min(month_col_idxs), max(month_col_idxs)
-        rng = f"{col_letter(first_c)}{header_row_idx}:{col_letter(last_c)}{header_row_idx}"
         report.add_flag(
             ws.title, rng,
             "another formula references this range as a block; not unpivoted", "unpivot_date_columns",
         )
         return
 
-    header_first_month = min(month_col_idxs)
-    before_range = (
-        f"{col_letter(header_first_month)}{header_row_idx}:"
-        f"{col_letter(max(month_col_idxs))}{header_row_idx}"
-    )
     report.add_flag(
-        ws.title, before_range,
+        ws.title, rng,
         "month columns look like they should be one Date/Amount column; not unpivoted",
         "unpivot_date_columns",
     )

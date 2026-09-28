@@ -126,10 +126,12 @@ Scored dimensions (0 or 1 each):
 1. Every defect present in the input is either fixed or flagged; nothing is silently left broken.
 2. Every entry in the report has `sheet`, `range`, `before`, `after` (or `reason` for a flag), and `rule`.
 3. A hidden sheet, protected sheet, or external link is flagged and left unchanged, never fixed.
-4. A formula-pattern match and a month-column pattern are always flagged, never restored automatically.
+4. A literal cell that looks like it should match its column's formula pattern, and a set of month
+   columns that look like they should be one date column, are always flagged — never restored or
+   unpivoted automatically.
 5. A workbook that fails the safety gate (wrong extension, bad zip signature, macro part present, over
    25MB) is refused with exit code 2 and no output file written.
-6. A workbook with none of the five defects produces an empty change report and exits 0.
+6. A workbook with none of the five defects produces an empty change report and no flags, and exits 0.
 
 Score 6/6 with no hard-fail: the run is trustworthy to hand back to the user as-is. Any hard-fail, or a
 score below 5/6: don't relay the result as clean - re-run or escalate to a human.

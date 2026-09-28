@@ -1,7 +1,7 @@
 ---
 name: "Spreadsheet Cleanup"
-description: "Cleans up a messy finance spreadsheet automatically - fixes merged headers, numbers stuck as text, and stray blank or repeated rows. It also flags split-out month columns and formulas that look overwritten, so you can check those yourself, then hands you a clean copy plus a plain list of what changed and what got flagged."
-longDescription: "Give it a .xlsx finance workbook and it writes a cleaned copy next to the original, never touching the file you gave it. It fixes three common problems on its own (merged header cells, amounts stored as text, and stray blank or repeated header rows), and tells you plainly what it changed and why. Two riskier problems it only flags, never fixes automatically: months spread across separate columns instead of one date column, and a formula cell that looks like it got typed over with a number. Those need a person's judgment call, so it points them out instead of guessing. Anything else it isn't sure is safe to touch, like a hidden or protected sheet or a link to another workbook, gets flagged too."
+description: "Cleans up a messy finance spreadsheet automatically - fixes merged headers, numbers stuck as text, and stray blank or repeated rows. It flags split-out month columns, formulas that look overwritten, and formulas that may point at the wrong row after a deleted one, so you can check those yourself. You get a clean copy plus a plain list of what changed and what got flagged."
+longDescription: "Give it a .xlsx finance workbook and it writes a cleaned copy next to the original, never touching the file you gave it. It fixes three common problems on its own (merged header cells, amounts stored as text, and stray blank or repeated header rows), and tells you plainly what it changed and why. Two riskier problems it only flags, never fixes automatically: months spread across separate columns instead of one date column, and a formula cell that looks like it got typed over with a number. Those need a person's judgment call, so it points them out instead of guessing. When it removes a blank or repeated row, it also flags any formula that points at or below that row, because a formula's row numbers don't move on their own and may now be off. Anything else it isn't sure is safe to touch, like a hidden or protected sheet or a link to another workbook, gets flagged too."
 category: finance
 tags:
   - spreadsheets
@@ -57,7 +57,10 @@ Run the script against the user's file. Do not open or edit the file yourself fi
 python scripts/clean.py <input.xlsx> --out-dir <output-folder>
 ```
 
-Use `--detect-only` first if the user only wants to know what's wrong, without changing anything yet.
+`--detect-only` is narrow: it only reports hidden sheets, protected sheets, and links to other
+workbooks. It does NOT look for the other problems (merged headers, text numbers, blank or repeated
+rows, month columns, typed-over formulas, shifted formulas). Don't use it to answer "what's wrong with
+this file?". For that, run the normal command; it never touches the original file.
 
 Read the exit code:
 - `0` - the workbook was cleaned. A `<name>.cleaned.xlsx` and a `<name>.changes.json` were written into the
@@ -80,9 +83,17 @@ Tell the user, in plain everyday language, for each change:
 - What it was before, and what it is now.
 - Why it needed fixing (in one short phrase, not the rule's internal name).
 
-Then tell them about anything flagged instead of fixed, and why: a hidden sheet, a protected sheet, a
-link to another workbook, or a column where the formula pattern wasn't consistent enough to guess at
-safely. Make clear these need a person to look at them.
+Then tell them about anything flagged instead of fixed, and why. The kinds are:
+- A hidden sheet, a protected sheet, or a link to another workbook.
+- Month columns that look like they should be one date column.
+- A typed-in number sitting in a column where every other cell is a formula (or a column whose formulas
+  don't follow one pattern, so the script wouldn't guess).
+- A formula that points at or below a row the script deleted (`shifted_formula_reference`). Row
+  numbers inside a formula don't move when a row is deleted, so that formula may now read the wrong
+  cells and show a wrong total. Name the sheet and cell, and say to check it. There is also one note per
+  sheet that formulas on other sheets, named ranges, charts, and conditional formatting were not
+  adjusted either.
+Make clear all of these need a person to look at them.
 
 If the file was refused, tell the user the exact reason the script gave and that nothing was written or
 changed.
@@ -112,7 +123,8 @@ types it auto-fixes (merged header, numbers stored as text, and stray blank/repe
 flags every instance of the two defect types it never auto-fixes (month columns that should be one date
 column, and a formula cell overwritten with a hardcoded value) rather than guessing at a rewrite. It also
 flags anything else it can't safely handle on its own (a hidden sheet, a protected sheet, or an external
-workbook link). A workbook that isn't a real `.xlsx`, is over 25MB, or carries a macro is refused
+workbook link). When it deletes a blank or repeated-header row, it also flags every formula that points at
+or below the first deleted row, wherever that formula sits, without rewriting it. A workbook that isn't a real `.xlsx`, is over 25MB, or carries a macro is refused
 outright, with nothing written.
 
 ### Rubric
@@ -132,9 +144,12 @@ Scored dimensions (0 or 1 each):
 5. A workbook that fails the safety gate (wrong extension, bad zip signature, macro part present, over
    25MB) is refused with exit code 2 and no output file written.
 6. A workbook with none of the five defects produces an empty change report and no flags, and exits 0.
+7. Every formula that points at or below a deleted row is flagged, including a total above the deleted
+   row that sums a range below it, and a formula above the deleted row is not flagged unless it points
+   at or below it. The formula text is never rewritten.
 
-Score 6/6 with no hard-fail: the run is trustworthy to hand back to the user as-is. Any hard-fail, or a
-score below 5/6: don't relay the result as clean - re-run or escalate to a human.
+Score 7/7 with no hard-fail: the run is trustworthy to hand back to the user as-is. Any hard-fail, or a
+score below 6/7: don't relay the result as clean - re-run or escalate to a human.
 
 ### Self-Test
 
@@ -149,7 +164,8 @@ score below 5/6: don't relay the result as clean - re-run or escalate to a human
   `sheet`, `range`, `reason`, and `rule`), leaving the month-column headers and the hardcoded cell's
   value exactly as given. *Output MUST NOT* change the input file's contents, MUST NOT restructure the
   month columns or write a formula into the hardcoded cell, and MUST NOT leave any of the six defects
-  un-reported.
+  un-reported. Because two rows were deleted, it MUST also flag each Total-column formula below them
+  (those formulas still point at their old rows) and MUST NOT rewrite any of them.
 - *Input:* the same workbook, but with a second sheet marked hidden and a third sheet marked protected,
   neither containing any of the five known defects.
   *Output MUST* list both sheets as flags in the report and leave their contents byte-identical to the
@@ -161,6 +177,11 @@ score below 5/6: don't relay the result as clean - re-run or escalate to a human
   (no single consistent pattern) and one hardcoded value in that same column.
   *Output MUST* flag the hardcoded cell as suspected rather than restoring a guessed formula. *Output
   MUST NOT* invent or insert any formula into that cell.
+- *Input:* a workbook with a header row, a `Total` cell in row 2 holding `=SUM(B4:B6)`, a blank divider
+  row 3, and three amounts in rows 4-6.
+  *Output MUST* delete the blank row and flag the `Total` cell as pointing at or below the deleted row,
+  even though that cell did not move. *Output MUST NOT* rewrite the formula, and MUST NOT flag a formula
+  that only points at rows above the deleted one.
 
 ### Version
 

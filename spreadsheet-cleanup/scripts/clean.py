@@ -333,14 +333,16 @@ def find_header_row(ws, max_col):
 def drop_blank_and_repeated_header_rows(ws, report):
     """
     Rule #6: delete fully-blank rows and rows that repeat the header row.
-    Returns True if it deleted at least one row from this sheet, False
-    otherwise — restore_column_formula uses that to decide whether a
-    stale-formula check is even possible on this sheet (see its docstring).
+    Returns the lowest row number it deleted, or None if it deleted nothing.
+    Every row at or below that number shifted up, which is what
+    flag_shifted_formula_references() needs to know: openpyxl's
+    delete_rows() does not rewrite formula text, so a formula that points at
+    one of those rows now points at the wrong data.
     """
     max_col = ws.max_column
     header_row_idx = find_header_row(ws, max_col)
     if header_row_idx is None:
-        return False
+        return None
     header_vals = row_values(ws, header_row_idx, max_col)
 
     rows_to_delete = []
@@ -361,7 +363,78 @@ def drop_blank_and_repeated_header_rows(ws, report):
         report.add_change(ws.title, rng, vals, None, rule)
         ws.delete_rows(r, 1)
 
-    return bool(rows_to_delete)
+    return min((r for r, _, _ in rows_to_delete), default=None)
+
+
+# A1-style cell reference, e.g. B5, $B$5, B$5. The lookbehind and lookahead
+# keep it from matching inside a function name (LOG10, ATAN2) or a longer
+# word, and a bare number like the 1.05 in =B2*1.05 has no letters in front
+# of it so it never matches. Only used to find which ROWS a formula points
+# at; it does not try to understand the formula.
+CELL_REF_ROW_RE = re.compile(r"(?<![A-Za-z0-9_])\$?[A-Za-z]{1,3}\$?(\d+)(?![0-9A-Za-z_(])")
+
+# Cap on individually listed flags per sheet, so one deletion on a big sheet
+# cannot produce an unbounded report.
+MAX_SHIFTED_FLAGS = 25
+
+
+def flag_shifted_formula_references(ws, report, first_deleted_row):
+    """
+    Flag, without changing anything, every formula that points at a row at or
+    below `first_deleted_row`.
+
+    openpyxl's delete_rows() moves cells but does not rewrite formula text,
+    so after drop_blank_and_repeated_header_rows() removes a row, any formula
+    still pointing at a row from the deleted row down now points at the
+    wrong data (a total shows a neighbor's number, or zero). This is a flag
+    only. It never rewrites the formula.
+
+    Deliberately simple: it looks only at which rows a formula references,
+    never at whether two formulas have the same "shape", so it cannot mistake
+    a constant like the 1.05 in =B2*1.05 for a row number. A formula is
+    checked wherever it sits on the sheet: a total at the top that sums a
+    range below the deletion is just as stale as a formula that moved. It
+    errs toward flagging (a formula that only references rows above the
+    deletion is left alone, but anything at or below is listed), because
+    the cost of a wrong extra flag is a person glancing at a cell, and the
+    cost of a missed one is a wrong number in a finance report.
+
+    It cannot see formulas on OTHER sheets that reference this sheet, or
+    named ranges, charts, and conditional formatting, so it adds one
+    sheet-level note saying so.
+    """
+    suspects = []
+    for row in ws.iter_rows():
+        for cell in row:
+            v = cell.value
+            if not (isinstance(v, str) and v.startswith("=")):
+                continue
+            rows = [int(m.group(1)) for m in CELL_REF_ROW_RE.finditer(v)]
+            if rows and max(rows) >= first_deleted_row:
+                suspects.append(cell.coordinate)
+
+    for coord in suspects[:MAX_SHIFTED_FLAGS]:
+        report.add_flag(
+            ws.title, coord,
+            f"points at a row at or below row {first_deleted_row}, where a blank or repeated-header "
+            f"row was deleted; its row references were not adjusted and may now point at the wrong "
+            f"rows. Please check it.",
+            "shifted_formula_reference",
+        )
+    if len(suspects) > MAX_SHIFTED_FLAGS:
+        report.add_flag(
+            ws.title, "<sheet>",
+            f"{len(suspects) - MAX_SHIFTED_FLAGS} more formula(s) on this sheet point at or below row "
+            f"{first_deleted_row} and are not listed individually. Please check them too.",
+            "shifted_formula_reference",
+        )
+    report.add_flag(
+        ws.title, "<sheet>",
+        f"rows were deleted starting at row {first_deleted_row}. Formulas on other sheets, named "
+        f"ranges, charts, and conditional formatting that refer to this sheet were not adjusted "
+        f"and may be off.",
+        "shifted_formula_reference",
+    )
 
 
 STRICT_NUMBER_RE = re.compile(
@@ -414,53 +487,28 @@ def formula_shape(formula):
     """
     Generalize a formula by replacing every digit run with a placeholder, so
     two formulas that differ only in which row they reference compare equal.
-    This also means shape comparison alone can't tell a formula's row number
-    is stale after an earlier row deletion (openpyxl doesn't rewrite formula
-    text when delete_rows() is called) — restore_column_formula checks that
-    separately, via instantiate_shape(), once it already knows the shape.
+    Known limitation: it strips EVERY digit run, so it cannot tell a row
+    number from a numeric constant (the 1.05 in =B2*1.05). That is why it is
+    only used to compare shapes for restore_column_formula's flags, and why
+    stale-reference detection uses flag_shifted_formula_references() instead.
     """
     return DIGIT_RUN_RE.sub("{R}", formula)
 
 
-def instantiate_shape(shape, row):
-    return shape.replace("{R}", str(row))
-
-
-def restore_column_formula(ws, report, rows_were_deleted=False):
+def restore_column_formula(ws, report):
     """
     Rule #5: for each column, if every formula cell in the column shares one
     relative shape (after generalizing away row numbers), flag any literal
     cell in that same data block as a likely hardcoded value that should
     match that shape. This rule is flag-only: it never writes a formula back
-    into a cell and never re-anchors an existing formula cell.
+    into a cell and never re-anchors an existing formula cell. If the
+    column's formula cells don't share one consistent shape, flag the
+    literal as suspected instead — never guess a shape from inconsistent
+    formulas.
 
-    Row deletion earlier in the pipeline (drop_blank_and_repeated_header_rows)
-    can leave a surviving formula pointing at its pre-deletion row number,
-    since openpyxl doesn't rewrite formula text when delete_rows() is called.
-    Because this rule no longer re-anchors, that staleness would otherwise go
-    completely unreported — the shape check alone can't see it, since
-    formula_shape() deliberately generalizes row numbers away. So once a
-    consistent shape is found, every formula cell is checked against its OWN
-    current row (instantiate_shape(shape, r)); a mismatch is flagged, not
-    silently left. If the column's formula cells don't share one consistent
-    shape in the first place, flag as suspected instead — never guess a
-    shape from inconsistent formulas.
-
-    This staleness check runs whenever a column has 2+ formula cells,
-    whether or not the column also has a literal cell to restore. A column
-    made entirely of formulas is exactly where a stale reference is most
-    consequential (a wrong total with nothing else in the column to draw
-    attention to it), so it can't be gated on a literal being present.
-
-    It IS gated on `rows_were_deleted` — whether drop_blank_and_repeated_
-    header_rows actually removed a row from THIS sheet. Row deletion is the
-    only thing that can make a formula stale in the way this check looks for
-    (pointing at its pre-deletion row), so on a sheet where nothing was
-    deleted there is nothing to detect. Without this gate, the check compares
-    every formula against formula_shape()'s digit-stripped generalization,
-    which can't tell a row number from a numeric constant, so a perfectly
-    correct column like =B2*1.05, =B3*1.05 gets a false "stale" flag on every
-    row even though no row was ever deleted.
+    Formulas made stale by an earlier row deletion are NOT handled here;
+    flag_shifted_formula_references() does that, on its own, because it needs
+    no shape comparison.
     """
     max_col = ws.max_column
     max_row = ws.max_row
@@ -480,7 +528,7 @@ def restore_column_formula(ws, report, rows_were_deleted=False):
             else:
                 literal_cells.append((r, v))
 
-        if len(formula_cells) < 2:
+        if len(formula_cells) < 2 or not literal_cells:
             continue
 
         shapes = {formula_shape(f) for r, f in formula_cells}
@@ -493,23 +541,6 @@ def restore_column_formula(ws, report, rows_were_deleted=False):
                     "column has multiple formula shapes; not restored", "restore_column_formula",
                 )
             continue
-
-        shape = next(iter(shapes))
-
-        # Flag any formula cell whose own row no longer matches the shared
-        # shape instantiated at its own row — a leftover from an earlier row
-        # deletion. Never rewrite it, just surface it. Only meaningful if a
-        # row was actually deleted on this sheet (see the docstring).
-        for r, f in (formula_cells if rows_were_deleted else []):
-            expected = instantiate_shape(shape, r)
-            if expected != f:
-                cell = ws.cell(row=r, column=c)
-                report.add_flag(
-                    ws.title, cell.coordinate,
-                    f"formula may reference a stale row after an earlier row deletion "
-                    f"(current: {f!r}, expected shape at this row: {expected!r}); not corrected",
-                    "restore_column_formula",
-                )
 
         # Flag the literal cell(s) that look like they should match the
         # column's shared formula shape. Never write a formula back.
@@ -719,10 +750,12 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
                         continue
                     header_row_idx = find_header_row(ws, ws.max_column) or 1
                     unmerge_header(ws, report, header_row_idx)
-                    rows_were_deleted = drop_blank_and_repeated_header_rows(ws, report)
+                    first_deleted_row = drop_blank_and_repeated_header_rows(ws, report)
                     text_to_number(ws, report)
-                    restore_column_formula(ws, report, rows_were_deleted)
+                    restore_column_formula(ws, report)
                     unpivot_date_columns(ws, report)
+                    if first_deleted_row is not None:
+                        flag_shifted_formula_references(ws, report, first_deleted_row)
                 wb.save(tmp_cleaned_path)
                 will_write_cleaned_copy = True
 

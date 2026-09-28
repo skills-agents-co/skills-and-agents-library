@@ -186,34 +186,35 @@ def eval_messy(tmp):
         )
 
     # Rows below the blank-divider/duplicate-header deletion (Travel, Software,
-    # Insurance) shift up by two, so their surviving D-column formulas are now
-    # stale — they still literally reference their pre-deletion row numbers
-    # (=SUM(B9:C9) etc. sitting at row 7). Since restore_column_formula no
-    # longer re-anchors ANYTHING, this staleness must be reported as a flag
-    # instead of silently left with no signal at all — check that here,
-    # separately from the byte-identity check above (which only proves the
-    # cell wasn't rewritten, not that its staleness was noticed).
-    flags_before_defect_check = report.get("flags", [])
-    stale_flags_by_range = {
-        f["range"]: f
-        for f in flags_before_defect_check
-        if f["rule"] == "restore_column_formula" and "stale" in f["reason"]
+    # Insurance) shift up by two, so their surviving D-column formulas still
+    # literally reference their pre-deletion row numbers (=SUM(B9:C9) etc.
+    # sitting at row 7). Nothing rewrites them (checked above), so the run
+    # must at least SAY so: each gets a "shifted_formula_reference" flag.
+    # Rent, Utilities, and Payroll reference rows 3-5, above the first
+    # deleted row (7), so they were never affected and must not be flagged.
+    # The exact set is pinned, so a spurious extra flag anywhere also fails.
+    flags_all = report.get("flags", [])
+    shifted_cells = {
+        f["range"] for f in flags_all
+        if f["rule"] == "shifted_formula_reference" and f["range"] != "<sheet>"
     }
-    for label in ("Travel", "Software", "Insurance"):
-        cell = ws.cell(row=cleaned_rows_by_cat[label], column=4)
-        check(
-            f"messy.xlsx: {label}'s now-stale D-column formula is flagged (row shifted, formula wasn't re-anchored)",
-            cell.coordinate in stale_flags_by_range,
-            f"flags seen: {[f['range'] for f in flags_before_defect_check if f['rule'] == 'restore_column_formula']}",
-        )
-    for label in ("Rent", "Utilities", "Payroll"):
-        # These rows sit ABOVE the deletion and never shift, so their formulas
-        # were never stale and must NOT be flagged.
-        cell = ws.cell(row=cleaned_rows_by_cat[label], column=4)
-        check(
-            f"messy.xlsx: {label}'s D-column formula (never shifted) is not flagged as stale",
-            cell.coordinate not in stale_flags_by_range,
-        )
+    expected_shifted = {
+        ws.cell(row=cleaned_rows_by_cat[label], column=4).coordinate
+        for label in ("Travel", "Software", "Insurance")
+    }
+    check(
+        "messy.xlsx: exactly Travel/Software/Insurance's D-column formulas are flagged as shifted",
+        shifted_cells == expected_shifted,
+        f"flagged={sorted(shifted_cells)} expected={sorted(expected_shifted)}",
+    )
+    check(
+        "messy.xlsx: a sheet-level note says references from other sheets, names, and charts were not adjusted",
+        any(
+            f["rule"] == "shifted_formula_reference" and f["range"] == "<sheet>" and "other sheets" in f["reason"]
+            for f in flags_all
+        ),
+        json.dumps([f for f in flags_all if f["rule"] == "shifted_formula_reference"]),
+    )
 
     # Defect 2 continued: unpivot_date_columns is flag-only, so the month
     # DATA cells (columns B and C), not just the header row, must be
@@ -328,7 +329,9 @@ def eval_flag_only_edge_cases(tmp):
         check(
             "mixed formula shapes: flagged as 'column has multiple formula shapes'",
             any(
-                f["rule"] == "restore_column_formula" and "multiple formula shapes" in f["reason"]
+                f["rule"] == "restore_column_formula"
+                and "multiple formula shapes" in f["reason"]
+                and f["range"] == "D4"
                 for f in flags
             ),
             json.dumps(flags),
@@ -421,7 +424,7 @@ def eval_flag_only_edge_cases(tmp):
         flags_c = report_c.get("flags", [])
         stale_ranges_c = {
             f["range"] for f in flags_c
-            if f["rule"] == "restore_column_formula" and "stale" in f["reason"]
+            if f["rule"] == "shifted_formula_reference" and f["range"] != "<sheet>"
         }
         check(
             "all-formula stale column: D3 (was row 5) is flagged stale",
@@ -439,8 +442,8 @@ def eval_flag_only_edge_cases(tmp):
             json.dumps(flags_c),
         )
         check(
-            "all-formula stale column: no change entries for restore_column_formula",
-            not any(c["rule"] == "restore_column_formula" for c in report_c.get("changes", [])),
+            "all-formula stale column: no change entries for shifted_formula_reference",
+            not any(c["rule"] == "shifted_formula_reference" for c in report_c.get("changes", [])),
             json.dumps(report_c.get("changes", [])),
         )
     cleaned_path_c = os.path.join(out_dir_c2, "all_formula_stale.cleaned.xlsx")
@@ -458,13 +461,10 @@ def eval_flag_only_edge_cases(tmp):
             repr(ws_out_c.cell(row=4, column=4).value),
         )
 
-    # Case D (false-positive guard for #F1's fix): a perfectly correct
-    # all-formula column with a constant multiplier (=B2*1.05, the most
-    # ordinary finance pattern there is), on a sheet where NO row was ever
-    # deleted. formula_shape() strips every digit run, so it can't tell the
-    # 1.05 from a row number and would flag every row as "stale" if the
-    # stale-check weren't gated on a row actually having been deleted. This
-    # must produce zero flags.
+    # Case D (false-positive guard): a perfectly correct all-formula column
+    # with a constant multiplier (=B2*1.05, the most ordinary finance
+    # pattern there is), on a sheet where NO row was ever deleted. Nothing
+    # can be stale here, so this must produce zero flags and zero changes.
     path_d = os.path.join(tmp, "clean_multiplier.xlsx")
     wb_d = openpyxl.Workbook()
     ws_d = wb_d.active
@@ -491,6 +491,122 @@ def eval_flag_only_edge_cases(tmp):
             "clean multiplier column: no changes at all",
             report_d.get("changes", []) == [],
             json.dumps(report_d.get("changes", [])),
+        )
+
+
+    # ---- Cases E-H: shifted-formula flag, driven by what reviewers found ----
+
+    def run_fixture(name, rows):
+        path = os.path.join(tmp, name + ".xlsx")
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Sheet"
+        for row in rows:
+            ws.append(row)
+        wb.save(path)
+        out = os.path.join(tmp, name + "_out")
+        os.makedirs(out, exist_ok=True)
+        res = run_clean(path, out)
+        return res, load_report(out, path), os.path.join(out, name + ".cleaned.xlsx")
+
+    def shifted(report):
+        return {
+            f["range"] for f in report.get("flags", [])
+            if f["rule"] == "shifted_formula_reference" and f["range"] != "<sheet>"
+        }
+
+    # Case E: per-row formulas PLUS a totals row (two formula shapes in one
+    # column, the most common real layout), with a blank divider deleted in
+    # the middle. An earlier design skipped any column with more than one
+    # shape, so nothing here was flagged and the totals shipped wrong.
+    res_e, report_e, cleaned_e = run_fixture("totals_row", [
+        ["Item", "Qty", "Price", "Line"],
+        ["a", 1, 2, "=B2*C2"],
+        ["b", 1, 2, "=B3*C3"],
+        ["c", 1, 2, "=B4*C4"],
+        [None, None, None, None],          # row 5: blank divider (deleted)
+        ["d", 1, 2, "=B6*C6"],
+        ["e", 1, 2, "=B7*C7"],
+        ["f", 1, 2, "=B8*C8"],
+        ["Total", None, None, "=SUM(D2:D8)"],
+    ])
+    check("totals row: clean.py exits 0", res_e.returncode == 0, res_e.stderr)
+    check("totals row: report was written", report_e is not None)
+    if report_e is not None:
+        check(
+            "totals row: shifted rows AND the totals formula are flagged, rows above the deletion are not",
+            shifted(report_e) == {"D5", "D6", "D7", "D8"},
+            f"flagged={sorted(shifted(report_e))}",
+        )
+
+    # Case F: a numeric constant with a deletion. =B4*1.05 references row 4,
+    # at or below the deleted row 3, so it is flagged. The formula ABOVE the
+    # deletion (=B2*1.05, row 2) must not be: the constant 1.05 is not a row.
+    res_f, report_f, cleaned_f = run_fixture("constant_with_deletion", [
+        ["Category", "Amount", "WithTax"],
+        ["Rent", 100, "=B2*1.05"],
+        [None, None, None],                # row 3: blank divider (deleted)
+        ["Food", 200, "=B4*1.05"],
+        ["Gas", 300, "=B5*1.05"],
+    ])
+    check("constant with deletion: clean.py exits 0", res_f.returncode == 0, res_f.stderr)
+    if report_f is not None:
+        check(
+            "constant with deletion: only the two shifted formulas are flagged (not the one above the deletion)",
+            shifted(report_f) == {"C3", "C4"},
+            f"flagged={sorted(shifted(report_f))}",
+        )
+
+    # Case G: a lone total ABOVE the deletion that sums a range below it.
+    # It is the only formula in its column and it did not move, but its
+    # range is now wrong.
+    res_g, report_g, cleaned_g = run_fixture("lone_total_above", [
+        ["Category", "Amount"],
+        ["Total", "=SUM(B4:B6)"],
+        [None, None],                      # row 3: blank divider (deleted)
+        ["A", 10],
+        ["B", 20],
+        ["C", 30],
+    ])
+    check("lone total above the deletion: clean.py exits 0", res_g.returncode == 0, res_g.stderr)
+    if report_g is not None:
+        check(
+            "lone total above the deletion: flagged even though it did not move",
+            shifted(report_g) == {"B2"},
+            f"flagged={sorted(shifted(report_g))}",
+        )
+    if os.path.isfile(cleaned_g):
+        got = openpyxl.load_workbook(cleaned_g, data_only=False)["Sheet"].cell(row=2, column=2).value
+        check("lone total above the deletion: formula text unchanged", got == "=SUM(B4:B6)", repr(got))
+
+    # Case H: two sheets. Only the first has a deleted row; the second must
+    # get no shifted-formula flags, and the sheet-level note appears once.
+    path_h = os.path.join(tmp, "two_sheets.xlsx")
+    wb_h = openpyxl.Workbook()
+    s1 = wb_h.active
+    s1.title = "First"
+    for row in (["Item", "Amt", "Tax"], ["a", 1, "=B2*1.05"], [None, None, None], ["b", 2, "=B4*1.05"]):
+        s1.append(row)
+    s2 = wb_h.create_sheet("Second")
+    for row in (["Item", "Amt", "Tax"], ["a", 1, "=B2*1.05"], ["b", 2, "=B3*1.05"]):
+        s2.append(row)
+    wb_h.save(path_h)
+    out_h = os.path.join(tmp, "two_sheets_out")
+    os.makedirs(out_h, exist_ok=True)
+    res_h = run_clean(path_h, out_h)
+    report_h = load_report(out_h, path_h)
+    check("two sheets: clean.py exits 0", res_h.returncode == 0, res_h.stderr)
+    if report_h is not None:
+        flags_h = [f for f in report_h.get("flags", []) if f["rule"] == "shifted_formula_reference"]
+        check(
+            "two sheets: no shifted-formula flags leak onto the sheet with no deleted rows",
+            not any(f["sheet"] == "Second" for f in flags_h),
+            json.dumps(flags_h),
+        )
+        check(
+            "two sheets: the sheet with the deletion is flagged",
+            any(f["sheet"] == "First" and f["range"] == "C3" for f in flags_h),
+            json.dumps(flags_h),
         )
 
 

@@ -331,11 +331,16 @@ def find_header_row(ws, max_col):
 
 
 def drop_blank_and_repeated_header_rows(ws, report):
-    """Rule #6: delete fully-blank rows and rows that repeat the header row."""
+    """
+    Rule #6: delete fully-blank rows and rows that repeat the header row.
+    Returns True if it deleted at least one row from this sheet, False
+    otherwise — restore_column_formula uses that to decide whether a
+    stale-formula check is even possible on this sheet (see its docstring).
+    """
     max_col = ws.max_column
     header_row_idx = find_header_row(ws, max_col)
     if header_row_idx is None:
-        return
+        return False
     header_vals = row_values(ws, header_row_idx, max_col)
 
     rows_to_delete = []
@@ -355,6 +360,8 @@ def drop_blank_and_repeated_header_rows(ws, report):
         rng = f"A{r}:{col_last}{r}"
         report.add_change(ws.title, rng, vals, None, rule)
         ws.delete_rows(r, 1)
+
+    return bool(rows_to_delete)
 
 
 STRICT_NUMBER_RE = re.compile(
@@ -419,7 +426,7 @@ def instantiate_shape(shape, row):
     return shape.replace("{R}", str(row))
 
 
-def restore_column_formula(ws, report):
+def restore_column_formula(ws, report, rows_were_deleted=False):
     """
     Rule #5: for each column, if every formula cell in the column shares one
     relative shape (after generalizing away row numbers), flag any literal
@@ -444,6 +451,16 @@ def restore_column_formula(ws, report):
     made entirely of formulas is exactly where a stale reference is most
     consequential (a wrong total with nothing else in the column to draw
     attention to it), so it can't be gated on a literal being present.
+
+    It IS gated on `rows_were_deleted` — whether drop_blank_and_repeated_
+    header_rows actually removed a row from THIS sheet. Row deletion is the
+    only thing that can make a formula stale in the way this check looks for
+    (pointing at its pre-deletion row), so on a sheet where nothing was
+    deleted there is nothing to detect. Without this gate, the check compares
+    every formula against formula_shape()'s digit-stripped generalization,
+    which can't tell a row number from a numeric constant, so a perfectly
+    correct column like =B2*1.05, =B3*1.05 gets a false "stale" flag on every
+    row even though no row was ever deleted.
     """
     max_col = ws.max_column
     max_row = ws.max_row
@@ -481,8 +498,9 @@ def restore_column_formula(ws, report):
 
         # Flag any formula cell whose own row no longer matches the shared
         # shape instantiated at its own row — a leftover from an earlier row
-        # deletion. Never rewrite it, just surface it.
-        for r, f in formula_cells:
+        # deletion. Never rewrite it, just surface it. Only meaningful if a
+        # row was actually deleted on this sheet (see the docstring).
+        for r, f in (formula_cells if rows_were_deleted else []):
             expected = instantiate_shape(shape, r)
             if expected != f:
                 cell = ws.cell(row=r, column=c)
@@ -701,9 +719,9 @@ def clean_workbook(input_path, out_dir, detect_only_requested):
                         continue
                     header_row_idx = find_header_row(ws, ws.max_column) or 1
                     unmerge_header(ws, report, header_row_idx)
-                    drop_blank_and_repeated_header_rows(ws, report)
+                    rows_were_deleted = drop_blank_and_repeated_header_rows(ws, report)
                     text_to_number(ws, report)
-                    restore_column_formula(ws, report)
+                    restore_column_formula(ws, report, rows_were_deleted)
                     unpivot_date_columns(ws, report)
                 wb.save(tmp_cleaned_path)
                 will_write_cleaned_copy = True

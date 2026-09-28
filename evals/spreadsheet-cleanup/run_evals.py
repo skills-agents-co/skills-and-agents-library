@@ -458,6 +458,41 @@ def eval_flag_only_edge_cases(tmp):
             repr(ws_out_c.cell(row=4, column=4).value),
         )
 
+    # Case D (false-positive guard for #F1's fix): a perfectly correct
+    # all-formula column with a constant multiplier (=B2*1.05, the most
+    # ordinary finance pattern there is), on a sheet where NO row was ever
+    # deleted. formula_shape() strips every digit run, so it can't tell the
+    # 1.05 from a row number and would flag every row as "stale" if the
+    # stale-check weren't gated on a row actually having been deleted. This
+    # must produce zero flags.
+    path_d = os.path.join(tmp, "clean_multiplier.xlsx")
+    wb_d = openpyxl.Workbook()
+    ws_d = wb_d.active
+    ws_d.title = "Sheet"
+    ws_d.append(["Category", "Amount", "WithTax"])
+    ws_d.append(["Rent", 100, "=B2*1.05"])
+    ws_d.append(["Food", 200, "=B3*1.05"])
+    ws_d.append(["Gas", 300, "=B4*1.05"])
+    wb_d.save(path_d)
+
+    out_dir_d = os.path.join(tmp, "clean_multiplier_out")
+    os.makedirs(out_dir_d, exist_ok=True)
+    res_d = run_clean(path_d, out_dir_d)
+    check("clean multiplier column: clean.py exits 0", res_d.returncode == 0, res_d.stderr)
+    report_d = load_report(out_dir_d, path_d)
+    check("clean multiplier column: report was written", report_d is not None)
+    if report_d is not None:
+        check(
+            "clean multiplier column: no flags at all (no false 'stale' on a correct column)",
+            report_d.get("flags", []) == [],
+            json.dumps(report_d.get("flags", [])),
+        )
+        check(
+            "clean multiplier column: no changes at all",
+            report_d.get("changes", []) == [],
+            json.dumps(report_d.get("changes", [])),
+        )
+
 
 # ---------------------------------------------------------------------------
 # Criterion 4: clean-control.xlsx produces an empty report and exits 0.

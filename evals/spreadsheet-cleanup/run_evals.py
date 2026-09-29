@@ -611,6 +611,8 @@ def eval_flag_only_edge_cases(tmp):
             ["Total", "=SUM('Q3 Detail'!B4:B6)"],
             ["Head", "='Q3 Detail'!B2"],
             ["Own", "=B3*2"],
+            ["Straddle", "=SUM('Q3 Detail'!B2:B6)"],   # only the range's second end is below the deletion
+            ["Cased", "=SUM('q3 detail'!B4:B6)"],       # sheet names match without regard to case
         ],
         "Q3 Detail": [
             ["Item", "Amt", "Back"],
@@ -621,13 +623,46 @@ def eval_flag_only_edge_cases(tmp):
     })
     if report is not None:
         check("two sheets: Summary's total over the changed sheet is flagged, its other formulas are not",
-              shifted_cells(report, "Summary") == {"B2"}, str(sorted(shifted_cells(report, "Summary"))))
+              shifted_cells(report, "Summary") == {"B2", "B5", "B6"}, str(sorted(shifted_cells(report, "Summary"))))
         check("two sheets: Detail's reference to an unchanged sheet is not flagged",
               shifted_cells(report, "Q3 Detail") == set(), str(sorted(shifted_cells(report, "Q3 Detail"))))
         check("two sheets: the sheet note appears exactly once on the sheet that lost a row",
               len(shifted_notes(report, "Q3 Detail")) == 1, json.dumps(shifted_notes(report, "Q3 Detail")))
         check("two sheets: no sheet note on the sheet that lost nothing",
               shifted_notes(report, "Summary") == [], json.dumps(shifted_notes(report, "Summary")))
+
+    # T: sheet names that are not plain ASCII (Excel writes them unquoted), a
+    # reference into ANOTHER workbook ([1]Name!...), and whole-row references.
+    # Two sheets lose row 3. On Summary: =Donn\u00e9es!B4 and =\u0414\u0435\u0442\u0430\u043b\u0438!B4 and the
+    # whole-row =SUM(Donn\u00e9es!4:5) are flagged; =[1]Donn\u00e9es!B4 points at a file
+    # outside this one and is not. On Donn\u00e9es itself, the bare whole-row
+    # =SUM(4:5) is flagged.
+    report, _ = run_fixture(tmp, "unicode_external_rows", {
+        "Summary": [
+            ["Line", "Value"],
+            ["Accent", "=Donn\u00e9es!B4"],
+            ["Cyrillic", "=\u0414\u0435\u0442\u0430\u043b\u0438!B4"],
+            ["External", "=[1]Donn\u00e9es!B4"],
+            ["WholeRow", "=SUM(Donn\u00e9es!4:5)"],
+        ],
+        "Donn\u00e9es": [
+            ["Item", "Amt", "Ref"],
+            ["a", 1, "=SUM(4:5)"],
+            [None, None, None],              # row 3: blank divider (deleted)
+            ["b", 2, None], ["c", 3, None],
+        ],
+        "\u0414\u0435\u0442\u0430\u043b\u0438": [
+            ["Item", "Amt"],
+            ["a", 1],
+            [None, None],                    # row 3: blank divider (deleted)
+            ["b", 2],
+        ],
+    })
+    if report is not None:
+        check("non-ASCII sheet names, whole-row references: Summary flags B2, B3 and B5 only (not the [1] external one)",
+              shifted_cells(report, "Summary") == {"B2", "B3", "B5"}, str(sorted(shifted_cells(report, "Summary"))))
+        check("whole-row reference on the sheet that lost a row is flagged",
+              shifted_cells(report, "Donn\u00e9es") == {"C2"}, str(sorted(shifted_cells(report, "Donn\u00e9es"))))
 
     # N: array and data-table formulas. openpyxl returns these as objects, not
     # "=..." strings. A stale array formula must be flagged; a data table on a

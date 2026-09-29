@@ -371,17 +371,32 @@ def drop_blank_and_repeated_header_rows(ws, report):
 # 1,048,576): a longer run of digits is not a cell reference, and capping it
 # also keeps int() away from a huge run, which raises ValueError under Python
 # 3.11+ and would otherwise stop the whole cleanup on one odd formula.
-CELL_REF_ROW_RE = re.compile(r"(?<![A-Za-z0-9_])\$?[A-Za-z]{1,3}\$?(\d{1,7})(?![0-9A-Za-z_(])")
+# \w is Unicode-aware, so a word in any script counts as a word.
+CELL_REF_ROW_RE = re.compile(r"(?<!\w)\$?[A-Za-z]{1,3}\$?(\d{1,7})(?![\w(])")
 
-# A reference with a sheet name in front (Detail!D9, 'FY 24'!B2:C9). The sheet
-# name is tried only where a word starts (the first lookbehind), so a long run
-# of letters is scanned once and not once per character. A range's second end
-# belongs to the same sheet, so it is captured here as well.
+# A sheet name in front of a reference: quoted ('FY 24'), or unquoted. Excel
+# writes a name unquoted when it is only letters (any script), digits, "_" and
+# ".", so Données!A5 and Детали!B9 arrive without quotes. An optional [n]
+# in front marks a sheet in ANOTHER workbook; those are consumed and ignored.
+# The name is tried only where a word starts (the lookbehind), so a long run of
+# letters is scanned once and not once per character.
+_SHEET_PREFIX = (
+    r"(?<![\w.])"
+    r"(?P<ext>\[[^\]]*\])?"
+    r"(?P<sheet>'(?:[^']|'')+'|[^\W\d][\w.]*)!"
+)
+
+# Reference with a sheet name; a range's second end belongs to the same sheet.
 _QUALIFIED_REF_RE = re.compile(
-    r"(?<![A-Za-z0-9_.])"
-    r"(?P<sheet>'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*)!"
-    r"\$?[A-Za-z]{1,3}\$?(?P<r1>\d{1,7})(?![0-9A-Za-z_(])"
-    r"(?::\$?[A-Za-z]{1,3}\$?(?P<r2>\d{1,7})(?![0-9A-Za-z_(]))?"
+    _SHEET_PREFIX
+    + r"\$?[A-Za-z]{1,3}\$?(?P<r1>\d{1,7})(?![\w(])"
+    r"(?::\$?[A-Za-z]{1,3}\$?(?P<r2>\d{1,7})(?![\w(]))?"
+)
+
+# Whole-row references, =SUM(7:9) or =Detail!7:9, with or without a sheet name.
+_ROW_RANGE_RE = re.compile(
+    r"(?:" + _SHEET_PREFIX.replace("(?<![\\w.])", "", 1) + r")?"
+    r"(?<![\w.$:])\$?(?P<r1>\d{1,7}):\$?(?P<r2>\d{1,7})(?![\w(:])"
 )
 
 # Text inside double quotes, e.g. the "Q4" in ="Q4"&B2, is not a reference.
@@ -389,7 +404,7 @@ _STRING_LITERAL_RE = re.compile(r'"(?:[^"]|"")*"')
 
 # INDIRECT and OFFSET build their target at run time, so which rows they point
 # at cannot be read from the formula text.
-_DYNAMIC_REF_RE = re.compile(r"(?<![A-Za-z0-9_.])(?:INDIRECT|OFFSET)\s*\(", re.IGNORECASE)
+_DYNAMIC_REF_RE = re.compile(r"(?<![\w.])(?:INDIRECT|OFFSET)\s*\(", re.IGNORECASE)
 
 # Cap on individually listed flags per sheet, so one deletion on a big sheet
 # cannot produce an unbounded report.
@@ -405,7 +420,19 @@ def formula_row_refs(formula):
     text = _STRING_LITERAL_RE.sub('""', formula)
     refs = []
 
+    def take_rows(m):
+        if m.group("ext"):
+            return " "
+        sheet = m.group("sheet")
+        if sheet and sheet.startswith("'"):
+            sheet = sheet[1:-1].replace("''", "'")
+        refs.append((sheet, int(m.group("r1"))))
+        refs.append((sheet, int(m.group("r2"))))
+        return " "
+
     def take(m):
+        if m.group("ext"):
+            return " "
         sheet = m.group("sheet")
         if sheet.startswith("'"):
             sheet = sheet[1:-1].replace("''", "'")
@@ -415,6 +442,7 @@ def formula_row_refs(formula):
         return " "
 
     text = _QUALIFIED_REF_RE.sub(take, text)
+    text = _ROW_RANGE_RE.sub(take_rows, text)
     for m in CELL_REF_ROW_RE.finditer(text):
         refs.append((None, int(m.group(1))))
     return refs

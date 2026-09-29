@@ -644,12 +644,14 @@ def eval_flag_only_edge_cases(tmp):
             ["Cyrillic", "=\u0414\u0435\u0442\u0430\u043b\u0438!B4"],
             ["External", "=[1]Donn\u00e9es!B4"],
             ["WholeRow", "=SUM(Donn\u00e9es!4:5)"],
+            ["ExternalRow", "=SUM([1]Donn\u00e9es!4:5)"],   # another workbook's rows: not this file's
+            ["StraddleRow", "=SUM(Donn\u00e9es!2:5)"],      # only the second end is below the deletion
         ],
         "Donn\u00e9es": [
             ["Item", "Amt", "Ref"],
             ["a", 1, "=SUM(4:5)"],
             [None, None, None],              # row 3: blank divider (deleted)
-            ["b", 2, None], ["c", 3, None],
+            ["b", 2, "=SUM(2:5)"], ["c", 3, None],
         ],
         "\u0414\u0435\u0442\u0430\u043b\u0438": [
             ["Item", "Amt"],
@@ -659,10 +661,29 @@ def eval_flag_only_edge_cases(tmp):
         ],
     })
     if report is not None:
-        check("non-ASCII sheet names, whole-row references: Summary flags B2, B3 and B5 only (not the [1] external one)",
-              shifted_cells(report, "Summary") == {"B2", "B3", "B5"}, str(sorted(shifted_cells(report, "Summary"))))
-        check("whole-row reference on the sheet that lost a row is flagged",
-              shifted_cells(report, "Donn\u00e9es") == {"C2"}, str(sorted(shifted_cells(report, "Donn\u00e9es"))))
+        check("non-ASCII sheet names, whole-row references: Summary flags B2, B3, B5 and B7 only (not the [1] external ones, B4 and B6)",
+              shifted_cells(report, "Summary") == {"B2", "B3", "B5", "B7"}, str(sorted(shifted_cells(report, "Summary"))))
+        check("whole-row references on the sheet that lost a row are flagged, including one that straddles the deletion",
+              shifted_cells(report, "Donn\u00e9es") == {"C2", "C3"}, str(sorted(shifted_cells(report, "Donn\u00e9es"))))
+
+    # U: run time on long odd formulas. A formula of thousands of letters, or
+    # of apostrophes, must not make the scan slow (it once took seconds per
+    # cell, so a sheet of them stalled the whole cleanup). Ten 32,000-letter
+    # formulas and three 32,000-apostrophe formulas sit on a sheet that lost a
+    # row, so every one is scanned; the run must finish quickly and still flag
+    # the one genuine shifted reference.
+    import time
+    slow_rows = [["Item", "Amt", "Ref"], [None, None, None]]     # row 2 is the deleted blank row
+    slow_rows += [["x", 1, "=" + "a" * 32000] for _ in range(10)]
+    slow_rows += [["y", 1, "=" + "'" * 32000] for _ in range(3)]
+    slow_rows += [["z", 1, "=B99"]]
+    t0 = time.time()
+    report, _ = run_fixture(tmp, "slow_formulas", {"Sheet": slow_rows})
+    elapsed = time.time() - t0
+    check("long odd formulas: the run finishes in under 20 seconds", elapsed < 20, f"{elapsed:.1f}s")
+    if report is not None:
+        check("long odd formulas: the one genuine shifted reference is still flagged",
+              shifted_cells(report) == {"C15"}, str(sorted(shifted_cells(report))))
 
     # N: array and data-table formulas. openpyxl returns these as objects, not
     # "=..." strings. A stale array formula must be flagged; a data table on a

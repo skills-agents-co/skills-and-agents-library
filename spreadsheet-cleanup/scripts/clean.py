@@ -379,11 +379,14 @@ CELL_REF_ROW_RE = re.compile(r"(?<!\w)\$?[A-Za-z]{1,3}\$?(\d{1,7})(?![\w(])")
 # ".", so Données!A5 and Детали!B9 arrive without quotes. An optional [n]
 # in front marks a sheet in ANOTHER workbook; those are consumed and ignored.
 # The name is tried only where a word starts (the lookbehind), so a long run of
-# letters is scanned once and not once per character.
+# letters is scanned once and not once per character. The quoted name and the
+# [n] prefix are length-capped (Excel allows 31 characters in a sheet name, 62
+# with every quote doubled) so a run of quotes or brackets cannot be rescanned
+# from every position.
 _SHEET_PREFIX = (
     r"(?<![\w.])"
-    r"(?P<ext>\[[^\]]*\])?"
-    r"(?P<sheet>'(?:[^']|'')+'|[^\W\d][\w.]*)!"
+    r"(?P<ext>\[[^\[\]]{1,255}\])?"
+    r"(?P<sheet>'(?:[^']|''){1,62}'|[^\W\d][\w.]*)!"
 )
 
 # Reference with a sheet name; a range's second end belongs to the same sheet.
@@ -395,7 +398,7 @@ _QUALIFIED_REF_RE = re.compile(
 
 # Whole-row references, =SUM(7:9) or =Detail!7:9, with or without a sheet name.
 _ROW_RANGE_RE = re.compile(
-    r"(?:" + _SHEET_PREFIX.replace("(?<![\\w.])", "", 1) + r")?"
+    r"(?:" + _SHEET_PREFIX + r")?"
     r"(?<![\w.$:])\$?(?P<r1>\d{1,7}):\$?(?P<r2>\d{1,7})(?![\w(:])"
 )
 
@@ -420,28 +423,36 @@ def formula_row_refs(formula):
     text = _STRING_LITERAL_RE.sub('""', formula)
     refs = []
 
-    def take_rows(m):
+    def sheet_of(m):
+        """The sheet a match points at: None for this sheet, False for another workbook."""
         if m.group("ext"):
-            return " "
+            return False
         sheet = m.group("sheet")
-        if sheet and sheet.startswith("'"):
-            sheet = sheet[1:-1].replace("''", "'")
-        refs.append((sheet, int(m.group("r1"))))
-        refs.append((sheet, int(m.group("r2"))))
-        return " "
-
-    def take(m):
-        if m.group("ext"):
-            return " "
-        sheet = m.group("sheet")
+        if sheet is None:
+            return None
         if sheet.startswith("'"):
             sheet = sheet[1:-1].replace("''", "'")
-        refs.append((sheet, int(m.group("r1"))))
-        if m.group("r2"):
+            if sheet.startswith("["):
+                return False
+        return sheet
+
+    def take_rows(m):
+        sheet = sheet_of(m)
+        if sheet is not False:
+            refs.append((sheet, int(m.group("r1"))))
             refs.append((sheet, int(m.group("r2"))))
         return " "
 
-    text = _QUALIFIED_REF_RE.sub(take, text)
+    def take(m):
+        sheet = sheet_of(m)
+        if sheet is not False:
+            refs.append((sheet, int(m.group("r1"))))
+            if m.group("r2"):
+                refs.append((sheet, int(m.group("r2"))))
+        return " "
+
+    if "!" in text:
+        text = _QUALIFIED_REF_RE.sub(take, text)
     text = _ROW_RANGE_RE.sub(take_rows, text)
     for m in CELL_REF_ROW_RE.finditer(text):
         refs.append((None, int(m.group(1))))

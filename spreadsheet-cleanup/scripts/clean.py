@@ -451,7 +451,7 @@ def formula_row_refs(formula):
                 refs.append((sheet, int(m.group("r2"))))
         return " "
 
-    if "!" in text:
+    if "!" in text:  # speed only: a qualified reference always has a "!"
         text = _QUALIFIED_REF_RE.sub(take, text)
     text = _ROW_RANGE_RE.sub(take_rows, text)
     for m in CELL_REF_ROW_RE.finditer(text):

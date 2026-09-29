@@ -669,13 +669,13 @@ def eval_flag_only_edge_cases(tmp):
     # U: run time on long odd formulas. A formula of thousands of letters, or
     # of apostrophes, must not make the scan slow (it once took seconds per
     # cell, so a sheet of them stalled the whole cleanup). Ten 32,000-letter
-    # formulas and three 32,000-apostrophe formulas sit on a sheet that lost a
+    # formulas and ten 32,000-apostrophe formulas sit on a sheet that lost a
     # row, so every one is scanned; the run must finish quickly and still flag
     # the one genuine shifted reference.
     import time
     slow_rows = [["Item", "Amt", "Ref"], [None, None, None]]     # row 2 is the deleted blank row
     slow_rows += [["x", 1, "=" + "a" * 32000] for _ in range(10)]
-    slow_rows += [["y", 1, "=" + "'" * 32000] for _ in range(3)]
+    slow_rows += [["y", 1, "=" + "'" * 32000] for _ in range(10)]
     slow_rows += [["z", 1, "=B99"]]
     t0 = time.time()
     report, _ = run_fixture(tmp, "slow_formulas", {"Sheet": slow_rows})
@@ -683,7 +683,7 @@ def eval_flag_only_edge_cases(tmp):
     check("long odd formulas: the run finishes in under 20 seconds", elapsed < 20, f"{elapsed:.1f}s")
     if report is not None:
         check("long odd formulas: the one genuine shifted reference is still flagged",
-              shifted_cells(report) == {"C15"}, str(sorted(shifted_cells(report))))
+              shifted_cells(report) == {"C22"}, str(sorted(shifted_cells(report))))
 
     # N: array and data-table formulas. openpyxl returns these as objects, not
     # "=..." strings. A stale array formula must be flagged; a data table on a
@@ -1211,6 +1211,46 @@ def eval_failure_does_not_delete_prior_output(tmp):
         )
 
 
+def eval_formula_row_refs(tmp):
+    """
+    formula_row_refs called directly, for what a workbook fixture cannot show:
+    a quoted reference into another workbook ('[1]Sheet'!A5) names no sheet
+    that could exist in the file, so end to end it is ignored whether or not
+    the parser recognises it; and the run time of one long odd formula, timed
+    on its own so a slow scan cannot hide inside a whole-suite bound.
+    """
+    import importlib.util
+    import time
+
+    spec = importlib.util.spec_from_file_location("clean_under_test", CLEAN_PY)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["clean_under_test"] = mod
+    old_flag, sys.dont_write_bytecode = sys.dont_write_bytecode, True
+    try:
+        spec.loader.exec_module(mod)
+    finally:
+        sys.dont_write_bytecode = old_flag
+        sys.modules.pop("clean_under_test", None)
+    refs = mod.formula_row_refs
+
+    cases = {
+        "='[1]Sheet'!A5": [],
+        "=SUM('[1]Sheet'!4:5)": [],
+        "=[1]Sheet!A5": [],
+        "=Sheet!A5": [("Sheet", 5)],
+        "=SUM(4:5)": [(None, 4), (None, 5)],
+    }
+    for formula, want in cases.items():
+        got = refs(formula)
+        check(f"formula_row_refs({formula}) == {want}", got == want, repr(got))
+
+    for label, formula in (("letters", "=" + "a" * 32767), ("apostrophes", "=" + "'" * 32767)):
+        t0 = time.time()
+        refs(formula)
+        elapsed = time.time() - t0
+        check(f"formula_row_refs on 32,767 {label} takes under 2 seconds", elapsed < 2, f"{elapsed:.1f}s")
+
+
 def run_eval(fn, tmp):
     """Run one eval; if it crashes (say, a full disk), record a FAIL and carry on, so
     one broken eval can't silently skip every eval after it."""
@@ -1226,7 +1266,7 @@ def main():
         for fn in (
             eval_messy, eval_clean_control, eval_fidelity, eval_xlsm,
             eval_hidden_protected_external, eval_entity_expansion, eval_path_traversal,
-            eval_flag_only_edge_cases, eval_oversized, eval_failure_does_not_delete_prior_output,
+            eval_flag_only_edge_cases, eval_formula_row_refs, eval_oversized, eval_failure_does_not_delete_prior_output,
         ):
             run_eval(fn, tmp)
 

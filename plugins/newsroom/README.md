@@ -37,30 +37,26 @@ When the test passes, it asks for:
 
 It saves your answers to `~/.newsroom/publication-profile.md` and shows you the path. All three skills read that file. On later runs they ask no setup questions. Edit the file any time to change an answer.
 
-Setup never asks for an API key or a password, and the profile holds neither.
+Setup never asks for an API key, a password, or a token, and the profile holds none of them.
 
 ## Connect Ghost
 
-The skills use a Ghost MCP server. If the connection test fails, do this once.
+The skills use a Ghost MCP server. The plugin is tested with `@fanyangmeng/ghost-mcp`, a community-built package that Skills and Agents Co did not make. If the connection test fails, do this once.
 
 1. Install Node.js 18 or later and check it with `node --version`.
-2. Install the server:
+2. In Ghost Admin, go to Settings, then Integrations, then Add custom integration. Name it `Newsroom`. Copy the Admin API key and the API URL.
+3. In your terminal, connect it to Claude Code. Replace the placeholders:
 
 ```bash
-npm install -g @jgardner04/ghost-mcp-server
+claude mcp add ghost -e GHOST_API_URL=<your site URL> -e GHOST_ADMIN_API_KEY=<your Admin API key> -e GHOST_API_VERSION=v5.0 -- npx -y @fanyangmeng/ghost-mcp
 ```
 
-3. In Ghost Admin, go to Settings, then Integrations, then Add custom integration. Name it `Newsroom`. Copy the Admin API key.
-4. In your terminal, connect it to Claude Code. Replace the placeholders:
+The key in that command lands in your shell history. If you prefer, add the server through your MCP config file instead, with the same three environment variables.
 
-```bash
-claude mcp add ghost-mcp -- ghost-mcp-server --url https://your-ghost-site.com --key your-admin-api-key
-```
+4. Run `claude mcp list` and confirm `ghost` is connected.
+5. Restart Claude Code and run a skill again.
 
-5. Run `claude mcp list` and confirm `ghost-mcp` is connected.
-6. Restart Claude Code and run a skill again.
-
-Type the key into your own terminal only, never into the chat. The skills find your Ghost tools by the end of the tool name, so any server name works. A Ghost server with different action names fails the connection test.
+Type the key into your own terminal only, never into the chat. The server's tools are `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. A Ghost server with different action names fails the connection test.
 
 ## The three roles
 

@@ -58,7 +58,7 @@ Count named closing sections such as "The read", "The thread", "Why it matters",
 |---|---|---|---|
 | 9 | **Link health** | Every `<a>` has a real `href` | Any `<a>` with a missing `href`, an empty `href`, `#`, or `javascript:` |
 | 10 | **Source linking** | Every inline publication name is linked to the article it cites | A publication named as plain text, or in an `<a>` with no valid `href` |
-| 11 | **Excerpt** | `custom_excerpt` is present, 120 to 300 characters, with a concrete fact | Missing, under 80 or over 300 characters, a teaser, or a copy of the title |
+| 11 | **Excerpt** | `custom_excerpt` is present, 120 to 300 characters, with a concrete fact | Missing, under 120 or over 300 characters, a teaser, or a copy of the title |
 | 12 | **Meta SEO** | `meta_title` is 50 to 60 characters and ends with the publication name after a bar. `meta_description` is 150 to 160 characters and leads with facts | Either missing, out of range, or vague |
 
 ### Provenance
@@ -78,11 +78,11 @@ Flags do not change the score. A flagged post is reported next to the headline f
 
 ## Score to action
 
-Scores below use the 13-point scale. A post with dimension 13 as N/A uses the 12-point equivalent.
+Scores below use the 13-point scale. A post with dimension 13 as N/A uses the 12-point bands: 12 of 12 ship as is, 10 or 11 acceptable, 7 to 9 borderline, 0 to 6 bad. Write the per-post score as `N/13` or `N/12`.
 
 - **13 of 13:** ship as is. Note it as an exemplar.
 - **11 or 12:** acceptable. Note the gap. If the same gap repeats, raise it.
-- **8 to 10:** borderline. Flag for the user before it is published, or move a published post back to draft.
+- **8 to 10:** borderline. Flag for the user before it is published, or tell the user to move a published post back to draft.
 - **0 to 7:** bad. Tell the user to unpublish a post that went live in the last day, and to rewrite older posts in place.
 - Headline failure only, with a body score of 6 or more: edit the title and leave the body alone.
 

@@ -7,6 +7,7 @@ Setup writes one file at `~/.newsroom/publication-profile.md`. All three newsroo
 publication_name: The Example Review
 site_url: https://example.com
 cms: ghost
+cms_tool_prefix: mcp__ghost__
 post_status: draft
 created: 2026-01-15
 ---
@@ -48,6 +49,7 @@ Working professionals who read three newsletters and want the facts fast.
 | `publication_name` | Name used in titles and the meta title suffix | none, required |
 | `site_url` | Public address, used for internal links | none, required |
 | `cms` | The CMS. Only `ghost` works today | `ghost` |
+| `cms_tool_prefix` | Tool-name prefix of the Ghost server that passed the connection test. Each skill uses only tools with it | none, required |
 | `post_status` | `draft` or `published` for new posts | `draft` |
 | `created` | Date setup finished | today |
 | Verticals | Section headings, each with its tag | none, required |

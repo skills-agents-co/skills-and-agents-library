@@ -1,0 +1,19 @@
+{
+  "name": "newsroom",
+  "version": "1.0.0",
+  "description": "A small newsroom for your Ghost site: a story researcher, a daily roundup writer, and a weekly quality review. Set up once, then run each skill.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "repository": "https://github.com/skills-agents-co/skills-and-agents-library",
+  "license": "MIT",
+  "keywords": [
+    "newsroom",
+    "publishing",
+    "ghost",
+    "editorial",
+    "writing"
+  ]
+}

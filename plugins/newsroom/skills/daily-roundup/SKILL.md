@@ -19,7 +19,7 @@ Post status comes from the profile. Accept only the exact values `draft` and `pu
 
 ## The Ghost tools
 
-Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, say the prefix does not match, tell the user to edit `cms_tool_prefix` in the profile, and stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
+Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, name the connected server and say the prefix does not match. Tell the user to change `cms_tool_prefix` in the profile only if that server is the same site as the profile's `site_url`. Otherwise tell the user to reconnect the original server. Then stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
 
 ## Step 1: Research
 
@@ -153,9 +153,8 @@ Score 8: ship as is. Score 6 or 7: the user revises the flagged items. Score 5 o
 
 ### Self-Test
 
-Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "write today's roundup".
+Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "write today's roundup". The skill asks the CMS question. The user answers that the site is on Ghost.
 
-- The skill asks the CMS question. The user answers that the site is on Ghost.
 - The output MUST begin the setup interview with the CMS question.
 - The output MUST say the plugin is tested with Ghost.
 - The output MUST say the connection test failed.

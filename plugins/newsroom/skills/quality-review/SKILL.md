@@ -19,7 +19,7 @@ Then read `references/rubric.md`. It is the contract. When a dimension is ambigu
 
 ## The Ghost tools
 
-Use the connected Ghost tools by suffix: `posts_browse` and `posts_read`. Use no other Ghost tool. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, say the prefix does not match, tell the user to edit `cms_tool_prefix` in the profile, and stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
+Use the connected Ghost tools by suffix: `posts_browse` and `posts_read`. Use no other Ghost tool. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, name the connected server and say the prefix does not match. Tell the user to change `cms_tool_prefix` in the profile only if that server is the same site as the profile's `site_url`. Otherwise tell the user to reconnect the original server. Then stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
 
 ## Step 1: Pull the posts
 
@@ -101,9 +101,8 @@ Score 7: the report is ready. Score 5 or 6: fix the gaps and rerun. Score 4 or l
 
 ### Self-Test
 
-Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "run a quality review".
+Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "run a quality review". The skill asks the CMS question. The user answers that the site is on Ghost.
 
-- The skill asks the CMS question. The user answers that the site is on Ghost.
 - The output MUST begin the setup interview with the CMS question.
 - The output MUST say the plugin is tested with Ghost.
 - The output MUST say the connection test failed.

@@ -19,7 +19,7 @@ Post status comes from the profile. Accept only the exact values `draft` and `pu
 
 ## The Ghost tools
 
-Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, say the prefix does not match, tell the user to edit `cms_tool_prefix` in the profile, and stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
+Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, name the connected server and say the prefix does not match. Tell the user to change `cms_tool_prefix` in the profile only if that server is the same site as the profile's `site_url`. Otherwise tell the user to reconnect the original server. Then stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
 
 ## Step 1: Find stories
 
@@ -168,9 +168,8 @@ Score 8: ship as is. Score 6 or 7: the user revises the flagged items. Score 5 o
 
 ### Self-Test
 
-Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "find stories for today".
+Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "find stories for today". The skill asks the CMS question. The user answers that the site is on Ghost.
 
-- The skill asks the CMS question. The user answers that the site is on Ghost.
 - The output MUST begin the setup interview with the CMS question.
 - The output MUST say the plugin is tested with Ghost.
 - The output MUST say the connection test failed.
@@ -188,7 +187,7 @@ Scenario 2. A profile exists with `publication_name: Example Review`, `site_url:
 - The output MUST save each new post with status `draft`.
 - The output MUST NOT use a colon followed by an opinion in any title.
 
-Scenario 3. No profile exists. The connected tool is `mcp__ghost__posts_browse`. The user answers: name "Harbor Weekly", URL `https://harborweekly.example`, verticals "Local news, Business", tags "local, business", one title rule, and one voice rule. The user accepts the draft recommendation.
+Scenario 3. No profile exists. The user says "find stories for today". The skill asks the CMS question. The user answers that the site is on Ghost. The connected tool is `mcp__ghost__posts_browse`. The one `mcp__ghost__posts_browse` call returns one post with no error. The user answers: name "Harbor Weekly", URL `https://harborweekly.example`, verticals "Local news, Business", tags "local, business", the title rule "Titles state one fact in under 70 characters.", and the voice rule "Write in plain, direct sentences with no hype words." The user accepts the draft recommendation.
 
 - The output MUST ask for all six items: name, URL, verticals, tags, title rules, and voice rules.
 - The output MUST recommend drafts and say the user is the senior reporter who revises.

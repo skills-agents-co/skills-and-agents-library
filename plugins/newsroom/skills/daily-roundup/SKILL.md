@@ -13,13 +13,13 @@ You are the junior reporter. You write the first version of the day's roundup an
 
 1. Read `~/.newsroom/publication-profile.md`.
 2. If the file does not exist, read `references/setup.md` and run it. Do no other work first: no web search, no CMS write, no research. When setup ends, stop and tell the user to run the skill again.
-3. If the file exists, read it. If it is longer than about 150 lines, tell the user to trim it. Check the required fields: `site_url`, verticals, and `cms_tool_prefix`. If one is missing or the file is empty, say which and stop. Tell the user to fix the file, or delete it to run setup again. Run no setup question. Use its publication name, site URL, verticals, tags, title rules, voice rules, and post status in every step below. Read `references/publication-profile-template.md` if you need the field meanings.
+3. If the file exists, read it. If it is longer than about 150 lines, tell the user to trim it. Check the required fields: `publication_name`, `site_url`, verticals, and `cms_tool_prefix`. If one is missing or the file is empty, say which and stop. Tell the user to fix the file, or delete it to run setup again. Run no setup question. Use its publication name, site URL, verticals, tags, title rules, voice rules, and post status in every step below. Read `references/publication-profile-template.md` if you need the field meanings.
 
 Post status comes from the profile. Accept only the exact values `draft` and `published`. Use `draft` for anything else, and say so in the report.
 
 ## The Ghost tools
 
-Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no such tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
+Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, say the prefix does not match, tell the user to edit `cms_tool_prefix` in the profile, and stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
 
 ## Step 1: Research
 
@@ -32,7 +32,7 @@ Copy every source URL exactly from a search result or a page you fetched. Never 
 Before you write each vertical's lead, check whether the site already has a post on that subject. An internal link is worth more than an external one, and a 24 hour browse will not show older posts.
 
 1. Pick the lead's subject tags: the brand, team, person, company, or event.
-2. Call `posts_browse` with `filter: tag:<subject-tag>+status:published`, newest first, limit 5, asking for title, slug, tags, and published date only when the server allows field selection. Escape a single quote in a keyword. If a check errors, keep the external source and say so in the report. Run it for the one or two narrowest tags. A title search is an acceptable backstop when no clean tag exists.
+2. Call `posts_browse` with `filter: tag:<subject-tag>+status:published`, newest first, limit 5. `posts_browse` returns full post records, so note only title, slug, and date from each result. Escape a single quote in a keyword. If a check errors, keep the external source and say so in the report. Run it for the one or two narrowest tags. A title search is an acceptable backstop when no clean tag exists.
 3. If a result covers the lead's subject, and not only the broad tag, link the lead's main anchor to that post, built from the slug that `posts_browse` returned and the site URL from the profile. Keep one external source in the paragraph for the specific facts.
 4. If no post covers the subject, keep the external source.
 
@@ -60,16 +60,16 @@ Follow any non-USD amount with an approximate USD figure in parentheses, in the 
 ### Source links
 
 1. Never write a URL from memory. Copy each URL exactly from a search result or from a page you fetched.
-2. Check each external URL with a script before saving. Pass the URLs as data (a file or stdin), never interpolated into the command line. Allow only `http` and `https`. Skip loopback and private addresses. Set a 10 second timeout. Try HEAD, then GET, with a browser User-Agent. A 404 or 410 means dead: find the real URL or remove the citation. A 403, 429, 503, 202, a redirect, or any failure not listed here is ambiguous: keep the link only when that exact URL appeared in a search result you ran, and replace it otherwise. If no script can run, keep only URLs that appeared in a search result, and say so in the report.
+2. Check each external URL with a script before saving. Pass the URLs as data (a file or stdin), never interpolated into the command line. Allow only `http` and `https`. Remove any link to a loopback or private address. Set a 10 second timeout. Try HEAD, then GET, with a browser User-Agent. A 404 or 410 means dead: find the real URL or remove the citation. A 403, 429, 503, 202, a redirect, or any failure not listed here is ambiguous: keep the link only when that exact URL appeared in a search result you ran, and replace it otherwise. If no script can run, keep only URLs that appeared in a search result, and say so in the report.
 3. Check the publication's own links by slug, reusing slugs already returned. If a slug was not returned, use `posts_browse` with a `slug:` filter, not a status code.
-4. Link every publication you name in the body to the article you cite. Put a `Source:` line at the end with the primary link.
+4. Link every publication you name in the body to the article you cite.
 5. Scan the final HTML for `<a>` tags with a missing `href`, an empty `href`, `#`, or `javascript:`. Fix or remove them.
 
 ## Step 4: Link the site's last 24 hours
 
 End the roundup with a section that links to every post the site published in the last 24 hours.
 
-1. Call `posts_browse` with `filter: published_at:>='<24 hours ago, ISO>'+status:published`, newest first. Page with a limit of 15 until the list ends, capped at 60 posts, and ask for title, slug, tags, and published date only when the server allows field selection. Leave out this roundup and any posts that are not editorial, such as job listings.
+1. Call `posts_browse` with `filter: published_at:>='<24 hours ago, ISO>'+status:published`, newest first. Run this browse inside a sub-agent that pages with a limit of 5, up to 60 posts, and returns only title, slug, and tags. When the client has no sub-agent tool, run the same browse inline with a limit of 5 per page, stop at 15 posts, and say so in the report. Leave out this roundup and any posts that are not editorial, such as job listings.
 2. Group the links by vertical. Write each link in a short descriptive sentence, not a bare title.
 3. Build every URL from the slug that `posts_browse` returned and the site URL from the profile. Never type a slug by hand.
 4. If a post in the list is a milestone, a first, or a policy change, open the section with one sentence of concrete context that makes it clear what changed. State facts only.
@@ -94,7 +94,7 @@ The roundup should carry a feature image from the lead story.
 
 ## Step 7: Tags
 
-Tag the roundup with one tag per vertical in the profile, and the roundup tag if the profile lists one. Call `tags_browse` at most once per run, filtered by name where the server allows, and pass each tag by `id`. Never create a new spelling of a tag that exists.
+Tag the roundup with one tag per vertical in the profile, and the roundup tag if the profile lists one. Call `tags_browse` once per distinct tag name, filtered by that name, and reuse the result for the rest of the run. Pass each tag by `id`. Never create a new spelling of a tag that exists.
 
 ## Step 8: Review and save
 
@@ -106,9 +106,9 @@ Check this list. Fix each failure first.
 - The numbers, names, and dates agree across the title, Key Points, excerpt, and body.
 - The voice matches the profile.
 
-Before the first `published` save, ask the user to confirm once per run. Ask again before any `posts_edit` on a live post.
+Before the first `published` save, ask the user to confirm once per run. If the user answers no, save as draft and say so in the report. Ask again before any `posts_edit` on a live post.
 
-Run the title search once more right before `posts_add`. Call `posts_add` with the status from the profile. Do not put "[DRAFT]" in the title. If `posts_add` fails or times out, browse by exact title before any retry, retry at most once, and if it still fails put the full post in the report.
+Right before `posts_add`, browse for a post whose title equals today's roundup title. If one exists, stop and tell the user a roundup for today already exists. Call `posts_add` with the status from the profile. Do not put "[DRAFT]" in the title. If `posts_add` fails or times out, browse by exact title before any retry, retry at most once, and if it still fails put the full post in the report.
 
 Backlink edits run only when today's roundup itself was saved as `published`, not just when the profile says so. Then find the single most recent earlier roundup and add one sentence that links to today's roundup. Call `posts_read` first, send the full body back through `posts_edit` with the sentence added, and pass the current `updated_at`. Change nothing else. Skip the edit when the body read was truncated, the format differs, or the save reports a conflict, and list the skipped post in the report. When the roundup is a draft, skip this and list the posts in the report.
 
@@ -155,6 +155,7 @@ Score 8: ship as is. Score 6 or 7: the user revises the flagged items. Score 5 o
 
 Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "write today's roundup".
 
+- The skill asks the CMS question. The user answers that the site is on Ghost.
 - The output MUST begin the setup interview with the CMS question.
 - The output MUST say the plugin is tested with Ghost.
 - The output MUST say the connection test failed.
@@ -164,7 +165,7 @@ Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost
 - The output MUST NOT write `~/.newsroom/publication-profile.md`.
 - The output MUST NOT ask for an API key, password, or token.
 
-Scenario 2. A profile exists for "Example Review" with verticals Technology and Business and post status `draft`. The user says "write today's roundup". The frozen `posts_browse` result for the last 24 hours has three posts: "Acme cuts 200 jobs" (`acme-cuts-200-jobs`), "Council closes the pool" (`council-closes-the-pool`), and "Startup X raises $40M" (`startup-x-raises-40m`).
+Scenario 2. A profile exists with `publication_name: Example Review`, `site_url: https://example.test`, verticals Technology and Business, `cms_tool_prefix: mcp__ghost__`, and post status `draft`. The user says "write today's roundup". The frozen browse tool is `mcp__ghost__posts_browse`. Its result for the last 24 hours has three posts: "Acme cuts 200 jobs" (`acme-cuts-200-jobs`), "Council closes the pool" (`council-closes-the-pool`), and "Startup X raises $40M" (`startup-x-raises-40m`).
 
 - The output MUST ask no setup question.
 - The output MUST contain a Key Points block and one section for each of the two verticals.
@@ -174,4 +175,4 @@ Scenario 2. A profile exists for "Example Review" with verticals Technology and 
 
 ### Version
 
-1.1.0
+1.2.0

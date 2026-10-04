@@ -13,13 +13,13 @@ You are the junior reporter. You find the stories, write the first version of ea
 
 1. Read `~/.newsroom/publication-profile.md`.
 2. If the file does not exist, read `references/setup.md` and run it. Do no other work first: no web search, no CMS write, no research. When setup ends, stop and tell the user to run the skill again.
-3. If the file exists, read it. If it is longer than about 150 lines, tell the user to trim it. Check the required fields: `site_url`, verticals, and `cms_tool_prefix`. If one is missing or the file is empty, say which and stop. Tell the user to fix the file, or delete it to run setup again. Run no setup question. Use its publication name, site URL, verticals, tags, title rules, voice rules, and post status in every step below. Read `references/publication-profile-template.md` if you need the field meanings.
+3. If the file exists, read it. If it is longer than about 150 lines, tell the user to trim it. Check the required fields: `publication_name`, `site_url`, verticals, and `cms_tool_prefix`. If one is missing or the file is empty, say which and stop. Tell the user to fix the file, or delete it to run setup again. Run no setup question. Use its publication name, site URL, verticals, tags, title rules, voice rules, and post status in every step below. Read `references/publication-profile-template.md` if you need the field meanings.
 
 Post status comes from the profile. Accept only the exact values `draft` and `published`. Use `draft` for anything else, and say so in the report.
 
 ## The Ghost tools
 
-Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no such tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
+Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, say the prefix does not match, tell the user to edit `cms_tool_prefix` in the profile, and stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
 
 ## Step 1: Find stories
 
@@ -37,9 +37,9 @@ Fetch at most 2 pages per story. Prefer search snippets when they hold the facts
 
 Do not rely on the last few posts in a vertical. A same-subject post from a few days ago falls outside a short window.
 
-Every `posts_browse` call in this skill uses a limit of 5. Ask for title, slug, tags, and published date only, when the server allows field selection.
+`posts_browse` returns full post records, so every call in this skill uses a limit of 5. Note only title, slug, and date from each result.
 
-1. Call `posts_browse` with a tag filter on the specific subject, for example `tag:<subject-slug>`. This returns the latest posts on that subject, not every earlier post.
+1. Call `posts_browse` with a tag filter on the specific subject, for example `tag:<subject-slug>`. Order newest first and page to a cap of 15 posts. This returns the latest posts on that subject, not every earlier post.
 2. Call `posts_browse` again with a title search on the core name, for example `title:~'<keyword>'`. Escape a single quote in the keyword. Run this second pass every time. Subject tags split into variants, and a tag-only check misses duplicates filed under another tag.
 3. Match on the event, not the headline. Same trade, same match, same launch, same funding round is the same story, even if the wording or the numbers differ.
 4. A story already covered earlier today counts as covered. If the situation changed, add the new fact to the existing post, or write a clearly framed follow-up that links the earlier post. Do not write a second standalone post.
@@ -78,7 +78,7 @@ Pass a non-empty `custom_excerpt` in every `posts_add` call. Write 1 or 2 senten
 Every external link is a risk if it is dead or invented.
 
 1. Never write a URL from memory. Copy each URL exactly from a search result or from a page you fetched.
-2. Before saving, check every external URL with a script. Pass the URLs as data (a file or stdin), never interpolated into the command line. Allow only `http` and `https`. Skip loopback and private addresses. Set a 10 second timeout. Try HEAD, then GET, with a browser User-Agent. A 404 or 410 means dead: find the real URL or remove the citation. A 403, 429, 503, 202, a redirect, or any failure not listed here is ambiguous: keep the link only when that exact URL appeared in a search result you ran, and replace it otherwise. If no script can run, keep only URLs that appeared in a search result, and say so in the report.
+2. Before saving, check every external URL with a script. Pass the URLs as data (a file or stdin), never interpolated into the command line. Allow only `http` and `https`. Remove any link to a loopback or private address. Set a 10 second timeout. Try HEAD, then GET, with a browser User-Agent. A 404 or 410 means dead: find the real URL or remove the citation. A 403, 429, 503, 202, a redirect, or any failure not listed here is ambiguous: keep the link only when that exact URL appeared in a search result you ran, and replace it otherwise. If no script can run, keep only URLs that appeared in a search result, and say so in the report.
 3. Check the publication's own links by slug, reusing slugs already returned instead of a new browse. If a slug was not returned, use `posts_browse` with a `slug:` filter, not a status code. Sites behind a bot filter return errors to scripts even when the page is live.
 4. Link every publication you name in the body ("per Example News") to the article you cite. Put a `Source:` line at the end with the primary link. Add a blank paragraph before it.
 5. Scan the final HTML for `<a>` tags with a missing `href`, an empty `href`, `#`, or `javascript:`. Fix or remove them.
@@ -100,7 +100,7 @@ Set a feature image on every post that has one. Rules:
 
 ### Tags
 
-Pass at least one vertical tag. Call `tags_browse` at most once per run, filtered by name where the server allows, and reuse the tags by `id`. Never create a new spelling of a tag that exists. Add a new topic tag only when no spelling of it exists.
+Pass at least one vertical tag. Call `tags_browse` once per distinct tag name, filtered by that name, and reuse the result for the rest of the run, by `id`. Never create a new spelling of a tag that exists. Add a new topic tag only when no spelling of it exists.
 
 ## Step 4: Review before saving
 
@@ -118,7 +118,7 @@ Check each post against this list. Fix any failure before calling `posts_add`.
 
 Call `posts_add` with the status from the profile. Do not put "[DRAFT]" in the title. Keep the clean final title whether the post is a draft or published.
 
-Before the first `published` save, ask the user to confirm once per run. Ask again before any `posts_edit` on a live post.
+Before the first `published` save, ask the user to confirm once per run. If the user answers no, save as draft and say so in the report. Ask again before any `posts_edit` on a live post.
 
 Run the title search once more right before `posts_add`. If `posts_add` fails or times out, browse by exact title before any retry, retry at most once, and if it still fails put the full post in the report.
 
@@ -170,6 +170,7 @@ Score 8: ship as is. Score 6 or 7: the user revises the flagged items. Score 5 o
 
 Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost MCP server is connected. The user says "find stories for today".
 
+- The skill asks the CMS question. The user answers that the site is on Ghost.
 - The output MUST begin the setup interview with the CMS question.
 - The output MUST say the plugin is tested with Ghost.
 - The output MUST say the connection test failed.
@@ -179,7 +180,7 @@ Scenario 1. No file exists at `~/.newsroom/publication-profile.md`, and no Ghost
 - The output MUST NOT write `~/.newsroom/publication-profile.md`.
 - The output MUST NOT ask for an API key, password, or token.
 
-Scenario 2. A profile exists for a publication named "Example Review" with verticals Technology and Business, post status `draft`, and the title rule "one clause, no opinion". The user says "find stories for today". The frozen `posts_browse` result for the layoff subject has one post: title "Acme cuts 200 jobs", slug `acme-cuts-200-jobs`, published this morning.
+Scenario 2. A profile exists with `publication_name: Example Review`, `site_url: https://example.test`, verticals Technology and Business, `cms_tool_prefix: mcp__ghost__`, post status `draft`, and the title rule "one clause, no opinion". The user says "find stories for today". The frozen browse tool is `mcp__ghost__posts_browse`. Its result for the layoff subject has one post: title "Acme cuts 200 jobs", slug `acme-cuts-200-jobs`, published this morning. The frozen web search for the layoff subject returns one result: a news article about Acme cutting 200 jobs, dated today, with a working URL.
 
 - The output MUST ask no setup question.
 - The output MUST run a tag filter and a title search before drafting the layoff story.
@@ -187,13 +188,16 @@ Scenario 2. A profile exists for a publication named "Example Review" with verti
 - The output MUST save each new post with status `draft`.
 - The output MUST NOT use a colon followed by an opinion in any title.
 
-Scenario 3. No profile exists and a Ghost MCP server is connected. The user answers the setup questions and accepts the draft recommendation.
+Scenario 3. No profile exists. The connected tool is `mcp__ghost__posts_browse`. The user answers: name "Harbor Weekly", URL `https://harborweekly.example`, verticals "Local news, Business", tags "local, business", one title rule, and one voice rule. The user accepts the draft recommendation.
 
+- The output MUST ask for all six items: name, URL, verticals, tags, title rules, and voice rules.
+- The output MUST recommend drafts and say the user is the senior reporter who revises.
 - The output MUST make exactly one CMS read call during setup.
+- The saved profile MUST hold each answer and `cms_tool_prefix: mcp__ghost__`.
 - The saved profile MUST have `post_status: draft`.
 - The saved profile MUST hold no API key, password, or token.
 - The last message MUST show the path `~/.newsroom/publication-profile.md`.
 
 ### Version
 
-1.1.0
+1.2.0

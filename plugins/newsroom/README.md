@@ -68,6 +68,10 @@ Type the key into your own terminal only, never into the chat. The server's tool
 
 Setup recommends that new posts save as drafts, and the profile's post status is `draft` when you accept. Drafts let you revise before readers see a post. Your edits show you what to add to your voice rules. Choose `published` only when you trust the voice rules enough to skip the read.
 
+## The read-only rule
+
+The quality review is read-only because its instructions say so. The Ghost connection does not enforce it, since the Admin API key can write. To enforce it, deny the Ghost write tools for review runs in your Claude Code permission settings.
+
 ## Reports
 
 The quality review saves its reports to `~/.newsroom/reports/` and shows you the path each time.

@@ -11,15 +11,15 @@ You are the junior reporter. You find the stories, write the first version of ea
 
 ## Setup gate (do this first)
 
-1. Read `~/.newsroom/publication-profile.md`.
+1. Read `~/.newsroom/publication-profile.md` once. If the read fails because the file does not exist, go to step 2. If it fails for any other reason, such as permission denied, stop and state the error. Do not treat it as an absent profile.
 2. If the file does not exist, read `references/setup.md` and run it. Do no other work first: no web search, no CMS write, no research. When setup ends, stop and tell the user to run the skill again.
-3. If the file exists, read it. If it is longer than about 150 lines, tell the user to trim it. Check the required fields: `publication_name`, `site_url`, verticals, and `cms_tool_prefix`. If one is missing or the file is empty, say which and stop. Tell the user to fix the file, or delete it to run setup again. Run no setup question. Use its publication name, site URL, verticals, tags, title rules, voice rules, and post status in every step below. Read `references/publication-profile-template.md` if you need the field meanings.
+3. If the file exists, use what step 1 read. Do not read it again. If it is larger than about 8 KB, stop, say so, and ask the user to trim it. Check the required fields: `publication_name`, `site_url`, verticals, and `cms_tool_prefix`. If one is missing or the file is empty, say which and stop. Only these four fields cause a stop. If `profile_version` is missing, or a field added in a later plugin version is missing, use that field's default from the template and say so. Tell the user to fix the file, or delete it to run setup again. Run no setup question. Use its publication name, site URL, verticals, tags, title rules, voice rules, and post status in every step below. Read `references/publication-profile-template.md` if you need the field meanings.
 
 Post status comes from the profile. Accept only the exact values `draft` and `published`. Use `draft` for anything else, and say so in the report.
 
 ## The Ghost tools
 
-Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. If no tool matches the prefix but another connected tool ends in `posts_browse`, name the connected server and say the prefix does not match. Tell the user to change `cms_tool_prefix` in the profile only if that server is the same site as the profile's `site_url`. Otherwise tell the user to reconnect the original server. Then stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
+Use the connected Ghost tools by suffix: `posts_browse`, `posts_read`, `posts_add`, `posts_edit`, and `tags_browse`. Use only tools whose names start with the profile's `cms_tool_prefix`. The prefix plus the action name must equal exactly one connected tool name. If zero or more than one tool matches, stop and say which. If no tool matches the prefix but another connected tool ends in `posts_browse`, name the connected server and say the prefix does not match. Tell the user to change `cms_tool_prefix` in the profile only if that server is the same site as the profile's `site_url`. Otherwise tell the user to reconnect the original server. Then stop. If no tool ends in `posts_browse`, stop and show the connection steps in `references/setup.md`.
 
 ## Step 1: Find stories
 
@@ -85,9 +85,11 @@ Every external link is a risk if it is dead or invented.
 
 ### Internal links
 
-Add 2 or 3 links to earlier posts on the same site, using the site URL from the profile. One link is the floor. Reuse the Step 2 results first. If you need more, call `posts_browse` filtered by the subject or vertical tag, with a limit of 5. Put each link in a sentence that earns it, not in a "see also" tail. Build each link from the slug that `posts_browse` returned. Never type a slug by hand.
+Link only posts whose status is `published`. Never link a draft. Add 2 or 3 links to earlier posts on the same site, using the site URL from the profile. One link is the floor. Reuse the Step 2 results first. If you need more, call `posts_browse` filtered by the subject or vertical tag plus `+status:published`, with a limit of 5. Put each link in a sentence that earns it, not in a "see also" tail. Build each link from the slug that `posts_browse` returned. Never type a slug by hand.
 
 ### Featured image
+
+The rules above (http and https only, no loopback address, no private address, and pass URLs as data) apply to every scripted fetch, including the `og:image` read and the image download.
 
 Set a feature image on every post that has one. Rules:
 
@@ -116,9 +118,9 @@ Check each post against this list. Fix any failure before calling `posts_add`.
 
 ## Step 5: Save
 
-Call `posts_add` with the status from the profile. Do not put "[DRAFT]" in the title. Keep the clean final title whether the post is a draft or published.
-
 Before the first `published` save, ask the user to confirm once per run. If the user answers no, save as draft and say so in the report. Ask again before any `posts_edit` on a live post.
+
+Call `posts_add` with the status from the profile. Do not put "[DRAFT]" in the title. Keep the clean final title whether the post is a draft or published.
 
 Run the title search once more right before `posts_add`. If `posts_add` fails or times out, browse by exact title before any retry, retry at most once, and if it still fails put the full post in the report.
 
@@ -196,7 +198,17 @@ Scenario 3. No profile exists. The user says "find stories for today". The skill
 - The saved profile MUST have `post_status: draft`.
 - The saved profile MUST hold no API key, password, or token.
 - The last message MUST show the path `~/.newsroom/publication-profile.md`.
+- The output MUST tell the user the connection test passed and that setup made a read call only.
+- The output MUST NOT run a web search or call a Ghost write tool.
+- The output MUST stop after saving and tell the user to run the skill again.
+
+Scenario 4. A profile exists but has no `cms_tool_prefix`. The user says "find stories for today".
+
+- The output MUST name the missing field `cms_tool_prefix`.
+- The output MUST stop.
+- The output MUST NOT ask a setup question.
+- The output MUST NOT call a Ghost tool.
 
 ### Version
 
-1.2.0
+1.3.0

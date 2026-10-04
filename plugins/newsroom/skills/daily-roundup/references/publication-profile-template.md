@@ -8,6 +8,7 @@ publication_name: The Example Review
 site_url: https://example.com
 cms: ghost
 cms_tool_prefix: mcp__ghost__
+profile_version: 1
 post_status: draft
 created: 2026-01-15
 ---
@@ -50,6 +51,7 @@ Working professionals who read three newsletters and want the facts fast.
 | `site_url` | Public address, used for internal links | none, required |
 | `cms` | The CMS. Only `ghost` works today | `ghost` |
 | `cms_tool_prefix` | Tool-name prefix of the Ghost server that passed the connection test. Each skill uses only tools with it | none, required |
+| `profile_version` | Profile layout version. Not asked in the interview. Setup writes it | `1` |
 | `post_status` | `draft` or `published` for new posts | `draft` |
 | `created` | Date setup finished | today |
 | Verticals | Section headings, each with its tag | none, required |

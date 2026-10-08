@@ -13,6 +13,7 @@ description: >
   in context (CSV upload, bank MCP connected) and the user asks for analysis. Always use
   this skill for spending analysis — do not freehand financial breakdowns without it.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # Financial Pulse

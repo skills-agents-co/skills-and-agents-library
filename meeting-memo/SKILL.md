@@ -1,6 +1,7 @@
 ---
 name: meeting-memo
 description: Turn a meeting transcript into the team's standardized notes format (commentary, observations, action items with owners and dates) and carry forward unresolved items from the last meeting. Use after any recurring meeting. Writes against your frozen template, flags missing owners, invents no decisions.
+author: "Skills and Agents Co"
 ---
 
 # Meeting Memo

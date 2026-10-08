@@ -1,6 +1,7 @@
 ---
 name: news-monitor
 description: Find current news about the people and companies you track, filtered against your own entity files rather than a generic feed, and write a dated digest of what matters — or a plain "nothing found" line when there's nothing. Reads the same tracked entity folder meeting-scribe writes to and calendar-agent reads. Searches live, scoped to a fixed list of source publications (default TechCrunch, The Information, Ars Technica), or reads a news export you hand it directly. Never writes a mention line, never creates an entity, only writes to its own digests/ folder. Use whenever the user says "run news monitor", "what's new on my tracked companies", "check the news on my contacts", "any news on X", "news check", "/news-monitor", or hands over a saved search export, RSS/Atom export, or forwarded newsletter to filter against their tracked list.
+author: "Skills and Agents Co"
 ---
 
 # News Monitor

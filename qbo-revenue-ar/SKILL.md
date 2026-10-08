@@ -15,6 +15,7 @@ description: >
   Always use this skill for QBO revenue and AR close work. Don't freehand a
   reconciliation without it.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # QBO Revenue & AR Reconciliation

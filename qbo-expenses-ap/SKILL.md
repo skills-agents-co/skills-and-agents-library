@@ -17,6 +17,7 @@ description: >
   use this skill for QBO expenses and AP close work. Don't freehand a
   reconciliation without it.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # QBO Expenses & AP Reconciliation

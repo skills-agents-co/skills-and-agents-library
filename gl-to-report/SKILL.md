@@ -1,6 +1,7 @@
 ---
 name: gl-to-report
 description: Turn a raw accounting/GL export into a clean reporting template (flash report) and draft variance commentary against prior actuals and budget. Use for the monthly close and the recurring flash report.
+author: "Skills and Agents Co"
 ---
 
 # GL to Report

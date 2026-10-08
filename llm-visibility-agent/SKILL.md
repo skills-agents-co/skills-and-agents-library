@@ -1,6 +1,7 @@
 ---
 name: llm-visibility-agent
 description: Reads a brand's weekly AI Visibility report from the Amplitude or PostHog AI Visibility MCP, diagnoses where competitors show up in LLM answers but the brand does not, and recommends specific posts to close the gaps. Use whenever the user says "check AI visibility", "how is my brand showing up in LLMs", "run the LLM visibility report", "what AI prompts is my brand missing from", "AI search visibility brief", "am I showing up in AI search", "LLM visibility audit", "what should I write to rank in ChatGPT", "why is my brand not in AI answers", or "/llm-visibility". Pure read and synthesize layer on top of the existing weekly AI Visibility runs. Does not crawl LLMs, does not scrape, does not call models directly. Turns the measurement data into editorial action.
+author: "Skills and Agents Co"
 ---
 
 # LLM Visibility Agent

@@ -1,6 +1,7 @@
 ---
 name: buy-side-diligence
 description: Runs systematic buy-side due diligence on a private company acquisition target. Deconstructs financials into normalized earnings, stress-tests the seller's narrative, cross-references documents to surface inconsistencies, quantifies red flags into valuation adjustments, and produces an investment-committee-ready output package. Built for corporate development teams, PE associates, search fund operators, and M&A advisors running buy-side diligence. Use whenever the user says "run diligence", "due diligence", "DD this", "QoE this", "build a red flag matrix", "normalize this EBITDA", "diligence package", "/diligence", or points at a data room, CIM, or financial package and asks what's wrong with it.
+author: "Skills and Agents Co"
 ---
 
 # Buy-Side Due Diligence

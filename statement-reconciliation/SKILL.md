@@ -1,6 +1,7 @@
 ---
 name: statement-reconciliation
 description: Check a vendor statement against the AP log to confirm every invoice is recorded, and draft a request for any that are missing. Use when a vendor statement arrives.
+author: "Skills and Agents Co"
 ---
 
 # Statement Reconciliation

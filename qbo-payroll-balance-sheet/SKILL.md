@@ -16,6 +16,7 @@ description: >
   reconciliation". Always use this skill for the QBO payroll and balance
   sheet close. Don't freehand it.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # QBO Payroll & Balance Sheet Reconciliation

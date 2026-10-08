@@ -10,6 +10,7 @@ description: >
   commentary. It never invents a figure and never guesses at a cause it
   cannot trace back to the input. Text only, no slides, charts, or images.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # Board Deck Finance Section

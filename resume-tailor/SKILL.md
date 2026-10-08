@@ -1,6 +1,7 @@
 ---
 name: resume-tailor
 description: Tailors your resume and cover letter to a specific job description with ATS keyword scoring, parser-safe formatting, and submission-ready PDF output.
+author: "Skills and Agents Co"
 ---
 
 # Resume Tailor

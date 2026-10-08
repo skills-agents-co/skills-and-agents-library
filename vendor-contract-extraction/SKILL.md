@@ -1,6 +1,7 @@
 ---
 name: vendor-contract-extraction
 description: Extract key terms, risk provisions, cost obligations, renewal/termination clauses, and authorized user counts across a vendor portfolio into one risk-and-cost register. Use to build or refresh a vendor risk and cost inventory.
+author: "Skills and Agents Co"
 ---
 # Vendor Contract Extraction
 

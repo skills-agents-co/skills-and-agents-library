@@ -19,6 +19,7 @@ description: >
   status-and-handoff step. Don't freehand a close status view, and don't
   hand a controller reports without confirming what's still open.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # QBO Closing Package & Status

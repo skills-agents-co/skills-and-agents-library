@@ -14,6 +14,7 @@ description: >
   never builds tracking pixels, identity resolution, or multi-touch
   attribution, and it treats platform-reported conversions as self-reported.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # Ads Copilot

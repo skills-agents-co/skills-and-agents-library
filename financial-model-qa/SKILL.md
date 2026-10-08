@@ -1,6 +1,7 @@
 ---
 name: financial-model-qa
 description: Scan a financial model for formula errors and logic defects, and check scenario outputs after input changes. Cites the exact sheet and cell for every issue and never edits the model. Use before sharing or relying on a model.
+author: "Skills and Agents Co"
 ---
 
 # Financial Model QA

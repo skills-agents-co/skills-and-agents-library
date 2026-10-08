@@ -81,8 +81,10 @@ function write(relPath, text) {
   writeFileSync(full, text);
 }
 
-function skillMd(name, description) {
-  return `---\nname: ${name}\ndescription: ${description}\nversion: 1.0.0\n---\n\nBody for ${name}.\n`;
+// extraLines are raw frontmatter lines appended after `version`, e.g. an author.
+function skillMd(name, description, extraLines = []) {
+  const extra = extraLines.map((line) => `${line}\n`).join('');
+  return `---\nname: ${name}\ndescription: ${description}\nversion: 1.0.0\n${extra}---\n\nBody for ${name}.\n`;
 }
 
 mkdirSync(fixture, { recursive: true });
@@ -103,6 +105,21 @@ write('nested-pack/references/guide.md', 'guide\n');
 // Layout 3: agent — slug comes from agents/<name>.md.
 write('agent-pack/SKILL.md', skillMd('agent-pack', 'A skill that ships an agent.'));
 write('agent-pack/agents/helper-agent.md', skillMd('helper-agent', 'An agent.'));
+
+// A skill whose frontmatter names an author. The index must carry that name
+// through, and must leave author blank for skills that name none.
+// The author is quoted, the form the real skill files use, so the quotes must
+// not reach the index.
+write(
+  'authored-skill/SKILL.md',
+  skillMd('authored-skill', 'A skill with a named author.', ['author: "Fixture Author"'])
+);
+
+// A bare `author:` line with no value. The index must still publish a string.
+write(
+  'bare-author-skill/SKILL.md',
+  skillMd('bare-author-skill', 'A skill with an empty author line.', ['author:'])
+);
 
 // A file that exists at the tag and is deleted afterwards.
 write('flat-skill/references/removed-later.md', 'gone in a later commit\n');
@@ -162,7 +179,7 @@ check('the three layouts each produce one correctly-shaped entry', (want) => {
   if (!index) return;
 
   want(
-    JSON.stringify(Object.keys(index)) === JSON.stringify(['agent-pack', 'flat-skill', 'helper-agent', 'nested-skill']),
+    JSON.stringify(Object.keys(index)) === JSON.stringify(['agent-pack', 'authored-skill', 'bare-author-skill', 'flat-skill', 'helper-agent', 'nested-skill']),
     `slugs were ${JSON.stringify(Object.keys(index))}`
   );
 
@@ -207,6 +224,27 @@ check('the three layouts each produce one correctly-shaped entry', (want) => {
     want(`${v.installFolder}/${v.skillFilePath}` === v.path, `${slug}: installFolder + skillFilePath != path`);
     want(v.files.includes(v.skillFilePath), `${slug}: files does not list its own skillFilePath`);
     want(v.skillFileUrl.includes(`/${TAG}/`), `${slug}: skillFileUrl is not pinned to ${TAG}`);
+  }
+});
+
+check('author comes from the frontmatter and is blank when the frontmatter names none', (want) => {
+  const { code, index, out } = build(['--tag', TAG]);
+  want(code === 0, `exit ${code}, wanted 0. Output: ${out}`);
+  if (!index) return;
+  want(
+    index['authored-skill'].author === 'Fixture Author',
+    `authored-skill author was ${JSON.stringify(index['authored-skill'].author)}`
+  );
+  want(
+    index['flat-skill'].author === '',
+    `flat-skill author was ${JSON.stringify(index['flat-skill'].author)}, wanted an empty string and not a company fallback`
+  );
+  want(
+    index['bare-author-skill'].author === '',
+    `bare-author-skill author was ${JSON.stringify(index['bare-author-skill'].author)}, wanted an empty string`
+  );
+  for (const [slug, v] of Object.entries(index)) {
+    want(typeof v.author === 'string', `${slug}: author is ${JSON.stringify(v.author)}, wanted a string on every entry`);
   }
 });
 

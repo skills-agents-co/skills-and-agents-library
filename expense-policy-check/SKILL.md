@@ -1,6 +1,7 @@
 ---
 name: expense-policy-check
 description: Review expense reports against policy, flag violations and missing receipts, and draft the monthly missing-receipt chase. Use on an expense report or export, or at month-end. Every flag cites the policy rule it breaks; ambiguous items are flagged to confirm, never auto-approved or auto-rejected. The chase is a draft a person sends.
+author: "Skills and Agents Co"
 ---
 
 # Expense Policy Check

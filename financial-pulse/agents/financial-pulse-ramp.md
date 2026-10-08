@@ -10,6 +10,7 @@ description: >
   Also triggers when the user asks about expenses or corporate spending and Ramp is
   connected. Always use this agent — do not query Ramp's MCP and analyze spending manually
   without it.
+author: "Skills and Agents Co"
 ---
 
 # Financial Pulse — Ramp

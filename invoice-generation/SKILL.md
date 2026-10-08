@@ -1,6 +1,7 @@
 ---
 name: invoice-generation
 description: Draft a customer invoice from billing inputs -- customer, line items, terms -- with every amount cited to an input and nothing invented. Use to generate the invoice you send to a customer for work done or goods delivered, not to process invoices you receive.
+author: "Skills and Agents Co"
 ---
 # Invoice Generation
 

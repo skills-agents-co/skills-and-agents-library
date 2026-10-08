@@ -1,6 +1,7 @@
 ---
 name: calendar-agent
 description: Read a calendar export and turn it into a dated prep brief per upcoming meeting — matching every attendee and company against the same tracked entity files meeting-scribe writes to, so you walk into each meeting already knowing what's been said about the people and companies on it. Matches names against your own entity files first; an unmatched name is reported unmatched, an ambiguous name lists every candidate, and no entity or mention file is ever created or edited. Inspired by USV's Calendar Agent (https://blog.usv.com/meet-the-agents), rebuilt generic for any team that keeps a folder of who and what it tracks. Use whenever the user says "run calendar agent", "prep me for my meetings", "brief me on today's calendar", "who am I meeting with", "check my calendar against my contacts", "/calendar-agent", or points at a calendar export plus a folder of people/company files.
+author: "Skills and Agents Co"
 ---
 
 # Calendar Agent

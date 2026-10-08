@@ -5,6 +5,8 @@ description: Walks a user through filing for unemployment insurance in their US 
 
 # Unemployment Guide
 
+> **Deprecated.** This skill is no longer maintained and won't receive updates. It stays installable via the pinned `v1.0.0` release for anyone already depending on it, but new installs should look for an actively maintained alternative in the [catalog](https://skillsandagents.co).
+
 Help the user file for unemployment insurance (UI) benefits in their state. The goal is to get them from "I lost my job" to "my claim is filed correctly" with no missed steps that would delay or deny their benefits.
 
 ## Important note about accuracy

@@ -1,2 +1,4 @@
 requests>=2.33.0
 playwright>=1.44.0
+# transitive dep of requests; floor closes PYSEC-2026-215 / GHSA-65pc-fj4g-8rjx
+idna>=3.15

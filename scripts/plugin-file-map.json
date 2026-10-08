@@ -1,6 +1,50 @@
 [
   {
     "source": "local-lead-prospector/scripts/requirements.txt",
-    "generated": ["plugins/eta-searcher/scripts/requirements.txt"]
+    "generated": [
+      "plugins/eta-searcher/scripts/requirements.txt",
+      "plugins/eta-searcher/skills/local-lead-prospector/scripts/requirements.txt"
+    ]
+  },
+  {
+    "source": "local-lead-prospector/SKILL.md",
+    "generated": [
+      "plugins/eta-searcher/skills/local-lead-prospector/SKILL.md"
+    ]
+  },
+  {
+    "source": "local-lead-prospector/references/places_api_setup.md",
+    "generated": [
+      "plugins/eta-searcher/references/places_api_setup.md",
+      "plugins/eta-searcher/skills/local-lead-prospector/references/places_api_setup.md"
+    ]
+  },
+  {
+    "source": "local-lead-prospector/scripts/fetch_places_api.py",
+    "generated": [
+      "plugins/eta-searcher/scripts/fetch_places_api.py",
+      "plugins/eta-searcher/skills/local-lead-prospector/scripts/fetch_places_api.py"
+    ]
+  },
+  {
+    "source": "local-lead-prospector/scripts/scrape_listings.py",
+    "generated": [
+      "plugins/eta-searcher/scripts/scrape_listings.py",
+      "plugins/eta-searcher/skills/local-lead-prospector/scripts/scrape_listings.py"
+    ]
+  },
+  {
+    "source": "plugins/newsroom/skills/story-researcher/references/setup.md",
+    "generated": [
+      "plugins/newsroom/skills/daily-roundup/references/setup.md",
+      "plugins/newsroom/skills/quality-review/references/setup.md"
+    ]
+  },
+  {
+    "source": "plugins/newsroom/skills/story-researcher/references/publication-profile-template.md",
+    "generated": [
+      "plugins/newsroom/skills/daily-roundup/references/publication-profile-template.md",
+      "plugins/newsroom/skills/quality-review/references/publication-profile-template.md"
+    ]
   }
 ]

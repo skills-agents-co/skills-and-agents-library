@@ -12,7 +12,7 @@ triggerPhrases:
   - "job to be done"
   - "problem framing"
   - "/jtbd-and-problem-framing"
-status: draft
+status: published
 ---
 
 # JTBD and Problem Framing

@@ -367,7 +367,9 @@ function main() {
       tags: Array.isArray(fm.tags) ? fm.tags : [],
       version: fm.version || '',
       evalContractVersion,
-      author: fm.author || '',
+      // A bare `author:` line parses as an empty list, which is truthy, so test the
+      // type. The published key is always a string.
+      author: typeof fm.author === 'string' ? fm.author : '',
       skillFileUrl,
       githubUrl,
       path: relPath,

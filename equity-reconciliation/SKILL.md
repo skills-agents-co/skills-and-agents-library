@@ -1,6 +1,7 @@
 ---
 name: equity-reconciliation
 description: Reconcile equity records against the HRIS to catch termination-date mismatches and active grants for terminated employees. Use periodically and before any capital raise or audit.
+author: "Skills and Agents Co"
 ---
 
 # Equity Reconciliation

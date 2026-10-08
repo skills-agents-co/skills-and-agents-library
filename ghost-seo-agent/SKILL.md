@@ -20,6 +20,7 @@ description: >
   indexing issues manually without it.
 
 compatibility: "Requires browser tool (Claude in Chrome or Cowork) and ghost-mcp connected to the publisher's Ghost instance. Cowork preferred for scheduled/persistent runs; single-session mode available for on-demand audits."
+author: "Skills and Agents Co"
 ---
 
 # Ghost SEO Agent

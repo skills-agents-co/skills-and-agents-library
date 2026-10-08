@@ -19,6 +19,7 @@ description: >
   the period. Always use this skill for QBO bank-and-petty-cash close work.
   Don't freehand a reconciliation without it.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # QBO Bank & Petty Cash Reconciliation

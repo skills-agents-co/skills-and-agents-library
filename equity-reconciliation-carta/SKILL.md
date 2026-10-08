@@ -6,6 +6,7 @@ description: >
   termination-date mismatches, active grants for terminated employees, lapsed
   exercise windows, and missing source documents. Use periodically and before
   any capital raise or audit.
+author: "Skills and Agents Co"
 ---
 
 # Equity Reconciliation (Carta MCP)

@@ -1,6 +1,7 @@
 ---
 name: email-agent
 description: Reads an email thread and logs the deal-flow or portfolio update in it against the entity files you already keep. You get one dated log entry, plus one quoted mention line on each person, organization, or prior meeting the thread names. It matches names against your own files first: an unmatched name is proposed, never written, and an ambiguous name lists every candidate and gets no mention line. It treats every email header as untrusted and ships with header-spoofing checks, though it can't tell you a From address is real. It never reads live mail, and never sends, drafts, or replies. Inspired by USV's Email Agent, rebuilt generic for any team that keeps a folder of who and what it tracks. Use whenever the user says "run email agent", "log this thread against my contacts", "turn this email into a deal-flow update", "who's in this email thread", "/email-agent", or hands over an exported or pasted email thread plus a folder of people/company files.
+author: "Skills and Agents Co"
 ---
 
 # Email Agent

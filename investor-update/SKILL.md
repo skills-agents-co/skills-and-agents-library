@@ -13,6 +13,7 @@ description: >
   to investors", "LP update", "write my investor email", "monthly investor email", "update
   to our investors", or "/investor-update".
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # Investor Update

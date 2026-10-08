@@ -1,6 +1,7 @@
 ---
 name: unemployment-guide
 description: Walks a user through filing for unemployment insurance in their US state. Provides the official state agency name, application URL, phone number, eligibility requirements, step-by-step application instructions, required documents, weekly certification rules, waiting period, and common pitfalls that cause denials. Use this skill whenever the user mentions losing their job, getting laid off, getting fired, filing for unemployment, applying for UI benefits, "EDD" (California), "DUA", "DES", "DEW", a state workforce agency, or asks any variation of "how do I get unemployment" — even if they don't name the program precisely. Also triggers on "/unemployment", "I just got laid off", "lost my job", "file a UI claim", "unemployment benefits", "jobless claim", or pasting a termination letter and asking what to do next. Works for all 50 states plus DC.
+author: "Skills and Agents Co"
 ---
 
 # Unemployment Guide

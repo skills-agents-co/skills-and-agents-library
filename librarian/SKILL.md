@@ -1,6 +1,7 @@
 ---
 name: librarian
 description: Read the meeting notes and mention history already sitting in your tracked entity folder, find the ideas that keep recurring across more than one meeting, and draft a short post for each one, grounded in quotes from the meetings it came from. Reads the same entity folder meeting-scribe writes to and calendar-agent and news-monitor read. Never re-matches names, never writes to people/organizations/meetings, never publishes anything — every draft is a local markdown file the user reviews and posts themselves. Inspired by USV's Librarian agent, rebuilt generic for any team that keeps a folder of who and what it tracks. Use whenever the user says "run librarian", "find recurring themes in my meetings", "what keeps coming up", "draft some posts from my meeting notes", "distill my meetings into content ideas", "/librarian", or points at an entity folder and asks what ideas are worth writing up.
+author: "Skills and Agents Co"
 ---
 
 # Librarian

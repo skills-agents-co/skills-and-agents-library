@@ -14,6 +14,7 @@ description: >
   "what did I commit to today", "/ceo-todo-daily", or when it runs on a daily schedule. Based
   on the single-doc system Brian Halligan shared publicly. For the manual, no-connector
   version, see the ceo-todo skill.
+author: "Skills and Agents Co"
 ---
 
 # CEO To-Do — Daily (Gmail + Slack)

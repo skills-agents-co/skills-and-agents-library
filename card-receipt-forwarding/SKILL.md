@@ -1,6 +1,7 @@
 ---
 name: card-receipt-forwarding
 description: Forward recurring corporate-card receipts (e.g. Divvy, Ramp, Expensify) to the card/AP system and keep those vendors out of invoice processing to avoid double-counting. Use for known recurring card vendors only; flag anything off-list for review.
+author: "Skills and Agents Co"
 ---
 
 # Card Receipt Forwarding

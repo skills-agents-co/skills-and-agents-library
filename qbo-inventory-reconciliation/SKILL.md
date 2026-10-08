@@ -17,6 +17,7 @@ description: >
   skill for QBO inventory reconciliation work. Don't freehand a variance
   comparison without it.
 license: MIT
+author: "Skills and Agents Co"
 ---
 
 # QBO Inventory Reconciliation

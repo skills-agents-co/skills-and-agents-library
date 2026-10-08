@@ -104,6 +104,13 @@ write('nested-pack/references/guide.md', 'guide\n');
 write('agent-pack/SKILL.md', skillMd('agent-pack', 'A skill that ships an agent.'));
 write('agent-pack/agents/helper-agent.md', skillMd('helper-agent', 'An agent.'));
 
+// A skill whose frontmatter names an author. The index must carry that name
+// through, and must leave author blank for skills that name none.
+write(
+  'authored-skill/SKILL.md',
+  `---\nname: authored-skill\ndescription: A skill with a named author.\nversion: 1.0.0\nauthor: Fixture Author\n---\n\nBody for authored-skill.\n`
+);
+
 // A file that exists at the tag and is deleted afterwards.
 write('flat-skill/references/removed-later.md', 'gone in a later commit\n');
 
@@ -162,7 +169,7 @@ check('the three layouts each produce one correctly-shaped entry', (want) => {
   if (!index) return;
 
   want(
-    JSON.stringify(Object.keys(index)) === JSON.stringify(['agent-pack', 'flat-skill', 'helper-agent', 'nested-skill']),
+    JSON.stringify(Object.keys(index)) === JSON.stringify(['agent-pack', 'authored-skill', 'flat-skill', 'helper-agent', 'nested-skill']),
     `slugs were ${JSON.stringify(Object.keys(index))}`
   );
 
@@ -208,6 +215,20 @@ check('the three layouts each produce one correctly-shaped entry', (want) => {
     want(v.files.includes(v.skillFilePath), `${slug}: files does not list its own skillFilePath`);
     want(v.skillFileUrl.includes(`/${TAG}/`), `${slug}: skillFileUrl is not pinned to ${TAG}`);
   }
+});
+
+check('author comes from the frontmatter and is blank when the frontmatter names none', (want) => {
+  const { code, index, out } = build(['--tag', TAG]);
+  want(code === 0, `exit ${code}, wanted 0. Output: ${out}`);
+  if (!index) return;
+  want(
+    index['authored-skill'].author === 'Fixture Author',
+    `authored-skill author was ${JSON.stringify(index['authored-skill'].author)}`
+  );
+  want(
+    index['flat-skill'].author === '',
+    `flat-skill author was ${JSON.stringify(index['flat-skill'].author)}, wanted an empty string and not a company fallback`
+  );
 });
 
 check('--tag reads content AT the ref, not the working tree', (want) => {

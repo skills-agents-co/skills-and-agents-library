@@ -1,6 +1,7 @@
 ---
 name: expense-access-audit
 description: Generate the onboarding or offboarding checklist for the expense/card tool, and audit it against the HRIS to catch terminated people with active cards or missing approvers. Use on a new hire, a termination, or a periodic access review.
+author: "Skills and Agents Co"
 ---
 
 # Expense Access Audit

@@ -1,6 +1,7 @@
 ---
 name: contract-review
 description: Review a vendor, customer, payor, or partner contract before sign-off. Extracts key terms with clause citations, flags risks and cost obligations ranked by severity, notes what's missing versus a standard contract of its type, and drafts a decision-maker (CFO/GC) memo. Use when a new or renewing contract needs analysis before signing.
+author: "Skills and Agents Co"
 ---
 
 # Contract Review

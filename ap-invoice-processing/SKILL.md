@@ -1,6 +1,7 @@
 ---
 name: ap-invoice-processing
 description: Watch an inbox for vendor invoices, extract the key fields, dedupe against the AP log, log them, forward to the AP system, and file the email. Use for daily accounts-payable intake when you want to automate the clerical part and keep a human in the loop before anything gets paid.
+author: "Skills and Agents Co"
 ---
 # AP Invoice Processing
 

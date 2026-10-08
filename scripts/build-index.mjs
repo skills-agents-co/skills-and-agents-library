@@ -367,7 +367,7 @@ function main() {
       tags: Array.isArray(fm.tags) ? fm.tags : [],
       version: fm.version || '',
       evalContractVersion,
-      author: fm.author || 'Skills and Agents Co',
+      author: fm.author || '',
       skillFileUrl,
       githubUrl,
       path: relPath,

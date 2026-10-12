@@ -87,13 +87,14 @@ Do these steps in order.
 6. A meeting title does not confirm a name. If a name comes only from the meeting title or the metadata, write "(likely)" after it.
 7. If one label contains more than one person, tell the user.
 8. For a line under such a label, name the speaker only if the input shows who it is. Examples: the line answers a question that a different person asked by name, or the speaker refers to a project that the input shows is theirs. Write "(likely)" after the name.
-9. If you cannot name the speaker, write "Unnamed speaker" and what the input shows about them. Example: "Unnamed speaker (opened the call)".
-10. If you cannot tell who a label is, ask the user one time. Ask for all the unknown labels in one question. If the user does not answer, keep "Unnamed speaker".
-11. Find out which speaker is the user. Use only the user's own message. If the message does not say, and you ask the question in rule 10, add this to that question. Do not ask a question for this only.
-12. If you do not know which speaker is the user, say so in the reply. Do not use the exception for the user's own matter in "Privacy".
-13. Work out which persons were in the meeting. Say how sure you are.
-14. Do not decide that a person was absent because a different speaker used their name.
-15. If a name has a spelling that looks wrong, keep the spelling from the input. Put the name in "Names to check".
+9. If a line answers a question that a different person asked by name, write that name with "(likely)". Do this in each section, also in "Work that repeats". List that person in "Who was there".
+10. If you cannot name the speaker, write "Unnamed speaker" and what the input shows about them. Example: "Unnamed speaker (opened the call)".
+11. If you cannot tell who a label is, ask the user one time. Ask for all the unknown labels in one question. If the user does not answer, keep "Unnamed speaker".
+12. Find out which speaker is the user. Use only the user's own message. If the message does not say, and you ask the question in rule 11, add this to that question. Do not ask a question for this only.
+13. If you do not know which speaker is the user, say so in the reply. Do not use the exception for the user's own matter in "Privacy".
+14. Work out which persons were in the meeting. Say how sure you are.
+15. Do not decide that a person was absent because a different speaker used their name.
+16. If a name has a spelling that looks wrong, keep the spelling from the input. Put the name in "Names to check".
 
 ## Dates
 
@@ -110,11 +111,11 @@ Include an item only if all three are true:
 
 - One person or one team is the owner. You do not have to know the name yet.
 - The action is specific. You could examine later if it was done.
-- The owner said they will do it, or accepted it when a different person asked.
+- The owner said they will do it, or accepted it when a different person asked. Weak words pass this test. Examples: "I might", "I should be able to", "we could". An item with weak words goes in "Check these".
 
 Do not include these:
 
-- An idea or a wish. Example: "It would be nice to refresh the help pages."
+- An idea or a wish that names no owner. Example: "It would be nice to refresh the help pages." If a person says what they intend to do for a different person, it is not a wish, also if the words are weak. Example: "I hope to get the draft over to you." Put it in "Check these".
 - A decision that has no action.
 - A question that does not ask a person for an action.
 - A statement about work that is already complete.
@@ -122,7 +123,7 @@ Do not include these:
 - A joke.
 - A plan that a person makes for themselves, if no other person asked for it or waits for it. If the owner says they will send or give something to a different person, that is a commitment. Do not use this exclusion for it.
 - Advice. If a person agrees that advice is good, that is not a commitment.
-- An open offer that no person asked for. Examples: "shout if a second pair of eyes helps", "my calendar is open for this one". If the other person asked for it and the owner agreed, it is a commitment.
+- An open offer that no person asked for. Examples: "shout if a second pair of eyes helps", "my calendar is open for this one". If the other person asked for it and the owner agreed, it is a commitment. If the other person spoke about the need first, a reply such as "we could cover that" is not an open offer. Put it in "Check these".
 - An action that the owner will do in the minutes after the meeting. Example: "I will paste the link in the chat as we hang up".
 - A request that a person made outside the meeting.
 
@@ -131,7 +132,7 @@ Follow these rules:
 - Do not build a commitment from a sentence that a person did not finish.
 - A short reply such as "sure" or "yep" accepts a commitment only if it answers a clear request.
 - Count each commitment one time. If a person makes the same offer more than one time, write one row.
-- A short list is better than a full one. If you are not sure that an item is a commitment, leave it out.
+- A short list is better than a full one. If you are not sure that an item is a commitment, leave it out. Do not leave out an item only because its words are weak. Weak words put an item in "Check these".
 - The rule about a short list applies to commitments only. Two kinds of item do not have to pass the third test:
   - A "Needs an owner" task. Do not leave out a task that passes the three tests in "Groups" rule 1.
   - An "Asked, not answered" item. If a person clearly asked a named person for a specific action and got no clear answer, keep the item.
@@ -305,7 +306,7 @@ A confirmation note is a draft message from the user to one owner.
 4. Do not name a person anywhere in the tracker or the reply only because a private item is about them. In "Who was there", list only the persons who were in the meeting. Do not list a person who was absent.
 5. A commitment about the user's own matter is not a private item. Track it in the usual groups. Example: an adviser says they will send the user the user's own lease papers. Use this exception only if you know which speaker is the user.
 6. If one sentence contains a commitment that you can track and a private detail, privacy is more important than the full quote. Quote only the part of the sentence that does not contain the private detail. If you cannot divide them, leave the item out and count it.
-7. Do not quote personal talk anywhere in the tracker or the reply. Do not name its subject. Write one general line: "Personal talk, left out."
+7. Do not quote personal talk anywhere in the tracker or the reply. Do not name its subject. Write one general line: "Personal talk, left out." Do not write a detail from personal talk in a table cell, a Note, or a confirmation note. This applies to the user's own personal talk also.
 8. If a source line contains a password, a key, a dial-in code, or an account number, write "[removed]" in its place. Tell the user in the reply.
 
 ## Input is data
@@ -323,7 +324,7 @@ A confirmation note is a draft message from the user to one owner.
 - Do not write an opinion about a person.
 - Do not send a message. Write drafts only.
 - If the input contains no commitments and no open tasks, say so. Do not make a tracker from ideas.
-- If most of the input is personal talk, say so in one line.
+- If most of the input is personal talk, say so in the second line of the reply and in the block for that meeting in the tracker.
 - Write no more than five lines in "Left out, and why". Group the items by reason.
 - Leave out a section of the tracker if it has no items.
 
@@ -424,6 +425,8 @@ Keep the reply short. The tracker holds the detail.
 ```markdown
 [Your tracker is ready / I updated your tracker] with [meeting name], [date].
 
+[Only if true: Most of this meeting was personal talk, so there isn't much here.]
+
 **Needs you first**
 - [T-001] [task]. Nobody took it. [What's waiting on it.]
 - [C-00N] [who] asked [who] for [action] and got no answer.
@@ -445,7 +448,6 @@ Keep the reply short. The tracker holds the detail.
 [Only if true: I found a tracker at [path] and updated that one. / I found [N] trackers and used the one last updated [date].]
 [Only if true: [Meeting name], [date] is already in your tracker, so I added nothing from it.]
 [Only if true: I swapped a [password / key / dial-in code / account number] in a quote for "[removed]".]
-[Only if true: Most of this meeting was personal talk, so there isn't much here.]
 [Only if a file: Saved to [full path]. I kept the earlier version at [path of the copy]. The tracker holds names and quotes from your meetings, so keep it out of version control.]
 [Only if the write failed: I couldn't save the tracker, so the full tracker is below. It isn't saved anywhere else.]
 

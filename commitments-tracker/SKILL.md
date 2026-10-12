@@ -134,9 +134,10 @@ Follow these rules:
 - A short reply such as "sure" or "yep" accepts a commitment only if it answers a clear request.
 - Count each commitment one time. If a person makes the same offer more than one time, write one row.
 - A short list is better than a full one. If you are not sure that an item is a commitment, leave it out. Do not leave out an item only because its words are weak. Weak words put an item in "Check these".
-- The rule about a short list applies to commitments only. Two kinds of item do not have to pass the third test:
+- The rule about a short list applies to commitments only. Three kinds of item do not have to pass the third test:
   - A "Needs an owner" task. Do not leave out a task that passes the three tests in "Groups" rule 1.
   - An "Asked, not answered" item. If a person clearly asked a named person for a specific action and got no clear answer, keep the item.
+  - An item that "Groups" rule 3 puts in "Check these" because a person in the meeting made the commitment for a person or a team that was not there, or because the owner is clear from the person's role.
 - A question that asks no person for an action does not go in "Needs an owner". A remark that no person answered does not go there.
 
 ## Groups

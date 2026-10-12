@@ -28,7 +28,7 @@ Use each term with one meaning only.
 - **Commitment**: one person or one team says they will do one specific thing.
 - **Owner**: the person or team that made the commitment.
 - **Requester**: the person or team the commitment is for.
-- **Due date**: the date the owner gave.
+- **Due date**: the date the owner gave, or the date in a request that the owner accepted.
 - **Source line**: the words in the input that contain the commitment.
 - **Speaker label**: the name or tag that the input puts before each line of speech.
 - **Needs an owner**: the group for a task that the meeting agreed is necessary and that no person accepted. A task in this group is a "Needs an owner" task.
@@ -179,7 +179,8 @@ Give each commitment one of these:
 Follow these rules:
 
 - Do not invent a due date.
-- If a person asks for an action by a date and the owner accepts, that date is the due date. Example: a person asks for the summary by Thursday, and the owner says "sure".
+- If a person asks for an action by a date and the owner accepts in the same meeting with no date of their own, the date in the request is the due date. Example: a person asks for the summary by Thursday, and the owner says "sure". Write "date from the request" in the Note column.
+- If the owner accepts and gives a different date, use the owner's date.
 - A loose time belongs to the commitment in the same sentence. If it is in a different sentence, do not attach it. Write "No date given" and put the loose words in the Note column.
 - Do not change a range, an event, or an ongoing commitment into one calendar date.
 - An extension is a range. If the owner of a dated commitment asks for more time, count the added time from the existing due date, not from the meeting date. Write the owner's words and the new latest date in brackets. Keep the old date in the Note column. Example: a commitment is due 2026-05-12 and the owner says "give me three extra days". Write "three extra days" (by 2026-05-15) in Due, and "Was due 2026-05-12" in Note.
@@ -298,7 +299,7 @@ A confirmation note is a draft message from the user to one owner.
 3. Do not write a confirmation note to an unnamed speaker or to a name marked "(likely)". Tell the user to confirm the names first.
 4. Put that owner's rows from "Open commitments" and "Check these" in the confirmation note.
 5. If an "Asked, not answered" item was asked of that owner, put the request in the confirmation note.
-6. Do not put a date in a confirmation note that the owner did not say.
+6. Put a date in a confirmation note only if it is the Due of that row in the tracker. If the date came from a request that the owner accepted, ask the owner to confirm it. Use the second line of the template.
 
 ## Privacy
 
@@ -461,6 +462,7 @@ Keep the reply short. The tracker holds the detail.
 > Hi [owner], here's what I have you down for from [meeting]. Is this right?
 >
 > - [action], due [date]
+> - [action]. [Requester] asked for it by [date]. Does that date work?
 > - [action]. What date should I put down for this one?
 > - One more that was asked of you: [action]. Is that something you can do?
 >

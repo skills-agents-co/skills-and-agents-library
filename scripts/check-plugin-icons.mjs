@@ -9,7 +9,7 @@
  *
  * Rules: the file exists, has a PNG signature, is square, is 512 to 2048 px per
  * side (read from the IHDR chunk, no dependencies), and is under 2 MB.
- * A .jpg/.jpeg icon named in plugin.json gets only the existence and size checks.
+ * An icon named in plugin.json must be a .png and passes the same checks.
  *
  * Usage:
  *   node scripts/check-plugin-icons.mjs [--fixtures <dir>]
@@ -68,8 +68,8 @@ function iconRelPath(pluginDir) {
     return { problem: `plugin.json icon is outside the plugin folder (${pluginJson.icon})` };
   }
   const ext = extname(full).toLowerCase();
-  if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
-    return { problem: `plugin.json icon must be .png, .jpg or .jpeg (${pluginJson.icon})` };
+  if (ext !== '.png') {
+    return { problem: `icon must be a PNG (${pluginJson.icon})` };
   }
   return { rel: rel.split(sep).join('/') };
 }
@@ -84,10 +84,6 @@ function problemWith(pluginDir) {
   if (!st.isFile()) return 'icon.png is not a file';
   // Check size from stat before reading anything.
   if (st.size >= MAX_BYTES) return 'icon is 2 MB or larger';
-  // JPEG: only existence and size are checked here. Parsing JPEG dimensions needs
-  // a marker walk, which is not worth carrying for an uncommon format.
-  const ext = extname(iconPath).toLowerCase();
-  if (ext === '.jpg' || ext === '.jpeg') return null;
   // Read only the 24 header bytes (signature + IHDR length/type + width + height).
   const buf = Buffer.alloc(24);
   const fd = openSync(iconPath, 'r');

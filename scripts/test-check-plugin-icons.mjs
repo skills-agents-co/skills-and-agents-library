@@ -29,6 +29,10 @@ const cases = [
   { dir: 'object-source-fail', expect: 'fail', match: 'FAIL remote: source is not a local path', notMatch: ['FAIL demo', 'TypeError', 'at '] },
   { dir: 'icon-dir-fail', expect: 'fail', match: 'FAIL demo: icon.png is not a file' },
   { dir: 'json-icon-fail', expect: 'fail', match: 'FAIL demo: missing assets/missing.png' },
+  { dir: 'json-icon-escape-fail', expect: 'fail', match: 'FAIL demo: plugin.json icon is outside the plugin folder (../other/icon.png)' },
+  { dir: 'json-icon-absolute-fail', expect: 'fail', match: 'FAIL demo: plugin.json icon is outside the plugin folder (/tmp/icon.png)' },
+  { dir: 'json-icon-ext-fail', expect: 'fail', match: 'FAIL demo: icon must be a PNG (./icon.jpg)' },
+  { dir: 'json-icon-type-fail', expect: 'fail', match: 'FAIL demo: plugin.json icon is not a path' },
 ];
 
 // Argument handling: --fixtures needs a value.

@@ -3,3 +3,6 @@
 # vendored eng-dev-harness payload; .eng-dev-version is the tracked pin,
 # run install.sh to materialize this after clone or when the pin changes
 .eng-dev/
+
+# local eng-dev-harness slash commands; kept on disk, not published
+.claude/commands/

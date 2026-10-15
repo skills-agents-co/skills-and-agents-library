@@ -1,0 +1,4 @@
+{
+  "name": "fixture",
+  "plugins": [{"name":"remote","source":{"source":"github","repo":"example/remote"}},{"name":"demo","source":"./demo"}]
+}

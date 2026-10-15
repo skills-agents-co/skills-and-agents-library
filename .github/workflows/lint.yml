@@ -104,6 +104,12 @@ jobs:
       - name: Test the plugin-file-freshness checker against its fixtures
         run: node scripts/test-check-plugin-files-fresh.mjs
 
+      - name: Check every plugin ships a valid icon
+        run: node scripts/check-plugin-icons.mjs
+
+      - name: Test the plugin-icon checker against its fixtures
+        run: node scripts/test-check-plugin-icons.mjs
+
       - name: Test the plugin-file generator against a scratch root
         run: node scripts/test-generate-plugin-files.mjs
 

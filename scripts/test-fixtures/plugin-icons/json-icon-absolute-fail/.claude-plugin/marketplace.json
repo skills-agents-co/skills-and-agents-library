@@ -1,0 +1,9 @@
+{
+  "name": "fixture",
+  "plugins": [
+    {
+      "name": "demo",
+      "source": "./demo"
+    }
+  ]
+}

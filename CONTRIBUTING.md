@@ -18,6 +18,8 @@ Every skill is a top-level folder:
 
 Folder name is the slug used in catalog URLs. Lowercase, hyphen-separated, no spaces.
 
+Every new plugin needs `.claude-plugin/icon.png` (square PNG, 512 to 2048 px, under 2 MB); CI fails without it.
+
 ## SKILL.md frontmatter
 
 This repo requires two keys: `name` and `description`. The lint workflow checks those and nothing else. Everything below is catalog metadata that a maintainer fills in when they write the catalog entry after your PR merges. Include what you know, leave out what you are unsure of.
@@ -95,6 +97,8 @@ node scripts/test-check-index-additive.mjs   # proves that checker can fail, aga
 node scripts/check-plugin-files-fresh.mjs    # plugin-nested copies stay in sync with their canonical source
 node scripts/test-check-plugin-files-fresh.mjs # proves that checker can fail, against fixtures
 node scripts/test-generate-plugin-files.mjs  # generator writes correctly and refuses partial writes, against a scratch root
+node scripts/check-plugin-icons.mjs          # every plugin has .claude-plugin/icon.png
+node scripts/test-check-plugin-icons.mjs     # proves that checker can fail, against fixtures
 node scripts/test-build-index.mjs            # index builder, against a throwaway git fixture repo (no network)
 node scripts/test-index-ref.mjs              # unit tests for the shared ref/path library (no network)
 bash scripts/test-readme-install.sh          # runs the README's documented install command as written

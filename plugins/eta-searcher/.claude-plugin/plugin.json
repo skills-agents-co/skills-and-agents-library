@@ -7,6 +7,10 @@
     "url": "https://github.com/skills-agents-co"
   },
   "homepage": "https://skillsandagents.co",
+  "repository": "https://github.com/skills-agents-co/skills-and-agents-library",
+  "documentationUrl": "https://skillsandagents.co/help/",
+  "privacyPolicyUrl": "https://skillsandagents.co/privacy/",
+  "termsOfServiceUrl": "https://skillsandagents.co/terms/",
   "license": "MIT",
   "keywords": [
     "acquisition",

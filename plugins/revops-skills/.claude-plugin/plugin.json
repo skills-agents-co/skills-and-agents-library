@@ -1,0 +1,17 @@
+{
+  "name": "revops-skills",
+  "version": "1.0.0",
+  "description": "Revenue operations skills that check forecast coverage, lead routing, and pipeline hygiene from your exports.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "revops",
+    "forecasting",
+    "pipeline",
+    "sales operations"
+  ]
+}

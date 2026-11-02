@@ -5,7 +5,7 @@
     "url": "https://github.com/skills-agents-co"
   },
   "metadata": {
-    "description": "Skills and Agents Co's catalog of Claude Code plugins — AI-driven personal and business finance tools.",
+    "description": "Skills and Agents Co's catalog of Claude Code plugins for finance, product, sales, marketing, research, and everyday work.",
     "version": "1.0.0"
   },
   "plugins": [
@@ -123,6 +123,134 @@
         "ghost",
         "editorial",
         "writing"
+      ]
+    },
+    {
+      "name": "marketing-skills",
+      "source": "./plugins/marketing-skills",
+      "description": "Marketing skills for ad reviews, sales emails, and value propositions.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "marketing",
+        "ads",
+        "email",
+        "positioning"
+      ]
+    },
+    {
+      "name": "productivity-skills",
+      "source": "./plugins/productivity-skills",
+      "description": "Everyday work skills for email, calendar, meetings, Google Workspace, planning, and personal tasks.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "productivity",
+        "email",
+        "calendar",
+        "google workspace",
+        "planning"
+      ]
+    },
+    {
+      "name": "finance-skills",
+      "source": "./plugins/finance-skills",
+      "description": "Finance skills outside the month-end close, from board decks and invoices to expense tracking and vendor checks.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "finance",
+        "invoices",
+        "expenses",
+        "reporting",
+        "vendors"
+      ]
+    },
+    {
+      "name": "content-skills",
+      "source": "./plugins/content-skills",
+      "description": "Writing and publishing skills for content calendars, newsletters, a personal knowledge base, and plain human tone.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "content",
+        "writing",
+        "newsletter",
+        "editorial"
+      ]
+    },
+    {
+      "name": "research-skills",
+      "source": "./plugins/research-skills",
+      "description": "Research skills for analyzing data sets, prepping discovery calls, scraping the web with Firecrawl, and checking LLM visibility.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "research",
+        "data analysis",
+        "web scraping",
+        "firecrawl"
+      ]
+    },
+    {
+      "name": "coding-skills",
+      "source": "./plugins/coding-skills",
+      "description": "Coding and design skills for Figma work and startup stack choices.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "coding",
+        "figma",
+        "design",
+        "stack"
+      ]
+    },
+    {
+      "name": "revops-skills",
+      "source": "./plugins/revops-skills",
+      "description": "Revenue operations skills that check forecast coverage, lead routing, and pipeline hygiene from your exports.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Skills and Agents Co",
+        "url": "https://github.com/skills-agents-co"
+      },
+      "homepage": "https://skillsandagents.co",
+      "license": "MIT",
+      "keywords": [
+        "revops",
+        "forecasting",
+        "pipeline",
+        "sales operations"
       ]
     }
   ]

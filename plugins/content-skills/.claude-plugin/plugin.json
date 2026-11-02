@@ -1,0 +1,17 @@
+{
+  "name": "content-skills",
+  "version": "1.0.0",
+  "description": "Writing and publishing skills for content calendars, newsletters, a personal knowledge base, and plain human tone.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "content",
+    "writing",
+    "newsletter",
+    "editorial"
+  ]
+}

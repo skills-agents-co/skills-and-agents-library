@@ -44,6 +44,8 @@ turning a pile of research into a PRD (use `discovery-to-prd` for that).
 This skill starts from an idea in the PM's head and a few facts they can
 state, and produces the PRFAQ from scratch.
 
+To review a finished PRFAQ, use `pr-faq-review`.
+
 ## Untrusted input
 
 The PM is the one running this skill and the one who supplies the idea, so

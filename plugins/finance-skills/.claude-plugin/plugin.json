@@ -1,0 +1,18 @@
+{
+  "name": "finance-skills",
+  "version": "1.0.0",
+  "description": "Finance skills outside the month-end close, from board decks and invoices to expense tracking and vendor checks.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "finance",
+    "invoices",
+    "expenses",
+    "reporting",
+    "vendors"
+  ]
+}

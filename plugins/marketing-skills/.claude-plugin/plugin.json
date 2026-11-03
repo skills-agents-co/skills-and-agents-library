@@ -1,0 +1,17 @@
+{
+  "name": "marketing-skills",
+  "version": "1.0.0",
+  "description": "Marketing skills for ad reviews, sales emails, and value propositions.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "marketing",
+    "ads",
+    "email",
+    "positioning"
+  ]
+}

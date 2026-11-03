@@ -1,0 +1,17 @@
+{
+  "name": "research-skills",
+  "version": "1.0.0",
+  "description": "Research skills for analyzing data sets, prepping discovery calls, scraping the web with Firecrawl, and checking LLM visibility.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "data analysis",
+    "web scraping",
+    "firecrawl"
+  ]
+}

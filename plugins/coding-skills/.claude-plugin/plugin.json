@@ -1,0 +1,17 @@
+{
+  "name": "coding-skills",
+  "version": "1.0.0",
+  "description": "Coding and design skills for Figma work and startup stack choices.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "license": "MIT",
+  "keywords": [
+    "coding",
+    "figma",
+    "design",
+    "stack"
+  ]
+}

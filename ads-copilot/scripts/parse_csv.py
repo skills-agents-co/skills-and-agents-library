@@ -1001,6 +1001,8 @@ class _ConcatTextIO(io.TextIOBase):
             try:
                 self._rest.close()
             except Exception:
+                # Best-effort close: the rows are already parsed, so a failed
+                # close must not turn a good run into an error.
                 pass
         super().close()
 

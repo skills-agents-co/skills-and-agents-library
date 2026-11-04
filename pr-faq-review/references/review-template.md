@@ -6,9 +6,6 @@ step that produces it. Keep every section. When a section is empty,
 write "<Section>: none" and say why, for example "Flagged input: none".
 Never rewrite the PR/FAQ in any section. Only question it.
 
-Show everything above Defend It Live before the drill. After the drill,
-show only the Defend It Live block.
-
 ```markdown
 # PR/FAQ review: <product, one line>
 
@@ -21,7 +18,8 @@ one or two reasons.>
 |---|---|---|---|---|
 <Step 2 and 3. At most 30 rows. Tag is Real, Assumed, or Contradicted.
 Where is the section name. Source names the evidence item or role, or a
-link by title or host. End with "<n> more claims left out" if any.>
+link by title, or by host and path. End with "<n> more claims left out"
+if any.>
 
 ## Ranked Assumptions
 <Step 4. At most 10, highest risk first. For each: the assumption, its
@@ -45,11 +43,4 @@ first clause.>
 <Each input that could not be read, and the claim rows it might have
 supported.>
 
-## Defend It Live
-<Step 9. For each of the five questions: the question, the PM's answer
-(or "I don't know", or "not answered"), and a one or two sentence
-verdict. Then:
-Weakest answer: <question number and why>
-Final verdict: <Ready for review, Needs work first, or Not ready, and
-why it held or changed>>
 ```

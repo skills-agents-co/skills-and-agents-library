@@ -38,7 +38,7 @@ and `news-monitor` cover the meeting side of the same entity folder — see
 [`../meeting-scribe/SKILL.md`](../meeting-scribe/SKILL.md) for the after-a-meeting record,
 [`../calendar-agent/SKILL.md`](../calendar-agent/SKILL.md) for the before-a-meeting brief, and
 [`../news-monitor/SKILL.md`](../news-monitor/SKILL.md) for a periodic news pulse on the same tracked
-entities. A fourth sibling, [`../librarian/SKILL.md`](../librarian/SKILL.md), distills recurring
+entities. A fourth sibling, the `librarian` skill, distills recurring
 themes out of everything those three have already recorded. `email-agent` is the fifth: the same
 match vocabulary and the same entity folder, applied to an email thread instead of a transcript,
 calendar export, or search result. Only `meeting-scribe` and `email-agent` append mention lines to

@@ -1,0 +1,37 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Skills and Agents Co//calendar-agent sample//EN
+CALSCALE:GREGORIAN
+
+BEGIN:VEVENT
+UID:sample-1-matched@calendar-agent.sample
+DTSTAMP:20260819T130000Z
+DTSTART:20260820T140000Z
+DTEND:20260820T143000Z
+SUMMARY:Q3 check-in with Jordan Lee
+DESCRIPTION:Sync with Jordan (JL) and Sam Rivera on the pipeline review.
+ATTENDEE;CN=Jordan Lee:mailto:jordan.lee@example.com
+ATTENDEE;CN=Sam Rivera:mailto:sam.rivera@example.com
+END:VEVENT
+
+BEGIN:VEVENT
+UID:sample-2-unmatched@calendar-agent.sample
+DTSTAMP:20260819T130000Z
+DTSTART:20260821T160000Z
+DTEND:20260821T163000Z
+SUMMARY:Intro call with Priya Desai
+DESCRIPTION:First conversation with Priya Desai about a possible vendor relationship.
+ATTENDEE;CN=Priya Desai:mailto:priya.desai@example.com
+END:VEVENT
+
+BEGIN:VEVENT
+UID:sample-3-ambiguous@calendar-agent.sample
+DTSTAMP:20260819T130000Z
+DTSTART:20260822T100000Z
+DTEND:20260822T103000Z
+SUMMARY:Anlo sync
+DESCRIPTION:Weekly sync with Anlo. Confirm which Anlo entity this is before the call.
+ATTENDEE;CN=Anlo:mailto:team@anlo.example.com
+END:VEVENT
+
+END:VCALENDAR

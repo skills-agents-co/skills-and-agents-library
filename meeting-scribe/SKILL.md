@@ -24,8 +24,7 @@ Credit and scope: see the footer at the bottom of this file.
 ## When to use it
 
 Use this for a per-entity mention history, not a meeting-format memo. For the team's standard
-circulate-ready notes with carry-forward of open action items, use `meeting-memo` instead — see
-[`../meeting-memo/SKILL.md`](../meeting-memo/SKILL.md); the two are complementary and can run against
+circulate-ready notes with carry-forward of open action items, use the `meeting-memo` skill instead; the two are complementary and can run against
 the same transcript. For a pre-meeting brief on who's about to be in the room, use
 [`../calendar-agent/SKILL.md`](../calendar-agent/SKILL.md). The `librarian` skill runs periodically
 across everything recorded here and turns recurring ideas into short post drafts.

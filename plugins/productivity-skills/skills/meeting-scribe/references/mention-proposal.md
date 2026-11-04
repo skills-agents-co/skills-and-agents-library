@@ -36,7 +36,7 @@ consumes the exact same shape, so treat field names and the `matched` enum as fi
 - `candidates` — populated only when `matched` is `ambiguous`. A list of the entity file paths (or
   names) that all matched, so a human can disambiguate.
 - `quote` — a direct quote from the transcript that grounds the mention. Required for every object
-  regardless of `matched` value. No quote, no mention — see `SKILL.md`'s Error handling section.
+  regardless of `matched` value. No quote, no mention — see `error-handling.md`.
 - `meeting_date` — the date of the meeting the transcript covers, `YYYY-MM-DD`.
 - `meeting_source` — path to the meeting note this mention came from.
 - `follow_ups` — zero or more commitments tied to this entity from the meeting, each with `action`,

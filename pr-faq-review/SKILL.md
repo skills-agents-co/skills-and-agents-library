@@ -18,9 +18,8 @@ status: published
 
 ## What this does
 
-You wrote a PR/FAQ. Before you share it, you want someone to poke holes
-in it. This skill does that. It reads your doc, checks each claim against
-what you can show, and tells you which guesses could sink the bet. Then it
+You wrote a PR/FAQ. Before you share it, you want it thoroughly reviewed by this skill. It reads your doc, checks each claim against
+what you can show, and tells you which assumptions could sink your bet. Then it
 quizzes you, so you practice your answers before the real meeting.
 
 It questions your doc. It does not rewrite it. You keep the pen.

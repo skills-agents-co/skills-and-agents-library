@@ -1,0 +1,22 @@
+{
+  "name": "pm-guide",
+  "version": "1.0.0",
+  "description": "Coaching for the product documents PMs write: PRD, one pager, PR/FAQ, status update, launch post, case study, memo, and engineering update. Paste a draft and get one plain sentence, two or three suggestions, and a chance to review again.",
+  "author": {
+    "name": "Skills and Agents Co",
+    "url": "https://github.com/skills-agents-co"
+  },
+  "homepage": "https://skillsandagents.co",
+  "repository": "https://github.com/skills-agents-co/skills-and-agents-library",
+  "documentationUrl": "https://skillsandagents.co/help/",
+  "privacyPolicyUrl": "https://skillsandagents.co/privacy/",
+  "termsOfServiceUrl": "https://skillsandagents.co/terms/",
+  "license": "MIT",
+  "keywords": [
+    "product management",
+    "coaching",
+    "prd",
+    "writing",
+    "status update"
+  ]
+}

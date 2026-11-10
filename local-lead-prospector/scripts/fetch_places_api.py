@@ -242,10 +242,8 @@ def main(argv: list[str] | None = None) -> int:
     api_key = os.environ.get("GOOGLE_MAPS_API_KEY", "").strip()
     if not api_key:
         sys.stderr.write(
-            "GOOGLE_MAPS_API_KEY is not set. The Google Places API (New) is the preferred path. "
-            "See references/places_api_setup.md for setup. "
-            "A Playwright scrape fallback exists at scripts/scrape_listings.py, "
-            "but it is against Google's Terms of Service and requires explicit --yes-tos confirmation.\n"
+            "GOOGLE_MAPS_API_KEY is not set. This skill needs a Google Places API (New) key and has no other path. "
+            "See references/places_api_setup.md for setup.\n"
         )
         return 2
 

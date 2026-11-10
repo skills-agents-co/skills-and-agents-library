@@ -27,13 +27,6 @@
     ]
   },
   {
-    "source": "local-lead-prospector/scripts/scrape_listings.py",
-    "generated": [
-      "plugins/eta-searcher/scripts/scrape_listings.py",
-      "plugins/eta-searcher/skills/local-lead-prospector/scripts/scrape_listings.py"
-    ]
-  },
-  {
     "source": "plugins/newsroom/skills/story-researcher/references/setup.md",
     "generated": [
       "plugins/newsroom/skills/daily-roundup/references/setup.md",

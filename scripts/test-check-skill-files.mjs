@@ -61,8 +61,8 @@ for (const c of cases) {
 // This walk MIRRORS the checker's own walk in check-skill-files.mjs and has to
 // keep mirroring it, including the dot-guard. A dot-dir the checker skips and
 // this one descends into is a count mismatch at best. At worst it is a crash:
-// `.claude/commands/` holds 12 tracked symlinks into the gitignored `.eng-dev/`
-// harness payload, so on a fresh clone (every CI run) they dangle, and a walk
+// `.claude/commands/` once held 12 tracked symlinks into the gitignored `.eng-dev/`
+// harness payload, so on a fresh clone (every CI run) they dangled, and a walk
 // that follows them dies with ENOENT before any assertion runs. That broke lint
 // on main at 2766154 and stayed broken, because a local checkout has the harness
 // materialized and the symlinks resolve.

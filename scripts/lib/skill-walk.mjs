@@ -70,6 +70,46 @@ export function walkPluginSource(sourceFiles, sourceDir) {
 }
 
 /**
+ * Shape check for a parsed marketplace.json. Returns an error message, or
+ * null when the shape is usable: top level an object, `plugins` an array of
+ * objects.
+ */
+export function marketplaceShapeError(marketplace) {
+  if (!marketplace || typeof marketplace !== 'object' || Array.isArray(marketplace)) {
+    return 'top level is not a JSON object';
+  }
+  if (!Array.isArray(marketplace.plugins)) return '"plugins" is not an array';
+  const bad = marketplace.plugins.findIndex((p) => !p || typeof p !== 'object' || Array.isArray(p));
+  if (bad !== -1) return `plugins[${bad}] is not an object`;
+  return null;
+}
+
+/**
+ * Plugins that cannot contribute coverage, as { name, source, reason }[]:
+ * a missing or non-string name, a source that is not a string or that
+ * normalizeSource rejects, or a source dir that yields no slugs. Callers
+ * decide how loudly to report them. Expects a shape that passed
+ * marketplaceShapeError.
+ */
+export function brokenPlugins(marketplace, sourceFiles) {
+  const out = [];
+  for (const plugin of (marketplace && marketplace.plugins) || []) {
+    const name = typeof plugin.name === 'string' ? plugin.name : '(no name)';
+    const source = typeof plugin.source === 'string' ? plugin.source : JSON.stringify(plugin.source);
+    let reason = null;
+    if (typeof plugin.name !== 'string') reason = 'missing or non-string name';
+    else if (typeof plugin.source !== 'string') reason = 'source is not a string';
+    else {
+      const dir = normalizeSource(plugin.source);
+      if (!dir) reason = 'source is rejected (empty, ".", absolute, or contains "..")';
+      else if (walkPluginSource(sourceFiles, dir).length === 0) reason = `no skills or agents found under ${dir}`;
+    }
+    if (reason) out.push({ name, source, reason });
+  }
+  return out;
+}
+
+/**
  * Map<slug, string[]> of the plugin names that install each slug, in
  * marketplace array order, no duplicates.
  */

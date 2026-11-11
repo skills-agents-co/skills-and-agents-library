@@ -153,6 +153,19 @@ git('tag', TAG);
 // Now move the working tree AWAY from the tag, in both directions.
 write('flat-skill/references/added-later.md', 'added after the tag\n');
 rmSync(join(fixture, 'flat-skill/references/removed-later.md'));
+// The marketplace moves too: a new plugin covers agent-pack, which no plugin
+// covered at the tag. --tag must ignore this; --worktree must see it.
+write(
+  '.claude-plugin/marketplace.json',
+  JSON.stringify({
+    plugins: [
+      { name: 'pack-plugin', source: './nested-pack' },
+      { name: 'solo-plugin', source: './flat-skill' },
+      { name: 'wrapper-plugin', source: './plugins/wrapper' },
+      { name: 'late-plugin', source: './agent-pack' },
+    ],
+  }) + '\n'
+);
 git('add', '-A');
 git('commit', '-q', '-m', 'post-tag changes');
 
@@ -307,6 +320,53 @@ check('--worktree is the explicit escape hatch and reads the working tree', (wan
   want(files.includes('references/added-later.md'), '--worktree did not pick up the post-tag file');
   want(!files.includes('references/removed-later.md'), '--worktree still lists a file deleted after the tag');
   want(out.includes('working tree'), 'the run did not say it read from the working tree');
+});
+
+check('--tag reads marketplace.json AT the ref; --worktree reads the working tree copy', (want) => {
+  const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const tagged = build(['--tag', TAG]);
+  want(tagged.code === 0, `--tag exit ${tagged.code}, wanted 0. Output: ${tagged.out}`);
+  if (tagged.index) {
+    want(eq(tagged.index['agent-pack'].plugins, []), `--tag agent-pack plugins were ${JSON.stringify(tagged.index['agent-pack'].plugins)}, wanted [] (the tag-time marketplace)`);
+    want(eq(tagged.index['nested-skill'].plugins, ['pack-plugin', 'wrapper-plugin']), `--tag nested-skill plugins were ${JSON.stringify(tagged.index['nested-skill'].plugins)}`);
+  }
+  const wt = build(['--tag', 'v0.0.0-not-in-this-clone', '--worktree']);
+  want(wt.code === 0, `--worktree exit ${wt.code}, wanted 0. Output: ${wt.out}`);
+  if (wt.index) {
+    want(eq(wt.index['agent-pack'].plugins, ['late-plugin']), `--worktree agent-pack plugins were ${JSON.stringify(wt.index['agent-pack'].plugins)}, wanted ["late-plugin"]`);
+  }
+});
+
+check('a malformed marketplace.json is a clean error, not a stack trace', (want) => {
+  const mp = join(fixture, '.claude-plugin', 'marketplace.json');
+  const good = readFileSync(mp, 'utf8');
+  try {
+    for (const bad of ['{ "plugins": [', '{ "plugins": {} }', '{ "plugins": [null] }']) {
+      writeFileSync(mp, bad);
+      const { code, out, index } = build(['--tag', 'v0.0.0-not-in-this-clone', '--worktree']);
+      want(code === 1, `${bad}: exit ${code}, wanted 1`);
+      want(index === null, `${bad}: an index was written`);
+      want(out.includes('Could not parse .claude-plugin/marketplace.json at working tree'), `${bad}: output was ${out}`);
+      want(!out.includes('    at '), `${bad}: output carried a stack trace`);
+    }
+  } finally {
+    writeFileSync(mp, good);
+  }
+});
+
+check('a plugin that installs nothing warns on stderr and leaves the output unchanged', (want) => {
+  const mp = join(fixture, '.claude-plugin', 'marketplace.json');
+  const good = readFileSync(mp, 'utf8');
+  try {
+    const base = build(['--tag', 'v0.0.0-not-in-this-clone', '--worktree']);
+    writeFileSync(mp, JSON.stringify({ plugins: [...JSON.parse(good).plugins, { name: 'ghost', source: '../x' }] }));
+    const bad = build(['--tag', 'v0.0.0-not-in-this-clone', '--worktree']);
+    want(bad.code === 0, `exit ${bad.code}, wanted 0. Output: ${bad.out}`);
+    want(bad.out.includes('warning: marketplace plugin "ghost"'), `no warning. Output: ${bad.out}`);
+    want(JSON.stringify(bad.index) === JSON.stringify(base.index), 'the broken plugin changed the index output');
+  } finally {
+    writeFileSync(mp, good);
+  }
 });
 
 check('an unsafe ref is rejected before it reaches git or a published URL', (want) => {

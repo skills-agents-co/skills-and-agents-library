@@ -27,7 +27,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { isSafeRef, isSafeManifestPath } from './lib/index-ref.mjs';
-import { walkSkillFolders, pluginsBySlug } from './lib/skill-walk.mjs';
+import { walkSkillFolders, pluginsBySlug, brokenPlugins, marketplaceShapeError } from './lib/skill-walk.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
@@ -298,9 +298,25 @@ function main() {
   // marketplace.json simply has no plugin coverage.
   let marketplace = { plugins: [] };
   if (source.files.includes('.claude-plugin/marketplace.json')) {
-    marketplace = JSON.parse(source.read('.claude-plugin/marketplace.json'));
+    const label = '.claude-plugin/marketplace.json';
+    try {
+      marketplace = JSON.parse(source.read(label));
+    } catch (err) {
+      console.error(`Could not parse ${label} at ${source.label}: ${err.message}`);
+      process.exit(1);
+    }
+    const shapeErr = marketplaceShapeError(marketplace);
+    if (shapeErr) {
+      console.error(`Could not parse ${label} at ${source.label}: ${shapeErr}`);
+      process.exit(1);
+    }
   }
   const pluginMap = pluginsBySlug(marketplace, source.files);
+  // Plugins that install nothing do not change the output, but they are
+  // almost always a typo, so say so.
+  for (const b of brokenPlugins(marketplace, source.files)) {
+    console.error(`warning: marketplace plugin "${b.name}" (source ${b.source}) installs nothing: ${b.reason}`);
+  }
   const index = {};
 
   for (const entry of entries) {

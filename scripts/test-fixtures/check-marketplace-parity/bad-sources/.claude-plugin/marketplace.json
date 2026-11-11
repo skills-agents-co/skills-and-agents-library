@@ -1,0 +1,10 @@
+{
+  "plugins": [
+    { "name": "dotdot", "source": "../x" },
+    { "name": "absolute", "source": "/etc" },
+    { "name": "dot", "source": "." },
+    { "name": "objsrc", "source": { "type": "github" } },
+    { "source": "./alpha" },
+    { "name": "empty", "source": "./empty-src" }
+  ]
+}

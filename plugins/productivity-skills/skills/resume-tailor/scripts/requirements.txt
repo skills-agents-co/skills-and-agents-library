@@ -1,4 +1,4 @@
-spacy>=3.7
-weasyprint>=60
-markdown>=3.5
+spacy>=3.7,<4
+weasyprint>=70,<71
+markdown>=3.8.1,<4
 # After install: python -m spacy download en_core_web_sm

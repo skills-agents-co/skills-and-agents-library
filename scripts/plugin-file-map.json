@@ -39,5 +39,11 @@
       "plugins/newsroom/skills/daily-roundup/references/publication-profile-template.md",
       "plugins/newsroom/skills/quality-review/references/publication-profile-template.md"
     ]
+  },
+  {
+    "source": "resume-tailor/scripts/requirements.txt",
+    "generated": [
+      "plugins/productivity-skills/skills/resume-tailor/scripts/requirements.txt"
+    ]
   }
 ]

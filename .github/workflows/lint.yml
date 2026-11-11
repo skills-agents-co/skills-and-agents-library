@@ -122,6 +122,16 @@ jobs:
       - name: Test the backlink checker against its fixtures
         run: node scripts/test-check-backlinks.mjs
 
+      # Warn-only until the wrap-the-remaining-skills work ships; it reports
+      # index/marketplace drift without turning lint red. Once that lands,
+      # remove continue-on-error so this becomes blocking.
+      - name: check-marketplace-parity
+        run: node scripts/check-marketplace-parity.mjs
+        continue-on-error: true
+
+      - name: Test the marketplace-parity checker against its fixtures
+        run: node scripts/test-check-marketplace-parity.mjs
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

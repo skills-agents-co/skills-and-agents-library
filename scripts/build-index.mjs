@@ -4,6 +4,8 @@
  *
  * Walks every <skill>/SKILL.md and <skill>/agents/*.md, parses YAML frontmatter,
  * and writes index.json keyed by slug with pinned skillFileUrl + githubUrl.
+ * Each entry also lists, in `plugins`, the marketplace plugins that install it
+ * (from .claude-plugin/marketplace.json; [] when none does).
  *
  * The SKILL.md frontmatter shape is the Claude Code skill plugin format
  * (name, description, optional license). The richer catalog metadata
@@ -25,6 +27,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { isSafeRef, isSafeManifestPath } from './lib/index-ref.mjs';
+import { walkSkillFolders, pluginsBySlug, brokenPlugins, marketplaceShapeError } from './lib/skill-walk.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
@@ -258,35 +261,6 @@ function stripFrontmatter(raw) {
 }
 
 /**
- * Every catalog entry, derived from the source's file listing rather than a
- * directory walk, so a ref-backed run and a working-tree run find the same
- * entries by the same rules. Three shapes, unchanged from the directory walk
- * this replaces:
- *
- *   <skill>/SKILL.md                  -> skill, slug = <skill>
- *   <skill>/skills/<name>/SKILL.md    -> skill, slug = <name>   (nested layout)
- *   <skill>/agents/<name>.md          -> agent, slug = <name>
- */
-function walkSkillFolders(sourceFiles) {
-  const entries = [];
-  for (const path of sourceFiles) {
-    const top = path.split('/')[0];
-    if (!path.includes('/')) continue;
-    if (top.startsWith('.') || top === 'scripts' || top === 'node_modules') continue;
-
-    let m;
-    if (path === `${top}/SKILL.md`) {
-      entries.push({ slug: top, file: path, kind: 'skill' });
-    } else if ((m = path.match(/^[^/]+\/skills\/([^/]+)\/SKILL\.md$/))) {
-      entries.push({ slug: m[1], file: path, kind: 'skill' });
-    } else if ((m = path.match(/^[^/]+\/agents\/([^/]+)\.md$/))) {
-      entries.push({ slug: m[1], file: path, kind: 'agent' });
-    }
-  }
-  return entries;
-}
-
-/**
  * Every file under `installFolder`, relative to it, sorted.
  *
  * Computed by string prefix on git's own repo-relative paths. The previous
@@ -319,6 +293,30 @@ function main() {
 
   const source = makeSource({ tag, worktree });
   const entries = walkSkillFolders(source.files);
+  // Which marketplace plugins install each slug. Read from the same ref as
+  // everything else, so the index describes one snapshot. A repo with no
+  // marketplace.json simply has no plugin coverage.
+  let marketplace = { plugins: [] };
+  if (source.files.includes('.claude-plugin/marketplace.json')) {
+    const label = '.claude-plugin/marketplace.json';
+    try {
+      marketplace = JSON.parse(source.read(label));
+    } catch (err) {
+      console.error(`Could not parse ${label} at ${source.label}: ${err.message}`);
+      process.exit(1);
+    }
+    const shapeErr = marketplaceShapeError(marketplace);
+    if (shapeErr) {
+      console.error(`Could not parse ${label} at ${source.label}: ${shapeErr}`);
+      process.exit(1);
+    }
+  }
+  const pluginMap = pluginsBySlug(marketplace, source.files);
+  // Plugins that install nothing do not change the output, but they are
+  // almost always a typo, so say so.
+  for (const b of brokenPlugins(marketplace, source.files)) {
+    console.error(`warning: marketplace plugin "${b.name}" (source ${b.source}) installs nothing: ${b.reason}`);
+  }
   const index = {};
 
   for (const entry of entries) {
@@ -376,6 +374,7 @@ function main() {
       installFolder,
       skillFilePath,
       files,
+      plugins: pluginMap.get(entry.slug) || [],
     };
   }
 

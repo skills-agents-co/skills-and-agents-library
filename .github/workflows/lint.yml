@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       # fetch-depth: 0 brings the tags with it. check-index-additive.mjs
       # regenerates index.json at the ref index.json itself pins, which means

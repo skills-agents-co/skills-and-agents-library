@@ -124,11 +124,27 @@ write(
 // A file that exists at the tag and is deleted afterwards.
 write('flat-skill/references/removed-later.md', 'gone in a later commit\n');
 
+// A marketplace. `nested-skill` is installed by two plugins, `flat-skill` by
+// one, and everything else by none. Plugin sources point at dirs the repo walk
+// sees as entries (nested-pack) and a dir it does not (plugins/*).
+write(
+  '.claude-plugin/marketplace.json',
+  JSON.stringify({
+    plugins: [
+      { name: 'pack-plugin', source: './nested-pack' },
+      { name: 'solo-plugin', source: './flat-skill' },
+      { name: 'wrapper-plugin', source: './plugins/wrapper' },
+    ],
+  }) + '\n'
+);
+write('plugins/wrapper/skills/nested-skill/SKILL.md', skillMd('nested-skill', 'Wrapped copy.'));
+
 // Copy the script under test and its library in, so the script's own
 // repo-root-relative lookups resolve to the fixture repo.
 mkdirSync(join(fixture, 'scripts', 'lib'), { recursive: true });
 copyFileSync(join(__dirname, 'build-index.mjs'), join(fixture, 'scripts', 'build-index.mjs'));
 copyFileSync(join(__dirname, 'lib', 'index-ref.mjs'), join(fixture, 'scripts', 'lib', 'index-ref.mjs'));
+copyFileSync(join(__dirname, 'lib', 'skill-walk.mjs'), join(fixture, 'scripts', 'lib', 'skill-walk.mjs'));
 
 git('add', '-A');
 git('commit', '-q', '-m', 'fixture at the tag');
@@ -224,6 +240,19 @@ check('the three layouts each produce one correctly-shaped entry', (want) => {
     want(`${v.installFolder}/${v.skillFilePath}` === v.path, `${slug}: installFolder + skillFilePath != path`);
     want(v.files.includes(v.skillFilePath), `${slug}: files does not list its own skillFilePath`);
     want(v.skillFileUrl.includes(`/${TAG}/`), `${slug}: skillFileUrl is not pinned to ${TAG}`);
+  }
+});
+
+check('plugins lists every covering plugin in marketplace order, [] when none', (want) => {
+  const { code, index, out } = build(['--tag', TAG]);
+  want(code === 0, `exit ${code}, wanted 0. Output: ${out}`);
+  if (!index) return;
+  const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  want(eq(index['nested-skill'].plugins, ['pack-plugin', 'wrapper-plugin']), `nested-skill plugins were ${JSON.stringify(index['nested-skill'].plugins)}`);
+  want(eq(index['flat-skill'].plugins, ['solo-plugin']), `flat-skill plugins were ${JSON.stringify(index['flat-skill'].plugins)}`);
+  want(eq(index['agent-pack'].plugins, []), `agent-pack plugins were ${JSON.stringify(index['agent-pack'].plugins)}`);
+  for (const [slug, v] of Object.entries(index)) {
+    want(Array.isArray(v.plugins), `${slug}: plugins is ${JSON.stringify(v.plugins)}, wanted an array on every entry`);
   }
 });
 

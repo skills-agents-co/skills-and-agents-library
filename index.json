@@ -20,6 +20,9 @@
       "scripts/parse_csv.py",
       "scripts/requirements.txt",
       "skills/ads-copilot/SKILL.md"
+    ],
+    "plugins": [
+      "marketing-skills"
     ]
   },
   "ap-invoice-processing": {
@@ -39,6 +42,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "backlog-prioritization-strategy": {
@@ -59,7 +65,8 @@
     "files": [
       "SKILL.md",
       "references/backlog-ranking-template.md"
-    ]
+    ],
+    "plugins": []
   },
   "board-deck": {
     "slug": "board-deck",
@@ -78,6 +85,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-skills"
     ]
   },
   "buy-side-diligence": {
@@ -99,6 +109,9 @@
       "README.md",
       "SKILL.md",
       "references/prompt-library.md"
+    ],
+    "plugins": [
+      "eta-searcher"
     ]
   },
   "calendar-agent": {
@@ -124,6 +137,9 @@
       "references/sample-entities/organizations/anlo-ventures.md",
       "references/sample-entities/people/jordan-lee.md",
       "references/sample-entities/people/sam-rivera.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "card-receipt-forwarding": {
@@ -143,6 +159,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "ceo-todo": {
@@ -166,6 +185,9 @@
       "agents/ceo-todo-daily.md",
       "references/sample-todo.md",
       "references/validate.mjs"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "ceo-todo-daily": {
@@ -189,7 +211,8 @@
       "agents/ceo-todo-daily.md",
       "references/sample-todo.md",
       "references/validate.mjs"
-    ]
+    ],
+    "plugins": []
   },
   "commitments-tracker": {
     "slug": "commitments-tracker",
@@ -208,6 +231,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "contract-review": {
@@ -227,6 +253,10 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "eta-searcher"
     ]
   },
   "data-set-analysis": {
@@ -247,6 +277,9 @@
     "files": [
       "SKILL.md",
       "references/type-specific-metrics.md"
+    ],
+    "plugins": [
+      "research-skills"
     ]
   },
   "discovery-call-prep": {
@@ -266,6 +299,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "research-skills"
     ]
   },
   "discovery-to-prd": {
@@ -286,6 +322,9 @@
     "files": [
       "SKILL.md",
       "references/prd-template.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "drip-api": {
@@ -305,7 +344,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "email-agent": {
     "slug": "email-agent",
@@ -335,6 +375,9 @@
       "references/sample-entities/people/morgan-diaz.md",
       "references/sample-entities/people/riley-chen.md",
       "references/sample-thread.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "equity-reconciliation": {
@@ -354,6 +397,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "equity-reconciliation-carta": {
@@ -373,6 +419,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "expense-access-audit": {
@@ -392,6 +441,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "expense-auditor": {
@@ -411,7 +463,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "expense-policy-check": {
     "slug": "expense-policy-check",
@@ -430,6 +483,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "fantasy-football-weekly": {
@@ -461,6 +517,9 @@
       "references/setup.md",
       "references/sleeper.md",
       "references/yahoo.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "financial-model-qa": {
@@ -480,6 +539,10 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "eta-searcher"
     ]
   },
   "financial-pulse": {
@@ -505,6 +568,11 @@
       "agents/financial-pulse-mercury.md",
       "agents/financial-pulse-ramp.md",
       "skills/financial-pulse/SKILL.md"
+    ],
+    "plugins": [
+      "financial-pulse",
+      "finance-team",
+      "eta-searcher"
     ]
   },
   "financial-pulse-grasshopper": {
@@ -530,6 +598,9 @@
       "agents/financial-pulse-mercury.md",
       "agents/financial-pulse-ramp.md",
       "skills/financial-pulse/SKILL.md"
+    ],
+    "plugins": [
+      "financial-pulse"
     ]
   },
   "financial-pulse-mercury": {
@@ -555,6 +626,9 @@
       "agents/financial-pulse-mercury.md",
       "agents/financial-pulse-ramp.md",
       "skills/financial-pulse/SKILL.md"
+    ],
+    "plugins": [
+      "financial-pulse"
     ]
   },
   "financial-pulse-ramp": {
@@ -580,6 +654,9 @@
       "agents/financial-pulse-mercury.md",
       "agents/financial-pulse-ramp.md",
       "skills/financial-pulse/SKILL.md"
+    ],
+    "plugins": [
+      "financial-pulse"
     ]
   },
   "ghost-seo-agent": {
@@ -606,7 +683,8 @@
       "references/output-template.md",
       "references/structural-audits.md",
       "references/workflow-steps.md"
-    ]
+    ],
+    "plugins": []
   },
   "gl-to-report": {
     "slug": "gl-to-report",
@@ -625,6 +703,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "investor-update": {
@@ -645,6 +726,9 @@
     "files": [
       "README.md",
       "SKILL.md"
+    ],
+    "plugins": [
+      "eta-searcher"
     ]
   },
   "invoice-generation": {
@@ -664,6 +748,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-skills"
     ]
   },
   "jtbd-and-problem-framing": {
@@ -683,6 +770,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "learn-quiz": {
@@ -702,7 +792,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "librarian": {
     "slug": "librarian",
@@ -736,6 +827,9 @@
       "references/sample-entities/organizations/anlo-ventures.md",
       "references/sample-entities/people/jordan-lee.md",
       "references/sample-entities/people/sam-rivera.md"
+    ],
+    "plugins": [
+      "content-skills"
     ]
   },
   "llm-visibility-agent": {
@@ -756,6 +850,9 @@
     "files": [
       "README.md",
       "SKILL.md"
+    ],
+    "plugins": [
+      "research-skills"
     ]
   },
   "local-lead-prospector": {
@@ -778,6 +875,9 @@
       "references/places_api_setup.md",
       "scripts/fetch_places_api.py",
       "scripts/requirements.txt"
+    ],
+    "plugins": [
+      "eta-searcher"
     ]
   },
   "market-deep-research-prompt": {
@@ -797,7 +897,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "meeting-memo": {
     "slug": "meeting-memo",
@@ -816,6 +917,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "eta-searcher"
     ]
   },
   "meeting-scribe": {
@@ -844,6 +948,9 @@
       "references/sample-entities/people/jordan-lee.md",
       "references/sample-entities/people/sam-rivera.md",
       "references/sample-transcript.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "news-monitor": {
@@ -870,6 +977,9 @@
       "references/sample-entities/people/sam-rivera.md",
       "references/sample-search-results.json",
       "references/sample-theses.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "office-tells": {
@@ -890,6 +1000,9 @@
     "files": [
       "README.md",
       "SKILL.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "pr-faq-review": {
@@ -910,7 +1023,8 @@
     "files": [
       "SKILL.md",
       "references/review-template.md"
-    ]
+    ],
+    "plugins": []
   },
   "product-strategy-critique": {
     "slug": "product-strategy-critique",
@@ -929,7 +1043,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "qbo-bank-reconciliation": {
     "slug": "qbo-bank-reconciliation",
@@ -952,6 +1067,10 @@
       "references/output-templates.md",
       "references/pull-recipes.md",
       "references/scope-boundaries.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "quickbooks-close"
     ]
   },
   "qbo-closing-package": {
@@ -974,6 +1093,10 @@
       "references/output-templates.md",
       "references/report-pulls.md",
       "references/scope-boundaries.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "quickbooks-close"
     ]
   },
   "qbo-expenses-ap": {
@@ -998,6 +1121,10 @@
       "references/output-templates.md",
       "references/pull-recipes.md",
       "references/scope-boundaries.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "quickbooks-close"
     ]
   },
   "qbo-inventory-reconciliation": {
@@ -1023,6 +1150,10 @@
       "references/qbo-pull.md",
       "references/unmatched-item-rules.md",
       "references/variance-calculation.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "quickbooks-close"
     ]
   },
   "qbo-payroll-balance-sheet": {
@@ -1047,6 +1178,10 @@
       "references/payroll-income-check.md",
       "references/payroll-intake.md",
       "references/scope-boundaries.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "quickbooks-close"
     ]
   },
   "qbo-revenue-ar": {
@@ -1068,6 +1203,10 @@
       "SKILL.md",
       "references/output-templates.md",
       "references/run-report.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "quickbooks-close"
     ]
   },
   "resume-tailor": {
@@ -1093,6 +1232,9 @@
       "scripts/extract_jd_keywords.py",
       "scripts/render_pdf.py",
       "scripts/requirements.txt"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   },
   "sales-email-template-generator": {
@@ -1112,6 +1254,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "marketing-skills"
     ]
   },
   "spreadsheet-cleanup": {
@@ -1138,7 +1283,8 @@
       "SKILL.md",
       "scripts/clean.py",
       "scripts/requirements.txt"
-    ]
+    ],
+    "plugins": []
   },
   "statement-reconciliation": {
     "slug": "statement-reconciliation",
@@ -1157,6 +1303,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team"
     ]
   },
   "strategic-challenge-partner": {
@@ -1176,7 +1325,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "strategy-dimension-explorer": {
     "slug": "strategy-dimension-explorer",
@@ -1195,7 +1345,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "unemployment-guide": {
     "slug": "unemployment-guide",
@@ -1217,6 +1368,9 @@
       "README.md",
       "SKILL.md",
       "references/states.md"
+    ],
+    "plugins": [
+      "finance-skills"
     ]
   },
   "value-proposition-analysis": {
@@ -1237,6 +1391,9 @@
     "files": [
       "SKILL.md",
       "references/segment-challenge-patterns.md"
+    ],
+    "plugins": [
+      "marketing-skills"
     ]
   },
   "vendor-contract-extraction": {
@@ -1256,6 +1413,10 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-team",
+      "eta-searcher"
     ]
   },
   "vision-walkthrough-prototype": {
@@ -1275,7 +1436,8 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
-    ]
+    ],
+    "plugins": []
   },
   "w9-vendor-check": {
     "slug": "w9-vendor-check",
@@ -1294,6 +1456,9 @@
     "skillFilePath": "SKILL.md",
     "files": [
       "SKILL.md"
+    ],
+    "plugins": [
+      "finance-skills"
     ]
   },
   "working-backwards": {
@@ -1314,6 +1479,9 @@
     "files": [
       "SKILL.md",
       "references/prfaq-template.md"
+    ],
+    "plugins": [
+      "productivity-skills"
     ]
   }
 }

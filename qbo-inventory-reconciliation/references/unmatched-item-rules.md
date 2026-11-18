@@ -15,6 +15,14 @@ List the two special cases below in that same section too:
   means that nobody checked it. List it here as genuinely uncounted in
   that case, rather than zero-filling it. Treating "not checked" as
   "checked and found zero" would report false shrinkage.
+- **QBO balance unavailable**, from Step 4. An item is on QBO's item list
+  and missing from the valuation pull. Its balance is unknown, and it is
+  not zero. Flag it. Compute no quantity or dollar variance for it. Leave
+  it out of the total variance. Tell the bookkeeper to check that item's
+  as-of balance in QBO. Do not classify it as Over, Short, or Matched. The
+  one exception is an item created after the as-of date that is also absent
+  from the count (see Step 4). A counted item created after the as-of date
+  keeps this flag.
 - **Value without quantity**, from Step 5. QBO shows zero on-hand quantity
   for an item. The physical count also shows zero, or nobody counted the
   item at all because they believe there is none. QBO's asset value for

@@ -111,7 +111,7 @@ See `references/matching-rules.md` for the normalization and match-test
 mechanics, and for the confidence-tier definition behind the output table's
 Confidence column.
 Classify each as **exact match** (one QBO line meets all three criteria, no
-equally good rival, and that QBO line is claimed by no other bank line),
+equally good rival, and no other bank line claims that QBO line equally well),
 **non-exact match** (an amount mismatch, a date outside
 the window, a payee mismatch, or ambiguity between two or more candidates),
 or **missing counterpart** (no QBO line at all). Flag any transaction
@@ -119,11 +119,16 @@ matching more than one candidate as a **duplicate candidate** (for example,
 two same-day, same-amount transactions to the same payee) — never pick one
 silently.
 
-The exact-match test runs both ways. A pair is exact only when each side
-has one qualifying line on the other side. When a QBO line is claimed by
-two or more bank lines, each claimant is a duplicate candidate. None of
-them is an exact match, and that QBO line stays out of the Proposed Exact
-Matches table.
+Collect every bank line's candidate QBO lines first. Classify no pair
+until you have done that for all bank lines. A bank line **claims** a QBO
+line when that QBO line is its best candidate: it meets all three criteria
+and has no equally good rival. Use the same test as the forward check,
+including the confidence tiers in `references/matching-rules.md`. A pair is
+exact only when that one bank line claims the QBO line and no other bank
+line claims it as an equally good candidate. When two or more bank lines
+claim the same QBO line equally well, each claimant is a duplicate
+candidate. None of them is an exact match, and that QBO line stays out of
+the Proposed Exact Matches table.
 
 ## Step 5: Reconcile Petty Cash
 

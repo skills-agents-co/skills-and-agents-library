@@ -15,7 +15,9 @@ from QBO, or if the file mixes currencies. Never default to USD.
 |------|-------------|---------|--------------|------------------------|--------|
 | …    | …           | …       | …            | [symbol]… / unavailable: no cost basis / unavailable: cost basis not established for netted movements | Matched / Short / Over / Flagged |
 
-Total variance ([currency]): [symbol]X,XXX.XX (leaves out any item marked "unavailable" for either cost-basis reason, and the two single-source Unmatched Items categories below)
+Total variance ([currency]): [symbol]X,XXX.XX (leaves out any item marked "unavailable" for either cost-basis reason, any item marked "QBO balance unavailable", and the two single-source Unmatched Items categories below)
+
+If no item has a computed variance, print "Total variance ([currency]): not computable: no QBO balances returned" instead. Never print $0.00 then. State that no item was reconciled. ("QBO balance unavailable" means QBO gave no balance for the item. "Unavailable" in the Variance column means no cost basis.)
 ```
 
 ## Unmatched Items table
@@ -38,6 +40,11 @@ have nothing on the other side to compute a variance against. The
 value-without-quantity row has zero quantity on both sides, so there's no
 per-unit cost and no dollar variance to compute. Its stranded asset value
 shows in the Issue column, and that raw figure never folds into the total.
+
+Items that are absent from both the valuation pull and the physical count
+share one summary flag row: the count of items and their names, up to 20,
+then "and N more". An item with a physical count keeps its own
+`QBO-balance-unavailable` row.
 
 The intraday-no-log row **is** in the variance total. Step 5 still
 computes and reports a real number for it. It's flagged here only as a

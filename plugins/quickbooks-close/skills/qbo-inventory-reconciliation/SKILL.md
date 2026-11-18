@@ -224,12 +224,15 @@ carry a real balance as of a past reconciliation date.
   genuine pull failure. A genuine failure is an error, a timeout, or a
   malformed or missing payload. So the pull itself succeeded and returned
   no rows if you reached this bullet at all. Treat that as the legitimate
-  case. Mark every item on the authoritative item list "unavailable". Do
+  case. Mark every item on the authoritative item list "unavailable",
+  except an item created after the as-of date (see the next bullet). Do
   not set any quantity or value to zero. Apply the next bullet to each
   item. Continue through Step 5 rather than stopping. Stop and tell the user
   that something is wrong in one case only. The pull's own response must
   indicate a genuine failure per Step 3. An empty-but-successful response
-  is not that.
+  is not that. When no item has a computed variance, as here, print the
+  total variance as "not computable: no QBO balances returned". Never
+  print $0.00. Say that no item was reconciled.
 - The item list AND the valuation pull may both return items. Use the item
   list then as the authoritative set of "items QBO knows about". Take any
   item on that list that is missing from the valuation pull's results.
@@ -240,7 +243,15 @@ carry a real balance as of a past reconciliation date.
   it. Leave it out of the total variance. Tell the bookkeeper to check
   that item's as-of balance in QBO. Step 6 reports it as "QBO balance
   unavailable", not as a quantity overage, and not as an unmatched or
-  discontinued item.
+  discontinued item. One exception: an item the item list shows was
+  created after the reconciliation as-of date. Report it as "created after
+  the as-of date, no balance as of that date". It is not unavailable, and
+  it gets no flag.
+  An item with a physical count keeps its own `QBO-balance-unavailable`
+  flag. An item that is absent from both the valuation pull and the
+  physical count gets no flag row of its own. Collapse all of those items
+  into one summary flag row. Give the count of items and the item names.
+  List up to 20 names, then "and N more".
 
 QBO's inventory asset pull may return items where every quantity is zero.
 The counted list may also match exactly. Either case is a **genuine
@@ -352,8 +363,10 @@ pull:
    - **Short**: counted less than QBO, so possible shrinkage or damage
    - **Over**: counted more than QBO, so a possible unrecorded receipt or
      a prior miscount
-   - **Flagged**: a value-without-quantity discrepancy, or an unresolved
-     intraday-timing case. See below.
+   - **Flagged**: a value-without-quantity discrepancy, an unresolved
+     intraday-timing case, or an item whose QBO balance is unavailable.
+     See below. An item whose QBO balance is unavailable gets no quantity
+     or dollar variance.
 
 Never classify a flagged item as **matched** just because its quantities
 happen to agree. Quantities that agree are not the same thing as an item
@@ -375,7 +388,9 @@ from QBO, or if the file mixes currencies. Never default to USD.
 |------|-------------|---------|--------------|------------------------|--------|
 | …    | …           | …       | …            | [symbol]… / unavailable: no cost basis / unavailable: cost basis not established for netted movements | Matched / Short / Over / Flagged |
 
-Total variance ([currency]): [symbol]X,XXX.XX (leaves out any item marked "unavailable" for either cost-basis reason, and the two single-source Unmatched Items categories below)
+Total variance ([currency]): [symbol]X,XXX.XX (leaves out any item marked "unavailable" for either cost-basis reason, any item marked "QBO balance unavailable", and the two single-source Unmatched Items categories below)
+
+If no item has a computed variance, print "Total variance ([currency]): not computable: no QBO balances returned" instead. Never print $0.00 then. State that no item was reconciled. ("QBO balance unavailable" means QBO gave no balance for the item. "Unavailable" in the Variance column means no cost basis.)
 ```
 
 ## Step 6: Flag Unmatched Items
@@ -433,6 +448,11 @@ value-without-quantity row has zero quantity on both sides, so there's no
 per-unit cost and no dollar variance to compute. Its stranded asset value
 shows in the Issue column, and that raw figure never folds into the total.
 
+Items that are absent from both the valuation pull and the physical count
+share one summary flag row: the count of items and their names, up to 20,
+then "and N more". An item with a physical count keeps its own
+`QBO-balance-unavailable` row.
+
 The intraday-no-log row **is** in the variance total. Step 5 still
 computes and reports a real number for it. It's flagged here only as a
 timing caveat, not excluded. Mark that one `Y`.
@@ -458,7 +478,10 @@ Say so plainly if there is nothing to flag. Never omit the section.
    reconciliation ran. It covers every item that appears in both sources
    and has a derivable cost basis. It leaves out items marked
    "unavailable" per Step 5, items whose QBO balance is unavailable per
-   Step 4, and the two single-source unmatched categories per Step 6.
+   Step 4, and the two single-source unmatched categories per Step 6. When
+   no item has a computed variance, print it as "not computable: no QBO
+   balances returned" with that reason, never $0.00, and say no item was
+   reconciled.
 
 ## What this skill never does
 
@@ -547,6 +570,7 @@ Pasted physical count:
 - The output MUST report Widget D's QBO quantity and value as unavailable.
 - The output MUST flag Widget D with the `QBO-balance-unavailable` flag type and tell the bookkeeper to check its as-of balance in QBO.
 - The output MUST leave Widget D out of the total variance, and MUST report a total dollar variance of $0.00 from Widget A.
+- The total-variance line MUST name Widget D as left out because its QBO balance is unavailable.
 - The output MUST NOT classify Widget D as Over.
 - The output MUST NOT show a quantity variance of +12 for Widget D.
 - The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool.

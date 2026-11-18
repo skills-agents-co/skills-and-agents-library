@@ -298,8 +298,8 @@ line must meet all three of these:
 Classify each bank-side transaction:
 
 - **Exact match**: one QBO register line satisfies all three criteria,
-  no other register line is an equally good candidate, and that register
-  line is claimed by no other bank line
+  no other register line is an equally good candidate, and no other bank
+  line claims that register line equally well
 - **Non-exact match**: an amount mismatch, a date outside the window, a
   payee mismatch, or ambiguity between two or more candidates
 - **Missing counterpart**: you found no QBO register line at all
@@ -312,11 +312,16 @@ Flag any transaction that matches more than one candidate on the other
 side. Call it a **duplicate candidate**. Never pick one candidate
 silently.
 
-The exact-match test runs both ways. A pair is exact only when each side
-has one qualifying line on the other side. When a QBO register line is
-claimed by two or more bank lines, each claimant is a duplicate candidate.
-None of them is an exact match, and that register line stays out of the
-Proposed Exact Matches table.
+Collect every bank line's candidate register lines first. Classify no
+pair until you have done that for all bank lines. A bank line **claims** a
+register line when that register line is its best candidate: it meets all
+three criteria and has no equally good rival. Use the same test as the
+forward check, including the confidence tiers in the matching rules. A
+pair is exact only when that one bank line claims the register line and no
+other bank line claims it as an equally good candidate. When two or more
+bank lines claim the same register line equally well, each claimant is a
+duplicate candidate. None of them is an exact match, and that register line
+stays out of the Proposed Exact Matches table.
 
 ## Step 7: Reconcile Petty Cash
 

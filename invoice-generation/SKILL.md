@@ -52,8 +52,11 @@ Handling notes:
    quantity, rate, and the resulting line amount -- cite where each value came from.
 3. Assign the invoice number per the operator's numbering scheme (below).
 4. Confirm the invoice date. Compute the due date only from a confirmed invoice date. A confirmed
-   invoice date is one given in the input, supplied by the operator's default rule, or answered by
-   the user. If the input gives no invoice date, apply the operator's default invoice date rule
+   invoice date is an unambiguous absolute date with no conflict. It is given in the input,
+   supplied by the operator's default rule, or answered by the user. A date the flag rule below
+   marks uncertain (conflicting, ambiguous, or relative and not resolvable) is handled like a
+   missing one. A relative date that resolves cleanly may be used once you resolve it and state it
+   back. If the input gives no usable invoice date, apply the operator's default invoice date rule
    (below) and name the rule you used. If there is no such rule, stop before drafting and ask for
    the date. Print no due date until you have one. On a scheduled run with nobody to answer, draft
    the invoice with the invoice date and due date marked "pending invoice date", flag it in the
@@ -86,8 +89,8 @@ here on purpose.
 - A drafted invoice: invoice number, invoice date, due date, customer, itemized lines (each cited to
   its input), subtotal, any deductions, and total. On a scheduled run with no invoice date, the
   invoice date and due date read "pending invoice date" and the summary flags it.
-- A run summary: total amount, invoice date and its source (given in the input, or which default
-  rule supplied it), due date, and any line items flagged "uncertain, needs confirmation."
+- A run summary: total amount, invoice date and its source (given in the input, answered by the
+  user, or which default rule supplied it), due date, and any line items flagged "uncertain, needs confirmation."
 
 ## Error handling
 - **Cite every line.** Each line item and amount on the draft traces to an input it was given
@@ -102,12 +105,15 @@ here on purpose.
   invoice number can't be determined confidently, flag it "uncertain, needs confirmation" in the
   summary rather than drafting a guess. The invoice date follows the same rule. Flag two inputs that
   disagree on the date, an ambiguous date such as 03/04, and a relative date such as "end of month".
-  Resolve a relative date against today and state the resolved date back.
+  Resolve a relative date against the billing period the input states, and only against the run
+  date when no period is given. State the resolved date back.
 
 ## Eval contract
 - **Spec:** A correct run takes customer, line-item, and terms inputs and drafts an invoice with a
   numbered invoice, invoice date, due date computed from the stated terms (or, when the input gives
-  no invoice date and there is no default rule, a request for the date with no due date printed),
+  no invoice date and there is no default rule, a request for the date with no due date printed, or
+  on a scheduled run a draft whose invoice date and due date read "pending invoice date" with a
+  summary flag),
   itemized lines each cited
   to an input, a subtotal/total that sums only the cited line items, and a summary that flags any
   line item with a missing or conflicting rate as "uncertain, needs confirmation" -- without ever
@@ -119,7 +125,8 @@ here on purpose.
      needs confirmation" and excluded from the total, never inferred or guessed.**
   3. The due date correctly reflects the stated payment terms (or the confirmed default) applied to
      the invoice date. When the input gives no date and there is no default rule, asking for the date
-     with no due date printed passes.
+     with no due date printed passes. On a scheduled run, a draft whose invoice date and due date
+     read "pending invoice date" with a summary flag also passes.
   4. The invoice number follows the operator's confirmed numbering scheme.
   5. **The skill only produces a draft; it never marks the invoice sent, never marks it paid, and
      never posts it to an accounting system.**
@@ -132,8 +139,9 @@ here on purpose.
     *Output MUST* mark that line "uncertain, needs confirmation" and exclude it from the total.
     *Output MUST NOT* guess a rate for it or silently omit it from the summary.
   - *Input:* a customer, three line items, net-30 terms, and an invoice number, but no invoice date
-    and no default date rule. *Output MUST* ask for the invoice date. *Output MUST NOT* print a due
-    date until it has a confirmed invoice date.
+    and no default date rule. *Output MUST* ask for the invoice date. On a scheduled run, it MAY
+    instead draft with the invoice date and due date reading "pending invoice date" and a summary
+    flag. *Output MUST NOT* print a due date until it has a confirmed invoice date.
 - **Version:** 1.1.0
 
 Learn more: https://skillsandagents.co/skills/invoice-generation/

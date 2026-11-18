@@ -140,9 +140,9 @@ netting a timestamped intraday log.
 For every item present in both the physical count and QBO's valuation
 pull: compute quantity variance (counted minus QBO) and, where derivable,
 dollar variance; classify **Matched** (zero variance), **Short**, **Over**,
-or **Flagged** (value-without-quantity, unresolved intraday timing, or QBO
-balance unavailable; see Step 6). An item whose QBO balance is unavailable
-(Step 4) gets no quantity or dollar variance. Never call a flagged item matched
+or **Flagged** (value-without-quantity or unresolved intraday timing; see
+Step 6). An item whose QBO balance is unavailable (Step 4) is not in this
+step. Report it only in Step 6. Never call a flagged item matched
 just because quantities agree. Report every item, not only variances.
 **Read `references/output-templates.md`** for the exact table format and
 home-currency rule.
@@ -175,10 +175,13 @@ the total excludes. Say so if nothing to flag — never omit the section.
    reconciliation ran. It covers every item that appears in both sources
    and has a derivable cost basis. It leaves out items marked
    "unavailable" per Step 5, items whose QBO balance is unavailable per
-   Step 4, and the two single-source unmatched categories per Step 6. When
-   no item has a computed variance, print it as "not computable: no QBO
-   balances returned" with that reason, never $0.00, and say no item was
-   reconciled.
+   Step 4, and the two single-source unmatched categories per Step 6. Name
+   each item left out because its QBO balance is unavailable on the total
+   line. For a long list, name the first 20, then "and N more". When no
+   item has a computed variance, print it as "not computable: [reason]".
+   The reason is "no QBO balances returned" (empty pull), "no item in both
+   sources", or "no cost basis for any item". Never print $0.00, and say no
+   item was reconciled.
 
 ## What this skill never does
 
@@ -197,7 +200,9 @@ the total excludes. Say so if nothing to flag — never omit the section.
   reconciles and reports the former. It skips only the latter.
 - It never reads an item missing from the valuation pull as a zero
   balance. It marks the item "unavailable", flags it, and tells the
-  bookkeeper to check its as-of balance in QBO.
+  bookkeeper to check its as-of balance in QBO. The one exception is an
+  item created after the as-of date that is also absent from the count
+  (see Step 4).
 - It never guesses a per-unit cost when QBO's own on-hand quantity is
   zero. It reports the dollar variance as unavailable instead.
 - It never does photo-based counting or OCR counting. The physical count
@@ -270,6 +275,17 @@ Pasted physical count:
 - The total-variance line MUST name Widget D as left out because its QBO balance is unavailable.
 - The output MUST NOT classify Widget D as Over.
 - The output MUST NOT show a quantity variance of +12 for Widget D.
+- The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool.
+
+**Scenario D.** Period end 2026-06-30, end-of-day count. The item-list query returns Widget A and Widget B. The valuation pull succeeds and returns no rows.
+
+Pasted physical count:
+- Widget A: 100
+- Widget B: 40
+
+- The output MUST print the total variance as "not computable: no QBO balances returned".
+- The output MUST emit one summary flag for the empty pull.
+- The output MUST NOT print $0.00 as the total variance.
 - The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool.
 
 ### Version

@@ -42,14 +42,16 @@ carry a real balance as of a past reconciliation date.
   malformed or missing payload. So the pull itself succeeded and returned
   no rows if you reached this bullet at all. Treat that as the legitimate
   case. Mark every item on the authoritative item list "unavailable",
-  except an item created after the as-of date (see the next bullet). Do
-  not set any quantity or value to zero. Apply the next bullet to each
-  item. Continue through Step 5 rather than stopping. Stop and tell the user
+  except an item created after the as-of date that is also absent from the
+  count (see the next bullet). Do not set any quantity or value to zero.
+  Continue through Step 5 rather than stopping. Stop and tell the user
   that something is wrong in one case only. The pull's own response must
   indicate a genuine failure per Step 3. An empty-but-successful response
-  is not that. When no item has a computed variance, as here, print the
-  total variance as "not computable: no QBO balances returned". Never
-  print $0.00. Say that no item was reconciled.
+  is not that. In this case, emit one summary flag: "valuation pull
+  returned no rows; all N items unavailable". List up to 20 item names,
+  then "and N more". This overrides the per-item flag rule below, whatever
+  the count covers. Print the total variance as "not computable: no QBO
+  balances returned". Never print $0.00. Say that no item was reconciled.
 - The item list AND the valuation pull may both return items. Use the item
   list then as the authoritative set of "items QBO knows about". Take any
   item on that list that is missing from the valuation pull's results.
@@ -61,14 +63,20 @@ carry a real balance as of a past reconciliation date.
   that item's as-of balance in QBO. Step 6 reports it as "QBO balance
   unavailable", not as a quantity overage, and not as an unmatched or
   discontinued item. One exception: an item the item list shows was
-  created after the reconciliation as-of date. Report it as "created after
-  the as-of date, no balance as of that date". It is not unavailable, and
-  it gets no flag.
+  created after the reconciliation as-of date and that is also absent from
+  the physical count. Report it as "created after the as-of date, no
+  balance as of that date". It is not unavailable, and it gets no flag.
+  A counted item created after the as-of date keeps the
+  `QBO-balance-unavailable` flag and the check-in-QBO instruction, because
+  QBO allows a backdated starting quantity.
   An item with a physical count keeps its own `QBO-balance-unavailable`
   flag. An item that is absent from both the valuation pull and the
-  physical count gets no flag row of its own. Collapse all of those items
-  into one summary flag row. Give the count of items and the item names.
-  List up to 20 names, then "and N more".
+  physical count follows the omission convention from Step 2. If the count
+  lists only what was found, collapse all of those items into one summary
+  flag row. Give the count of items and the item names, up to 20, then
+  "and N more". Tell the bookkeeper to check those items' as-of balances in
+  QBO. If the count is exhaustive, absent means counted zero. Keep a
+  per-item flag for each one: counted 0, QBO balance unknown.
 
 QBO's inventory asset pull may return items where every quantity is zero.
 The counted list may also match exactly. Either case is a **genuine

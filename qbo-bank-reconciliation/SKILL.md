@@ -111,25 +111,32 @@ Match each bank-side transaction to a QBO line on amount, payee, and date.
 See `references/matching-rules.md` for the normalization and match-test
 mechanics, and for the confidence-tier definition behind the output table's
 Confidence column.
-Classify each as **exact match** (one QBO line meets all three criteria, no
-equally good rival, and no other bank line claims that QBO line equally well),
+Classify each as **exact match** (see the claims rule below),
 **non-exact match** (an amount mismatch, a date outside
-the window, a payee mismatch, or ambiguity between two or more candidates),
-or **missing counterpart** (no QBO line at all). Flag any transaction
-matching more than one candidate as a **duplicate candidate** (for example,
-two same-day, same-amount transactions to the same payee) — never pick one
-silently.
+the window, a payee mismatch, ambiguity between two or more candidates, or
+a bank line that lost its QBO line to a better claimant),
+or **missing counterpart** (no QBO line at all). A transaction is a
+**duplicate candidate** when it has two or more equally good candidates, or
+when it ties another line as best claimant (for example, two same-day,
+same-amount transactions to the same payee). Never pick one silently.
 
 Collect every bank line's candidate QBO lines first. Classify no pair
-until you have done that for all bank lines. A bank line **claims** a QBO
-line when that QBO line is its best candidate: it meets all three criteria
-and has no equally good rival. Use the same test as the forward check,
-including the confidence tiers in `references/matching-rules.md`. A pair is
-exact only when that one bank line claims the QBO line and no other bank
-line claims it as an equally good candidate. When two or more bank lines
-claim the same QBO line equally well, each claimant is a duplicate
-candidate. None of them is an exact match, and that QBO line stays out of
-the Proposed Exact Matches table.
+until you have done that for all bank lines. Then apply these rules:
+
+- A bank line's **best candidate** is the QBO line that meets all three
+  criteria with the highest confidence tier (see
+  `references/matching-rules.md`), with no equally good rival.
+- A QBO line's **best claimant** is, among the bank lines whose best
+  candidate it is, the one with the highest tier, with no equal rival.
+- A pair is **exact** only when each side is the other's best. The QBO line
+  is the bank line's best candidate, and the bank line is that QBO line's
+  only best claimant.
+- If two or more bank lines tie as best claimant, each one is a duplicate
+  candidate. None of them is an exact match.
+- Any other bank line whose best candidate is a QBO line already paired to a
+  different bank line is a non-exact match, because it lost to a better
+  claimant. It is never an exact match.
+- A QBO line appears in the Proposed Exact Matches table at most once.
 
 ## Step 5: Reconcile Petty Cash
 
@@ -210,6 +217,12 @@ Bank ending balance $8,000.00. QBO ending balance $8,500.00.
 - The output MUST NOT list the 03/18 Acme Supply $500.00 QBO register line in the Proposed Exact Matches table.
 - The output MUST NOT resolve the 03/18 $500.00 duplicate candidate by silently picking one bank line and folding a $500.00 match into the reconciled total.
 - The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool, or state that it cleared or approved anything in QBO.
+
+**Scenario A2.** Same period, one Operating account, default tolerance window. Bank side: B1 03/18 ACME SUPPLY $500.00 and B2 03/19 ACME SUPPLY $500.00. QBO register: one line, 03/18 Acme Supply $500.00.
+
+- The output MUST propose B1 with the 03/18 register line as the only exact match.
+- The output MUST list B2 as a non-exact match or discrepancy.
+- The output MUST NOT list the 03/18 register line twice.
 
 **Scenario B.** The bookkeeper says: "Our spend all runs through Ramp. Pull the bank side from Ramp and reconcile March."
 

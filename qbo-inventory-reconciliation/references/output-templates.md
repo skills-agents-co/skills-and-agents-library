@@ -25,13 +25,15 @@ Total variance ([currency]): [symbol]X,XXX.XX (leaves out any item marked "unava
 
 | Flag type | Item | Qty / Value | Issue | In variance total? |
 |-----------|------|-------------|-------|---------------------|
-| Counted-only / QBO-only / Value-without-quantity / Intraday-no-log | … | … | … | Y/N |
+| Counted-only / QBO-only / QBO-balance-unavailable / Value-without-quantity / Intraday-no-log | … | … | … | Y/N |
 ```
 
-The variance total above leaves out three kinds of row. It leaves out the
+The variance total above leaves out four kinds of row. It leaves out the
 two genuine single-source rows, counted-only and QBO-only. Neither one has
 a matching item on the other side. It leaves out the
-value-without-quantity row. Mark all three `N`. The single-source rows
+QBO-balance-unavailable row. Its QBO quantity and value are unknown, so
+there is nothing to compute a variance against. It leaves out the
+value-without-quantity row. Mark all four `N`. The single-source rows
 have nothing on the other side to compute a variance against. The
 value-without-quantity row has zero quantity on both sides, so there's no
 per-unit cost and no dollar variance to compute. Its stranded asset value

@@ -112,12 +112,19 @@ See `references/matching-rules.md` for the normalization and match-test
 mechanics, and for the confidence-tier definition behind the output table's
 Confidence column.
 Classify each as **exact match** (one QBO line meets all three criteria, no
-equally good rival), **non-exact match** (an amount mismatch, a date outside
+equally good rival, and that QBO line is claimed by no other bank line),
+**non-exact match** (an amount mismatch, a date outside
 the window, a payee mismatch, or ambiguity between two or more candidates),
 or **missing counterpart** (no QBO line at all). Flag any transaction
 matching more than one candidate as a **duplicate candidate** (for example,
 two same-day, same-amount transactions to the same payee) — never pick one
 silently.
+
+The exact-match test runs both ways. A pair is exact only when each side
+has one qualifying line on the other side. When a QBO line is claimed by
+two or more bank lines, each claimant is a duplicate candidate. None of
+them is an exact match, and that QBO line stays out of the Proposed Exact
+Matches table.
 
 ## Step 5: Reconcile Petty Cash
 
@@ -195,6 +202,7 @@ Bank ending balance $8,000.00. QBO ending balance $8,500.00.
 - The output MUST propose the City Power $340.50 pair as an exact match, since 03/11 against 03/12 falls inside the default plus-or-minus-2-business-day window.
 - The output MUST flag the 03/18 $500.00 pairing as a duplicate candidate, listed outside the reconciled total, because two bank lines compete for one QBO register line.
 - The output MUST report the $500.00 gap between the bank ending balance of $8,000.00 and QBO's $8,500.00, and MUST NOT call the period reconciled without addressing it.
+- The output MUST NOT list the 03/18 Acme Supply $500.00 QBO register line in the Proposed Exact Matches table.
 - The output MUST NOT resolve the 03/18 $500.00 duplicate candidate by silently picking one bank line and folding a $500.00 match into the reconciled total.
 - The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool, or state that it cleared or approved anything in QBO.
 
@@ -208,7 +216,7 @@ Bank ending balance $8,000.00. QBO ending balance $8,500.00.
 
 ### Version
 
-1.0.0
+1.1.0
 
 ---
 

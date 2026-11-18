@@ -8,8 +8,8 @@ can still omit an item genuinely configured in QBO with no recent
 movement. Suppose you ran this check only on a fully empty pull. That
 omitted item would flow straight to Step 6 as "unmatched". That label
 looks like a naming mismatch or a discontinued item. It is really a QBO
-item sitting at zero on-hand quantity. It is a real overage if the
-physical count shows any units for it.
+item with an unknown balance. An omitted item is not a zero balance. The
+report did not say what the balance is.
 
 So always run a separate, simpler query. Use an item list, or an item
 search filtered to Inventory-type items. That query gives you the complete
@@ -18,7 +18,7 @@ whatever the valuation report's own filtering logic includes. **Follow
 this query to completion if it paginates, the same way Step 3 requires for
 the valuation pull.** An item beyond the first page is otherwise absent
 from the authoritative set. Its physical count would then read as
-unmatched, instead of reconciling as a configured zero-balance item.
+unmatched, instead of reconciling as a configured item.
 
 This item-list query reflects QBO's *current* configuration when the
 reconciliation date is not today. It does not reflect the item list as it
@@ -41,19 +41,22 @@ carry a real balance as of a past reconciliation date.
   genuine pull failure. A genuine failure is an error, a timeout, or a
   malformed or missing payload. So the pull itself succeeded and returned
   no rows if you reached this bullet at all. Treat that as the legitimate
-  case. Zero-fill every item on the authoritative item list. Set its
-  quantity and its value to zero, by the same rule as the next bullet.
-  Continue through Step 5 rather than stopping. Stop and tell the user
+  case. Mark every item on the authoritative item list "unavailable". Do
+  not set any quantity or value to zero. Apply the next bullet to each
+  item. Continue through Step 5 rather than stopping. Stop and tell the user
   that something is wrong in one case only. The pull's own response must
   indicate a genuine failure per Step 3. An empty-but-successful response
   is not that.
 - The item list AND the valuation pull may both return items. Use the item
   list then as the authoritative set of "items QBO knows about". Take any
   item on that list that is missing from the valuation pull's results.
-  Treat its QBO on-hand quantity and asset value as zero, not as "no
-  data". It is a real QBO item that the valuation report did not happen to
-  include. This rule covers a physical count against a zero-activity item.
-  Step 5 and Step 6 then report a quantity overage, not an unmatched or
+  Mark its QBO on-hand quantity and asset value "unavailable". Do not
+  treat them as zero. The report's silence is not a zero balance. It is a
+  real QBO item that the valuation report did not happen to include. Flag
+  it with the `QBO-balance-unavailable` flag type. Compute no variance for
+  it. Leave it out of the total variance. Tell the bookkeeper to check
+  that item's as-of balance in QBO. Step 6 reports it as "QBO balance
+  unavailable", not as a quantity overage, and not as an unmatched or
   discontinued item.
 
 QBO's inventory asset pull may return items where every quantity is zero.

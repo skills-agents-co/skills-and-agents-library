@@ -32,6 +32,7 @@ Default inputs, no special tooling required:
   time sheet, a signed order, a contract, or just the numbers in chat.
 - **The payment terms.** When the invoice is due (e.g. net 30, due on receipt), and any deposit or
   prior payment to net against the total.
+- **The invoice date.** The date the invoice is issued. The due date counts from this date.
 - **The invoice number.** Either a number to use, or enough of your prior invoices/log to derive the
   next one in sequence.
 
@@ -49,7 +50,10 @@ Handling notes:
 2. Pull line items from the input (time sheet, order, contract, or chat). For each: description,
    quantity, rate, and the resulting line amount -- cite where each value came from.
 3. Assign the invoice number per the operator's numbering scheme (below).
-4. Apply payment terms to compute the due date from the invoice date.
+4. Confirm the invoice date. Compute the due date only from a confirmed invoice date. If the input
+   gives no invoice date, apply the operator's default invoice date rule (below) and name the rule
+   you used. If there is no such rule, ask for the date. Print no due date until you have one.
+   Then apply payment terms to that date.
 5. Net any deposit or prior payment against the subtotal if the input specifies one.
 6. Sum the line items into a total. Any line item with a missing or conflicting rate is marked
    "uncertain, needs confirmation" and excluded from the total until resolved -- never guessed.
@@ -63,6 +67,9 @@ here on purpose.
 
 - **Invoice numbering scheme.** Sequential (and from what starting number / prior log) or
   system-assigned. State which, and where the skill should look to find the next number.
+- **Default invoice date.** What the skill does when the input gives no invoice date. The operator
+  either sets a default (for example, the run date) or requires a confirmed date on every invoice.
+  With no default set, the skill asks.
 - **Default payment terms.** The standard terms to apply when the input doesn't specify one (for
   example net 30), and whether that default is allowed to be used or must always be confirmed
   per invoice.
@@ -73,7 +80,8 @@ here on purpose.
 ## Output
 - A drafted invoice: invoice number, invoice date, due date, customer, itemized lines (each cited to
   its input), subtotal, any deductions, and total.
-- A run summary: total amount, due date, and any line items flagged "uncertain, needs confirmation."
+- A run summary: total amount, invoice date and its source (given in the input, or which default
+  rule supplied it), due date, and any line items flagged "uncertain, needs confirmation."
 
 ## Error handling
 - **Cite every line.** Each line item and amount on the draft traces to an input it was given
@@ -112,6 +120,9 @@ here on purpose.
   - *Input:* two line items, one of which has no rate given (only a description and quantity).
     *Output MUST* mark that line "uncertain, needs confirmation" and exclude it from the total.
     *Output MUST NOT* guess a rate for it or silently omit it from the summary.
-- **Version:** 1.0.0
+  - *Input:* a customer, three line items, net-30 terms, and an invoice number, but no invoice date
+    and no default date rule. *Output MUST* ask for the invoice date. *Output MUST NOT* print a due
+    date until it has a confirmed invoice date.
+- **Version:** 1.1.0
 
 Learn more: https://skillsandagents.co/skills/invoice-generation/

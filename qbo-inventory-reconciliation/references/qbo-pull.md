@@ -10,10 +10,9 @@ date.
 Follow the tool's pagination if the business has a very large item catalog
 and the tool paginates its results. Never assume that the first page is
 the whole inventory. Per Step 4, an item missing from this pull gets
-zero-filled rather than treated as unmatched. So a truncated pull here
-does not surface as a false unmatched or discontinued item. It surfaces as
-a false quantity overage with a dollar figure attached, which is harder to
-spot. The item-list query in Step 4 may return more inventory items than
+marked "unavailable" rather than treated as unmatched or as zero. So a
+truncated pull here does not surface as a false unmatched or discontinued
+item. It surfaces as a run of false "QBO balance unavailable" rows. The item-list query in Step 4 may return more inventory items than
 this pull returned rows. Treat that as a signal that the valuation pull
 was truncated. Confirm that you exhausted pagination before you proceed.
 

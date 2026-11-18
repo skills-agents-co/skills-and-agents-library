@@ -128,7 +128,7 @@ worse than a false variance, because nobody has a reason to question it.
 any "no inventory" conclusion.** In short: always run a separate,
 paginated-to-completion item-list query, and stop only on a confirmed
 zero-item list — never on an empty valuation pull alone (that gets
-zero-filled and carried through Step 5 instead).
+marked unavailable and carried through Step 5 instead).
 
 ## Step 5: Calculate Variance By Item
 
@@ -172,8 +172,8 @@ the total excludes. Say so if nothing to flag — never omit the section.
 5. The total variance in the QBO company's actual home currency, if the
    reconciliation ran. It covers every item that appears in both sources
    and has a derivable cost basis. It leaves out items marked
-   "unavailable" per Step 5, and the two single-source unmatched
-   categories per Step 6.
+   "unavailable" per Step 5, items whose QBO balance is unavailable per
+   Step 4, and the two single-source unmatched categories per Step 6.
 
 ## What this skill never does
 
@@ -190,6 +190,9 @@ the total excludes. Say so if nothing to flag — never omit the section.
 - It never treats a genuinely empty count-against-QBO comparison as "no
   inventory tracked". That comparison is a real zero variance. It
   reconciles and reports the former. It skips only the latter.
+- It never reads an item missing from the valuation pull as a zero
+  balance. It marks the item "unavailable", flags it, and tells the
+  bookkeeper to check its as-of balance in QBO.
 - It never guesses a per-unit cost when QBO's own on-hand quantity is
   zero. It reports the dollar variance as unavailable instead.
 - It never does photo-based counting or OCR counting. The physical count
@@ -250,9 +253,22 @@ QuickBooks Online inventory records for the same date:
 - The output MUST NOT report "no inventory tracked" on the strength of the empty valuation pull alone.
 - The output MUST NOT report a reconciled zero variance as though a count had been compared against QBO records.
 
+**Scenario C.** Period end 2026-06-30, end-of-day count. The item-list query returns Widget A and Widget D. The valuation pull returns only Widget A, at 100 on hand and $1,200.00.
+
+Pasted physical count:
+- Widget A: 100
+- Widget D: 12
+
+- The output MUST report Widget D's QBO quantity and value as unavailable.
+- The output MUST flag Widget D with the `QBO-balance-unavailable` flag type and tell the bookkeeper to check its as-of balance in QBO.
+- The output MUST leave Widget D out of the total variance, and MUST report a total dollar variance of $0.00 from Widget A.
+- The output MUST NOT classify Widget D as Over.
+- The output MUST NOT show a quantity variance of +12 for Widget D.
+- The output MUST NOT call any `create_*`, `update_*`, or `delete_*` tool.
+
 ### Version
 
-1.0.0
+1.1.0
 
 ---
 

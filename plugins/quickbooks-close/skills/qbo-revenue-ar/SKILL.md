@@ -119,9 +119,11 @@ other.
 
 ## Step 4: Build the AR Aging View
 
-Bucket every invoice that carries an open balance by days past due. An
-open balance means partially paid, unpaid, or overpaid. Anchor the days
-past due to the invoice due date and the period end date.
+Bucket only invoices with a positive open balance by days past due. A
+positive open balance means partially paid or unpaid. An overpaid invoice
+has no receivable to age. Never put it in a bucket. List it in the Step 5
+flagged-items section instead. Anchor the days past due to the invoice due
+date and the period end date.
 
 ```
 ## AR Aging, as of [period end date]
@@ -135,7 +137,8 @@ Total AR outstanding: $X,XXX.XX
 
 State the aging view total against the **Aged Receivables** report total
 from Step 2. Say so explicitly if the two totals do not match. Show both
-numbers. Never pick one.
+numbers. Never pick one. When an overpayment explains the gap, name it.
+Keep showing both numbers.
 
 ## Step 5: Flag Unmatched Items
 
@@ -393,7 +396,15 @@ Sales receipts: one for $450.00 on 02/09.
 - The output MUST classify INV-200 as overpaid and flag it as a probable misapplied payment or data entry error.
 - The output MUST report both the $500.00 QBO figure and the $650.00 self-computed figure and flag the $150.00 gap.
 - The output MUST NOT present either figure alone as the open balance.
+- The output MUST NOT place INV-200 in any aging bucket.
 - The output MUST NOT adjust, unapply, or otherwise resolve the overpayment in QuickBooks Online.
+
+**Scenario D.** February 2026, one customer, Contoso, two invoices. INV-300 is $1,000.00, due 02/10, with nothing applied. INV-301 is $400.00, due 02/10, with $550.00 in payments applied.
+
+- The output MUST show $1,000.00 for Contoso in the AR aging view and "Total AR outstanding: $1,000.00".
+- The output MUST list INV-301 in the flagged-items section as overpaid by $150.00.
+- The output MUST NOT show a negative amount in any aging bucket.
+- The output MUST NOT place INV-301 in any aging bucket.
 
 **Scenario C.** A run finishes with 12 invoices paid in full, 1 partially paid, 0 unpaid, 0 overpaid, and 0 flagged. During the run the user corrected two proposed invoice-payment matches. At Step 7c the user replies "no, don't send it". The user gave an email address earlier in the session while discussing a flagged invoice, but never answered the Step 7b consent question.
 
@@ -406,7 +417,7 @@ Sales receipts: one for $450.00 on 02/09.
 
 ### Version
 
-1.1.0
+1.2.0
 
 ---
 

@@ -26,14 +26,14 @@ Every new plugin needs `.claude-plugin/icon.png` (square PNG, 512 to 2048 px, un
 
 This repo requires two keys: `name` and `description`. The lint workflow checks those and nothing else. Everything below is catalog metadata that a maintainer fills in when they write the catalog entry after your PR merges. Include what you know, leave out what you are unsure of.
 
-The example below is catalog metadata, not a checklist. `scripts/build-index.mjs` reads only `name`, `description`, `category`, `tags`, `version`, and `author` into `index.json`. Lists can be written as block lists or inline, like `tags: [a, b, c]`. You don't need to set or bump `version`: the repo versions releases with git tags.
+The example below is catalog metadata, not a checklist. `scripts/build-index.mjs` reads only `name`, `description`, `category`, `tags`, `version`, and `author` into `index.json`. `category` is one of `productivity`, `finance`, `content`, `research`, `coding`, `comms`, or `life-admin`. `tags` can be a block list or an inline list on one line, like `tags: [a, b, c]`. You don't need to set or bump `version`: the repo versions releases with git tags.
 
 ```yaml
 ---
 name: "Skill Name"
 description: "One-sentence catalog blurb."
 longDescription: "A paragraph or two describing what it does."
-category: productivity  # one of: productivity, finance, content, research, coding, comms, life-admin
+category: productivity
 tags:
   - example
 installType: simple     # or "mcp-powered"
@@ -77,7 +77,7 @@ Before approving a skill that adds or changes a contract:
 
 ## Writing rules
 
-- Prefer a regular dash or a comma over an em dash in new prose. The lint workflow reports each em dash in a body as a `WARN` line and still passes, so this is a preference, not a blocking check.
+- Prefer a regular dash or a comma over an em dash in new prose. The lint workflow reports each body line that contains an em dash as a `WARN` line and still passes, so this is a preference, not a blocking check.
 - No marketing voice. Plain, direct, operator-facing.
 - Don't add filler like "Note that" or "It is important to".
 - Code blocks for commands. Inline code for filenames and CLI flags.

@@ -93,7 +93,7 @@ git('config', 'user.email', 'test@example.com');
 git('config', 'user.name', 'Fixture');
 
 // Layout 1: flat skill.
-write('flat-skill/SKILL.md', skillMd('flat-skill', 'A flat skill.', ['tags: [alpha, "beta", gamma]']));
+write('flat-skill/SKILL.md', skillMd('flat-skill', 'A flat skill.', ['tags: [alpha, "beta, two", gamma]  # a comment']));
 write('flat-skill/references/notes.md', 'notes\n');
 write('flat-skill/scripts/run.py', 'print("hi")\n');
 
@@ -112,7 +112,7 @@ write('agent-pack/agents/helper-agent.md', skillMd('helper-agent', 'An agent.'))
 // not reach the index.
 write(
   'authored-skill/SKILL.md',
-  skillMd('authored-skill', 'A skill with a named author.', ['author: "Fixture Author"'])
+  skillMd('authored-skill', 'A skill with a named author.', ['author: "Fixture Author"', 'tags: []', 'category: [finance]'])
 );
 
 // A bare `author:` line with no value. The index must still publish a string.
@@ -261,8 +261,10 @@ check('tags parse from both the inline [a, b] form and the block list form', (wa
   want(code === 0, `exit ${code}, wanted 0. Output: ${out}`);
   if (!index) return;
   const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-  want(eq(index['flat-skill'].tags, ['alpha', 'beta', 'gamma']), `inline tags were ${JSON.stringify(index['flat-skill'].tags)}`);
+  want(eq(index['flat-skill'].tags, ['alpha', 'beta, two', 'gamma']), `inline tags were ${JSON.stringify(index['flat-skill'].tags)}`);
   want(eq(index['nested-skill'].tags, ['one', 'two']), `block tags were ${JSON.stringify(index['nested-skill'].tags)}`);
+  want(eq(index['authored-skill'].tags, []), `empty inline tags were ${JSON.stringify(index['authored-skill'].tags)}`);
+  want(index['authored-skill'].category === '[finance]', `bracketed non-list key became ${JSON.stringify(index['authored-skill'].category)}, wanted the string kept`);
   want(eq(index['helper-agent'].tags, []), `untagged entry tags were ${JSON.stringify(index['helper-agent'].tags)}`);
 });
 

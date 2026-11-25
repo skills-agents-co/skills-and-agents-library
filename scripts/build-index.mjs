@@ -140,8 +140,48 @@ function makeSource({ tag, worktree }) {
   };
 }
 
+// Keys whose value is a list, and so may use the inline `[a, b]` form.
+const INLINE_LIST_KEYS = new Set(['tags']);
+
+/**
+ * Parse a one-line YAML flow list like `[a, "b, c", 'd']  # comment`.
+ * Commas inside quotes stay part of the item. Returns null when the value is
+ * not a single closed list (unbalanced quotes, nested brackets, no closing `]`,
+ * or anything other than a `# comment` after it).
+ */
+function parseInlineList(value) {
+  const items = [];
+  let cur = '';
+  let quote = null;
+  let i = 1;
+  for (; i < value.length; i++) {
+    const ch = value[i];
+    if (quote) {
+      if (ch === quote) quote = null;
+      cur += ch;
+    } else if (ch === '"' || ch === "'") {
+      quote = ch;
+      cur += ch;
+    } else if (ch === '[') {
+      return null;
+    } else if (ch === ',' || ch === ']') {
+      const item = stripQuotes(cur.trim());
+      if (item !== '') items.push(item);
+      cur = '';
+      if (ch === ']') break;
+    } else {
+      cur += ch;
+    }
+  }
+  if (i >= value.length) return null;
+  const after = value.slice(i + 1).trim();
+  if (after !== '' && !after.startsWith('#')) return null;
+  return items;
+}
+
 /**
  * Minimal YAML frontmatter parser that handles:
+ *   key: [a, b]  (inline list, for INLINE_LIST_KEYS only)
  *   key: value
  *   key: "quoted value"
  *   key: >    (folded block scalar — fold subsequent indented lines)
@@ -195,7 +235,21 @@ function parseFrontmatter(raw) {
       continue;
     }
 
-    out[key] = stripQuotes(rest.trim());
+    const trimmed = rest.trim();
+    if (INLINE_LIST_KEYS.has(key) && trimmed.startsWith('[')) {
+      // inline flow list: `tags: [a, b, "c"]`, optionally followed by `# comment`.
+      // Only list-typed keys take this branch, so a bracketed scalar such as
+      // `description: [Beta] ...` stays a string.
+      const items = parseInlineList(trimmed);
+      if (items) {
+        out[key] = items;
+        i++;
+        continue;
+      }
+      console.warn(`WARN: could not parse inline list for "${key}": ${trimmed}`);
+    }
+
+    out[key] = stripQuotes(trimmed);
     i++;
   }
   return out;

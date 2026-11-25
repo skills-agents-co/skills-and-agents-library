@@ -93,13 +93,13 @@ git('config', 'user.email', 'test@example.com');
 git('config', 'user.name', 'Fixture');
 
 // Layout 1: flat skill.
-write('flat-skill/SKILL.md', skillMd('flat-skill', 'A flat skill.'));
+write('flat-skill/SKILL.md', skillMd('flat-skill', 'A flat skill.', ['tags: [alpha, "beta, two", gamma]  # a comment']));
 write('flat-skill/references/notes.md', 'notes\n');
 write('flat-skill/scripts/run.py', 'print("hi")\n');
 
 // Layout 2: nested skill — slug comes from skills/<name>/, install folder is
 // the top-level directory.
-write('nested-pack/skills/nested-skill/SKILL.md', skillMd('nested-skill', 'A nested skill.'));
+write('nested-pack/skills/nested-skill/SKILL.md', skillMd('nested-skill', 'A nested skill.', ['tags:', '  - one', '  - two']));
 write('nested-pack/references/guide.md', 'guide\n');
 
 // Layout 3: agent — slug comes from agents/<name>.md.
@@ -112,7 +112,7 @@ write('agent-pack/agents/helper-agent.md', skillMd('helper-agent', 'An agent.'))
 // not reach the index.
 write(
   'authored-skill/SKILL.md',
-  skillMd('authored-skill', 'A skill with a named author.', ['author: "Fixture Author"'])
+  skillMd('authored-skill', 'A skill with a named author.', ['author: "Fixture Author"', 'tags: []', 'category: [finance]'])
 );
 
 // A bare `author:` line with no value. The index must still publish a string.
@@ -254,6 +254,18 @@ check('the three layouts each produce one correctly-shaped entry', (want) => {
     want(v.files.includes(v.skillFilePath), `${slug}: files does not list its own skillFilePath`);
     want(v.skillFileUrl.includes(`/${TAG}/`), `${slug}: skillFileUrl is not pinned to ${TAG}`);
   }
+});
+
+check('tags parse from both the inline [a, b] form and the block list form', (want) => {
+  const { code, index, out } = build(['--tag', TAG]);
+  want(code === 0, `exit ${code}, wanted 0. Output: ${out}`);
+  if (!index) return;
+  const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  want(eq(index['flat-skill'].tags, ['alpha', 'beta, two', 'gamma']), `inline tags were ${JSON.stringify(index['flat-skill'].tags)}`);
+  want(eq(index['nested-skill'].tags, ['one', 'two']), `block tags were ${JSON.stringify(index['nested-skill'].tags)}`);
+  want(eq(index['authored-skill'].tags, []), `empty inline tags were ${JSON.stringify(index['authored-skill'].tags)}`);
+  want(index['authored-skill'].category === '[finance]', `bracketed non-list key became ${JSON.stringify(index['authored-skill'].category)}, wanted the string kept`);
+  want(eq(index['helper-agent'].tags, []), `untagged entry tags were ${JSON.stringify(index['helper-agent'].tags)}`);
 });
 
 check('plugins lists every covering plugin in marketplace order, [] when none', (want) => {

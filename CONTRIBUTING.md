@@ -16,6 +16,8 @@ Every skill is a top-level folder:
   agents/             # optional, related agent SKILL.md files
 ```
 
+A skill can also nest its `SKILL.md` one level down, at `<skill-name>/skills/<skill-name>/SKILL.md`. `ads-copilot` and `financial-pulse` use this layout. In a nested skill, `references/` and `scripts/` sit at the top of `<skill-name>/`, not beside the `SKILL.md`, and relative paths in the `SKILL.md` resolve against `<skill-name>/`. `scripts/check-skill-files.mjs` checks both layouts, plus the plugin-nested one under `plugins/`.
+
 Folder name is the slug used in catalog URLs. Lowercase, hyphen-separated, no spaces.
 
 Every new plugin needs `.claude-plugin/icon.png` (square PNG, 512 to 2048 px, under 2 MB); CI fails without it.
@@ -23,6 +25,8 @@ Every new plugin needs `.claude-plugin/icon.png` (square PNG, 512 to 2048 px, un
 ## SKILL.md frontmatter
 
 This repo requires two keys: `name` and `description`. The lint workflow checks those and nothing else. Everything below is catalog metadata that a maintainer fills in when they write the catalog entry after your PR merges. Include what you know, leave out what you are unsure of.
+
+The example below is catalog metadata, not a checklist. `scripts/build-index.mjs` reads only `name`, `description`, `category`, `tags`, `version`, and `author` into `index.json`. Lists can be written as block lists or inline, like `tags: [a, b, c]`. You don't need to set or bump `version`: the repo versions releases with git tags.
 
 ```yaml
 ---
@@ -73,7 +77,7 @@ Before approving a skill that adds or changes a contract:
 
 ## Writing rules
 
-- No em dashes. Use a regular dash or a comma.
+- Prefer a regular dash or a comma over an em dash in new prose. The lint workflow reports each em dash in a body as a `WARN` line and still passes, so this is a preference, not a blocking check.
 - No marketing voice. Plain, direct, operator-facing.
 - Don't add filler like "Note that" or "It is important to".
 - Code blocks for commands. Inline code for filenames and CLI flags.
@@ -83,9 +87,8 @@ Before approving a skill that adds or changes a contract:
 
 1. Branch off `main`.
 2. Make the change in the relevant `<skill-name>/` folder.
-3. Bump `version` in frontmatter if behavior changed.
-4. Open a PR. CI runs the lint workflow, including the install smoke test, on every PR.
-5. After merge, a maintainer cuts a release: on `main`, one commit that regenerates `index.json` for the new tag and bumps the README's `ref="…"` line to match, then the commit and the tag pushed together. That release commit is the one thing here that does not go through a PR — it names a tag that does not exist yet, so CI cannot go green on it until the tag is pushed. The full procedure is in `README.md` under "Cutting a release". Your change ships to users at that release, not at merge.
+3. Open a PR. CI runs the lint workflow, including the install smoke test, on every PR.
+4. After merge, a maintainer cuts a release: on `main`, one commit that regenerates `index.json` for the new tag and bumps the README's `ref="…"` line to match, then the commit and the tag pushed together. That release commit is the one thing here that does not go through a PR — it names a tag that does not exist yet, so CI cannot go green on it until the tag is pushed. The full procedure is in `README.md` under "Cutting a release". Your change ships to users at that release, not at merge.
 
 ## Local checks
 

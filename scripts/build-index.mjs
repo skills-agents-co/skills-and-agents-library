@@ -195,7 +195,18 @@ function parseFrontmatter(raw) {
       continue;
     }
 
-    out[key] = stripQuotes(rest.trim());
+    const trimmed = rest.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      // inline flow list: `tags: [a, b, "c"]`
+      const inner = trimmed.slice(1, -1).trim();
+      out[key] = inner === ''
+        ? []
+        : inner.split(',').map((s) => stripQuotes(s.trim())).filter((s) => s !== '');
+      i++;
+      continue;
+    }
+
+    out[key] = stripQuotes(trimmed);
     i++;
   }
   return out;

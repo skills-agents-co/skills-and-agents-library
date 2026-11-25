@@ -3,8 +3,7 @@ name: drip-api
 description: Research Drip's premium financial newsletters and podcasts by searching topics, browsing sources, resolving named publications, newsletters, authors, podcast shows, Substack URLs, and direct article links, listing recent posts, presenting purchasable article options, fetching paid article summaries, and synthesizing or comparing selected paid articles. Also supports fetching structured stock picks for a given UTC day when users ask for stock recommendations, ticker-level long/short ideas, or analyst calls. Use for questions about finance commentary, analyst views, market themes, company or sector writeups, podcast/newsletter source discovery, stock picks, and paid Drip content. Paid post and stock-picks routes are gated by x402/MPP micropayments.
 tags: [substack, newsletter, newsletters, blog, article, articles, podcast, media, finance, financial-analysis, investing, investment-research, trading, markets, stocks, equities, stock-picks, research, micropayments]
 homepage: https://dripstack.xyz
-metadata:
-  version: 1.3
+version: "1.3.0"
 ---
 
 # Drip API
